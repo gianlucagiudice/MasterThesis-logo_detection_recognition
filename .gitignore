@@ -302,3 +302,6 @@ TSWLatexianTemp*
 
 # Macos file
 .DS_Store
+
+# Backup images
+images/*.bkp
