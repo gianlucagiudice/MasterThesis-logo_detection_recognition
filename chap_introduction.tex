@@ -2,6 +2,7 @@
 \label{chap:introduction}
 
 \section{Logo detection and recognition}
+\label{sec:logodet-intro}
 
 Logo detection and recognition is a Computer Vision (CV) task that consists in detecting logos in any type of image and classifying the detected logo, for example, by producing in output the brand name associated with that logo. 
 
@@ -37,7 +38,7 @@ Many real-world applications require incremental learning capabilities: intellig
 
 The goal of this thesis is to develop a system that can detect and recognize logos in an image. An important factor that will be considered is the ability to recognize those logos that were not available before training, and this will be possible by taking advantage of state of the art incremental learning techniques.
 
-The proposed system is conceptually simple, it consists of two deep learning models and follows a general pipeline for the task \cite{bianco2017deep}. The two main steps, shown in \autoref{fig:system-pipeline}, consist in:
+The proposed system is conceptually simple, it consists of two deep learning models and follows a pipeline composed of two main steps, shown in \autoref{fig:system-pipeline}:
 
 \begin{enumerate}
     \item \textbf{Object Proposal} for logo detection
