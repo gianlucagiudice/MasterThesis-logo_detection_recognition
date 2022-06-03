@@ -1,4 +1,5 @@
 \chapter{Methods}
 \label{chap:methods}
-% DA RIMUOVERE - LOREM IPSUM PER DIMOSTRAZIONE
-\foreignlanguage{english}{\Blindtext}
+
+% Pezzo interessante da inserire
+As discussed in the previous section, a key component of the system developed in this thesis is the class-agnostic logo detector. In this context, class-agnostic means that the number of classes is only one; in fact, in this work the detector will be responsible for detecting any generic logo (i.e., a single class). The bounding boxes of each logo produced in output by the detector will be referred to as region proposal. Assuming that each region produced in output by the detector is a logo in the image, it will be possible to crop the region of interest (ROI) and use that as the starting point for the classification, that will be delegated to the CIL classifier.

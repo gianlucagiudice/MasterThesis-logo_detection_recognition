@@ -1,4 +1,34 @@
 \chapter{State of the art}
 \label{chap:sota}
-% DA RIMUOVERE - LOREM IPSUM PER DIMOSTRAZIONE
-\foreignlanguage{english}{\Blindtext}
+
+\section{Object detection}
+Object detection is one of the most fundamental and challenging problems in computer vision \cite{zou2019object}. This task can be define as follows: given an image, determine whether or not there are instances of a predefined set of objects, usually referred as classes, and, if present, return the location of each instance \cite{liu2020deep}. The spatial location of an object in an image can be represented using bounding boxes.
+
+Object detection has initially been addressed using handcrafted features and shallow trainable architectures.
+With the rapid development in deep learning, more powerful techniques are used to address the problems existing in traditional architectures \cite{zhao2019object}. 
+
+As described in \cite{zhao2019object}, the frameworks of object detection methods can mainly be categorized into two types:
+\begin{enumerate}
+    \item Generating region proposals at first and then classifying each proposal into different object categories.
+    \item Adopting a unified framework to achieve final results (categories and locations) directly.
+\end{enumerate} 
+
+\subsection{YOLO}
+YOLO \cite{redmon2016you} is a model for object detection composed of a single neural network which treats object detection as a regression problem: given an image as input it produces bounding box coordinates and associated class probabilities. Since the predictions are performed directly on the input image without requiring complex pipelines, YOLO (you only look once) is very efficient and can lead to real-time object detection.
+
+In YOLO, the input image is divided into a $S \times S$ grid and the cell in which the center of the object falls is responsible for the detection of that object.
+A grid cell can predict more than one bounding box, where each prediction consists of an array composed by 5 elements: center of the bounding identified by the coordinates $x$ and $y$, dimensions of the box $w$ and $h$, and the confidence score of that bounding box representing and object. At the same time, regardless of the number of boxes in each cell, C conditional probabilities $\mathbb{P}(Class_i | Object)$ are computed in each grid cell. The final prediction will be encoded as an $S \times S \times (B * 5 + C)$ tensor.
+
+In the years, several versions of YOLO have came up, starting from the first up to fifth versions \cite{redmon2016you, redmon2017yolo9000, redmon2018yolov3, bochkovskiy2020yolov4, glenn_jocher_2021_5563715}. YOLOv5 represents the state of the art for object detection, and compared with the most recent detectors architectures it is among the best performing models \cite{zaidi2022survey}.
+
+
+\vspace{1.5\baselineskip}
+TODO ::: Spiegare meglio yolo e la sua loss!
+
+\section{Logo recognition}
+\section{Class incremental learning}
+Catastrophic forgetting
+\subsection{DER: an algorithm for class incremental learning}
+\subsubsection{Algorithm description}
+\subsubsection{Weight aligning}
+\subsubsection{Masking and pruning}
