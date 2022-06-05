@@ -61,7 +61,92 @@ problem \cite{serra2018overcoming, zhang2021few, mccloskey1989catastrophic}. Cat
 
 \subsection{Methods}
 
-The problem of CIL has been addressed using different methods, but these methods can be divided into three main categories and their sub-categories. The taxonomy and the list of algorithms is based on \cite{liu2021adaptive, delange2021continual}:
+
+
+\begin{figure}
+    \begin{center}
+
+        \begin{forest} for tree={align=center, inner sep=0pt}
+        [Class Incremental Learning (CIL)\\methods
+        [Replay\\methods
+            [Rehearsal
+            [
+                iCaRL \cite{rebuffi2017icarl}\\
+                ER \cite{rolnick2019experience}\\
+                SER \cite{isele2018selective}\\
+                TEM \cite{chaudhry2019continual}\\
+                CoPE \cite{de2021continual}
+            ]
+            ]
+            [Pseudo\\Rehearsal
+            [
+                DGR \cite{shin2017continual}\\
+                PR \cite{atkinson1802pseudo}\\
+                CCLUGM \cite{lavda2018continual}\\
+                LGM \cite{ramapuram2020lifelong}\\
+            ]
+            ] 
+            [Constrained
+            [
+                GEM \cite{lopez2017gradient}\\
+                A-GEM \cite{chaudhry2018efficient}\\
+                GSS \cite{aljundi2019online}\\
+            ]
+            ] 
+        ]
+        [Regularization-based\\methods
+        [Prior-focused 
+            [
+                EWC \cite{kirkpatrick2017overcoming}\\
+                IMM \cite{lee2017overcoming}\\
+                SI \cite{zenke2017continual}\\
+                R-EWC \cite{liu2018rotate}\\
+                MAS \cite{aljundi2018memory}\\
+                Riemannian Walk \cite{chaudhry2018riemannian}\\
+            ]
+        ]
+        [Data-focused 
+            [
+            LwF \cite{li2017learning}
+            LFL \cite{jung2016less}
+            EBLL \cite{rannen2017encoder}
+            DMC \cite{zhang2020class}
+            ]
+        ]
+        ]
+        [Parameter\\isolation methods
+        [Fixed\\Network
+            [
+                PackNet \cite{mallya2018packnet}
+                PathNet \cite{fernando2017pathnet}
+                Piggybak \cite{mallya2018piggyback}
+                HAT \cite{serra2018overcoming}
+            ]
+        ]
+        [Dynamic\\Network
+            [
+                PNN \cite{rusu2016progressive}
+                Expert Gate \cite{aljundi2017expert}
+                RCL \cite{xu2018reinforced}
+                DAN \cite{rosenfeld2018incremental}
+            ]    
+        ]]
+        ]
+        \end{forest}
+        
+             
+    \end{center}
+    \caption{CIL algorithms taxonomy presented in \cite{delange2021continual}.}
+    \label{fig:yolo-model}
+
+\end{figure}
+
+
+     
+
+The problem of CIL has been addressed using different methods, but these methods can be divided into three main categories and their sub-categories. The taxonomy and the list of algorithms is based on these publications \cite{liu2021adaptive, delange2021continual}:
+
+ 
 
 \begin{enumerate}
     \item \textbf{Replay methods}: These works stores samples of old classes which are replayed while learning a new task, by doing so it is possible to alleviate forgetting.
@@ -80,8 +165,8 @@ The problem of CIL has been addressed using different methods, but these methods
     \end{enumerate}
     \item \textbf{Parameter isolation methods}: This class of methods use different model parameters for each task.
     \begin{enumerate}
-        \item \textit{Dynamic Architectures} \cite{rusu2016progressive, xu2018reinforced, aljundi2017expert, rosenfeld2018incremental}: The model architecture dynamically change after each incremental task, and the old parameters are freezed to prevent forgetting. Another approach is to dedicate a model to each incremental task
         \item \textit{Fixed Network} \cite{mallya2018packnet, mallya2018piggyback, serra2018overcoming, fernando2017pathnet}: The model architecture is kept fixed and the knowledge is updated involving masks for the parameters' weights.
+        \item \textit{Dynamic Architectures} \cite{rusu2016progressive, xu2018reinforced, aljundi2017expert, rosenfeld2018incremental}: The model architecture dynamically change after each incremental task, and the old parameters are freezed to prevent forgetting. Another approach is to dedicate a model to each incremental task
     \end{enumerate}
 \end{enumerate}
 
