@@ -46,7 +46,45 @@ The issue with this approaches is the closed-world assumption which does not app
 Another work based on DML has been presented by Li et al. \cite{li2022seetek} and can be considered as an extension to \cite{fehervari2019scalable}. In this work the author enrich the latent space learned by DML with text features contained in the logos. The authors point out how many logos have remarkable amount of text or (stylized) letters, for this reason they consider both visual and text features for logo classification.
 
 \section{Class incremental learning}
-Catastrophic forgetting
+Traditional supervised learning systems are trained in closed-world for a fixed
+number of classes, that requires all the training data to be available before training.
+The problem of class incremental learning (CIL) aims to design algorithms that can learn new concepts in a sequential way and eventually perform well on all observed classes \cite{yan2021dynamically}.
+
+To extend a trained model on new classes, a large amount of labeled data for both new
+and old classes is necessary for network finetuning. Otherwise, if the dataset of old classes is no
+longer available, directly finetuning a deployed model with
+new classes can lead to the catastrophic forgetting
+problem \cite{serra2018overcoming, zhang2021few, mccloskey1989catastrophic}. Catastrophic forgetting means that a neural network degrades performance on old classes when retrained on new ones.
+
+\subsection{Problem formulation}
+
+
+\subsection{Methods}
+
+The problem of CIL has been addressed using different methods, but these methods can be divided into three main categories and their sub-categories. The taxonomy and the list of algorithms is based on \cite{liu2021adaptive, delange2021continual}:
+
+\begin{enumerate}
+    \item \textbf{Replay methods}: These works stores samples of old classes which are replayed while learning a new task, by doing so it is possible to alleviate forgetting.
+    The samples are either reused as model inputs for rehearsal, or to constrain optimization of the new task loss to prevent previous task interference.
+
+    \begin{enumerate}
+        \item \textit{Rehearsal} \cite{rebuffi2017icarl, rolnick2019experience, isele2018selective, chaudhry2019continual, de2021continual}: The model is retrained on a limited subset of stored samples.
+        \item \textit{Pseudo Rehearsal} \cite{shin2017continual, atkinson1802pseudo, lavda2018continual, ramapuram2020lifelong}: Approximate previous tasks samples using either random input vector or more advanced techniques like generative models with the drawback of adding complexity to the system pipeline.
+        \item \textit{Constrained optimization} \cite{lopez2017gradient, chaudhry2018efficient, aljundi2019online}: Update model's weights for the new task in such a way to not interfere with previous task weights.
+    \end{enumerate}
+    
+    \item \textbf{Regularization-based methods}: These works do not store raw data and reduce the memory requirements. An extra regularization term is introduced in the loss function, in this way it is possible to learn new classes while maintaining the previous knowledge.
+    \begin{enumerate}
+        \item \textit{Prior-focused methods} \cite{kirkpatrick2017overcoming, lee2017overcoming, zenke2017continual, liu2018rotate, aljundi2018memory, chaudhry2018riemannian}: This approach tries to estimate the importance of the neural network parameters to avoid forgetting as much as possible. Then, when training on new tasks, the optimization process penalizes changes to important weights.
+        \item \textit{Data-focused methods} \cite{li2017learning, jung2016less, zhang2020class, rannen2017encoder}: This approach uses knowledge distillation \cite{hinton2015distilling} treating the old model trained on the previous task as the teacher, and use it combined with the new data to train the student model.
+    \end{enumerate}
+    \item \textbf{Parameter isolation methods}: This class of methods use different model parameters for each task.
+    \begin{enumerate}
+        \item \textit{Dynamic Architectures} \cite{rusu2016progressive, xu2018reinforced, aljundi2017expert, rosenfeld2018incremental}: The model architecture dynamically change after each incremental task, and the old parameters are freezed to prevent forgetting. Another approach is to dedicate a model to each incremental task
+        \item \textit{Fixed Network} \cite{mallya2018packnet, mallya2018piggyback, serra2018overcoming, fernando2017pathnet}: The model architecture is kept fixed and the knowledge is updated involving masks for the parameters' weights.
+    \end{enumerate}
+\end{enumerate}
+
 \subsection{DER: an algorithm for class incremental learning}
 \subsubsection{Algorithm description}
 \subsubsection{Weight aligning}
