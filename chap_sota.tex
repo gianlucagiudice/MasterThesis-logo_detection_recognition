@@ -2,6 +2,7 @@
 \label{chap:sota}
 
 \section{Object detection}
+
 Object detection is one of the most fundamental and challenging problems in computer vision \cite{zou2019object}. This task can be define as follows: given an image, determine whether or not there are instances of a predefined set of objects, usually referred as classes, and, if present, return the location of each instance \cite{liu2020deep}. The spatial location of an object in an image can be represented using bounding boxes.
 
 Object detection has initially been addressed using handcrafted features and shallow trainable architectures.
@@ -27,9 +28,38 @@ YOLO \cite{redmon2016you} is a model for object detection composed of a single n
 In YOLO, the input image is divided into a $S \times S$ grid and the cell in which the center of the object falls is responsible for the detection of that object.
 A grid cell can predict more than one bounding box, where each prediction consists of an array composed by 5 elements: center of the bounding identified by the coordinates $x$ and $y$, dimensions of the box $w$ and $h$, and the confidence score of that bounding box representing and object. At the same time, regardless of the number of boxes in each cell, C conditional probabilities $\Pr(Class_i | Object)$ are computed in each grid cell. The final prediction will be encoded as an $S \times S \times (B * 5 + C)$ tensor. The model pipeline is shown in \autoref{fig:yolo-model}
 
+The model is trained via the optimization of the following loss function:
 
-\vspace{1.5\baselineskip}
-::: TODO ::: Spiegare la loss di YOLO!
+\begin{equation}\label{eq:yolo-loss}
+    \begin{split}
+        \mathcal{L} \quad =  \quad  &
+            \lambda_{coord} \sum_{i=0}^{S^2} \sum_{j=0}^{B} \mathbb{1}_{ij}^{obj}
+            [(x_i - \hat x_i)^2 + (y_i - \hat y_i)^2]\\
+            \quad + \quad & \lambda_{coord} \sum_{i=0}^{S^2} \sum_{j=0}^{B} \mathbb{1}_{ij}^{obj}
+                [(\sqrt{w_i} - \sqrt{\hat w_i})^2 + (\sqrt{h_i} - \sqrt{\hat h_i})^2]\\
+            \quad + \quad & \sum_{i=0}^{S^2} \sum_{j=0}^{B} \mathbb{1}_{ij}^{obj}
+                (C_i - \hat C_i)^2 \; + \; \lambda_{noobj} \sum_{i=0}^{S^2} \sum_{j=0}^{B} \mathbb{1}_{ij}^{noobj}(C_i - \hat C_i)^2\\
+            \quad + \quad & \sum_{i=0}^{S^2} \mathbb{1}_{i}^{obj} \sum_{c \in classes}
+                (p_i(c) - \hat p_i (c))^2\\
+    \end{split}
+\end{equation}
+where,
+\begin{align*}
+    \mathbb{1}_{ij}&=\left\{
+        \begin{array}{@{}ll@{}}
+            1, & \text{if the } j \text{-th bbox in cell } i \text{ is responsible fot that prediction}\\
+            0, & \text{otherwise}
+        \end{array}\right.\\
+    \mathbb{1}_{i}&=\left\{
+        \begin{array}{@{}ll@{}}
+            1, & \text{if there is an object in cell}\ i \\
+            0, & \text{otherwise}
+        \end{array}\right.
+\end{align*}
+
+
+The loss function in \autoref{eq:yolo-loss} considers both detection and classification. A bounding box can be defined by its center in addition to the height and width. The first row of the loss function is responsible for minimizing the difference between the predicted center and the ground truth, and the second row minimize the difference between width and height.
+The third row penalizes the neural network if it predicts an object whereas it is not present and vice versa. The last row of the loss function is the mean squared error between the real class and the predicted one, hence it is responsible to match the real class.
 
 
 Over the years, several versions of YOLO have came up, starting from the first up to fifth versions \cite{redmon2016you, redmon2017yolo9000, redmon2018yolov3, bochkovskiy2020yolov4, glenn_jocher_2021_5563715}. YOLOv5 represents the state of the art for object detection, and compared with the most recent detectors architectures it is among the best performing models \cite{zaidi2022survey}.
@@ -56,16 +86,26 @@ longer available, directly finetuning a deployed model with
 new classes can lead to the catastrophic forgetting
 problem \cite{serra2018overcoming, zhang2021few, mccloskey1989catastrophic}. Catastrophic forgetting means that a neural network degrades performance on old classes when retrained on new ones.
 
-\subsection{Problem formulation}
-
-
-\subsection{Methods}
-
+\subsection{Problem setup}
 
 
 \begin{figure}
     \begin{center}
-        \begin{forest} for tree={align=center, inner sep=0pt}
+        \includegraphics[width=0.9\columnwidth]{images/cil-setup.png}
+    \end{center}
+    \caption{General CIL setup \cite{zhou2021pycil}.}
+    \label{fig:cil-setup}
+\end{figure}
+
+During the class incremental learning, a stream of class groups $\{\mathcal{Y}_t\}$ and their corresponding training data $\{\mathcal{D}_t\}$ are observed by the model. At step $t$, the incoming dataset $\{\mathcal{D}_t\}$ is of the form $(\textbf{x}_{\textbf{i}}^{\textbf{i}}, y_i^t)$ where $\textbf{x}_{\textbf{i}}^{\textbf{i}}$ is the input image and $y_i^t \in \mathcal{Y}_t$ is the label set $\mathcal{Y}_t$. The label space of the model consists in all the seen categories $\tilde{\mathcal{Y}}_t = \cup_{i=1}^t \mathcal{Y}_i$ and a good model should predict well on all classes $\tilde{\mathcal{Y}}_t$. As described in \autoref{sec:cil-methods}, some CIL algorithms save a part of data at timestamp $t$ as the memory $\mathcal{M}_t$ for future training. The CIL setup is shown in \autoref{fig:cil-setup}
+
+\subsection{Methods}
+\label{sec:cil-methods}
+
+
+\begin{figure}
+    \centerline{
+        \begin{forest} for tree={align=center, inner sep=2pt}
         [Class Incremental Learning (CIL)\\methods
         [Replay\\methods
             [Rehearsal
@@ -132,17 +172,16 @@ problem \cite{serra2018overcoming, zhang2021few, mccloskey1989catastrophic}. Cat
         ]]
         ]
         \end{forest}
-    \end{center}
-
+    }
     \caption{CIL algorithms taxonomy presented in \cite{delange2021continual}.}
-    \label{fig:yolo-model}
+    \label{fig:cil-taxonomy}
 
 \end{figure}
 
 
      
 
-The problem of CIL has been addressed using different methods, but these methods can be divided into three main categories and their sub-categories. The taxonomy and the list of algorithms is based on these publications \cite{liu2021adaptive, delange2021continual}:
+The problem of CIL has been addressed using different methods, but these methods can be divided into three main categories and their sub-categories. The taxonomy and the list of algorithms, summarized in the \autoref{fig:cil-taxonomy}, is based on these publications \cite{liu2021adaptive, delange2021continual}:
 
  
 
@@ -167,6 +206,67 @@ The problem of CIL has been addressed using different methods, but these methods
         \item \textit{Dynamic Architectures} \cite{rusu2016progressive, xu2018reinforced, aljundi2017expert, rosenfeld2018incremental}: The model architecture dynamically change after each incremental task, and the old parameters are freezed to prevent forgetting. Another approach is to dedicate a model to each incremental task
     \end{enumerate}
 \end{enumerate}
+
+Since there are several different algorithms for CIL, the work presented by Zhou et al. in \cite{zhou2021pycil} aims to compare a subset of these algorithms considering the same experimental setup. To this purpose, they publish a repository\footnote{PyCIL GitHub repository: \href{https://github.com/G-U-N/PyCIL}{https://github.com/G-U-N/PyCIL}}
+on GitHub where they introduce \textit{PyCIL: A Python Toolbox for Class-Incremental Learning}, which is an implementation of all the following algorithms:
+
+\begin{itemize}
+    \item \textbf{Finetune}: The baseline method which simply updates parameters on new tasks and
+    suffers from severe catastrophic forgetting.
+    \item \textbf{Replay}: The baseline method which updates parameters on new task with instances
+    from the new dataset and exemplar set.
+    \item \textbf{EWC} \cite{kirkpatrick2017overcoming}: Uses Fisher Information Matrix to weigh the
+    importance of each parameter and regularizes important parameters to overcome forgetting.
+    \item \textbf{LwF} \cite{li2017learning}: Uses knowledge distillation (Hinton et al., 2015) to
+    align the output probability between old and new model.
+    \item \textbf{iCaRL} \cite{rebuffi2017icarl}: Uses knowledge distillation (Hinton et al., 2015) to
+    align the output probability between old and new model. Besides, it also introduces
+    exemplar set for rehearsal and uses nearest center mean classifier.
+    \item \textbf{GEM} \cite{lopez2017gradient}: Uses exemplars as the regularization of
+    gradient updating.
+    \item \textbf{BiC} \cite{wu2019large}: Trains an extra adaptation layer based on iCaRL, which
+    adjusts the logits on new classes.
+    \item \textbf{WA} \cite{zhao2020maintaining}: Normalizes the classifier weight after each learning session
+    based on iCaRL.
+    \item \textbf{PODNet} \cite{douillard2020podnet}: Introduces a novel distillation loss (Pooled
+    Outputs Distillation) constraining the whole convolutional network.
+    \item \textbf{DER} \cite{yan2021dynamically}: A two-stage learning approach that utilizes a dynamically
+    expandable representation for more effective incremental concept modeling.
+    \item \textbf{Coil} \cite{zhou2021co}: Builds bi-directional knowledge transfer in the classincremental learning process with optimal transport (Villani, 2008). It first addresses
+    the ability that old model can help learning new classes.
+\end{itemize}
+
+The CIL algorithms are tested on two different benchmark datasets, i.e. CIFAR100 and ImageNet100. These datasets are composed of 100 classes and the experiments performed by \cite{zhou2021pycil} adopt this CIL setup: 10 classes for the initial stage followed by 9 incremental learning iterations consisting of 10 new classes. Then, the top-1 accuracy is reported for all the incremental stages.
+The results are shown in \autoref{fig:cil-comaprison} and the top-1 accuracy at the final stage is reported in \autoref{table:cil-results}.
+
+
+\begin{table}
+    \centering
+    \begin{tabular}{c c} 
+     \hline
+     \textbf{Method} & \textbf{Top-1 accuracy} \\
+     & \textbf{(last stage)}\\
+     \hline
+     Finetune & 26.25 \\ 
+    Replay & 59.31 \\ 
+    GEM & 40.18 \\ 
+    LwF & 43.56 \\ 
+    iCaRL & 64.42 \\ 
+    EWC & 29.73 \\ 
+    WA & 67.09 \\ 
+    PODNet & 55.22 \\ 
+    BiC & 65.08 \\ 
+    Coil & 65.48 \\ 
+    DER & 69.74 \\ 
+
+     \hline
+    \end{tabular}
+    \caption{Top-1 accuracy of the CIL algorithms at the $10$-th incremental stage using the CIFAR100 dataset. \cite{zhou2021pycil}.}
+    \label{table:cil-results}
+    \end{table}
+
+From the results reported by \cite{zhou2021pycil} in \autoref{fig:cil-comaprison} it is clear that 
+
 
 \subsection{DER: an algorithm for class incremental learning}
 \subsubsection{Algorithm description}
