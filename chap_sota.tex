@@ -239,6 +239,14 @@ on GitHub where they introduce \textit{PyCIL: A Python Toolbox for Class-Increme
 The CIL algorithms are tested on two different benchmark datasets, i.e. CIFAR100 and ImageNet100. These datasets are composed of 100 classes and the experiments performed by \cite{zhou2021pycil} adopt this CIL setup: 10 classes for the initial stage followed by 9 incremental learning iterations consisting of 10 new classes. Then, the top-1 accuracy is reported for all the incremental stages.
 The results are shown in \autoref{fig:cil-comaprison} and the top-1 accuracy at the final stage is reported in \autoref{table:cil-results}.
 
+\begin{figure}%
+	\centering
+	\subfloat[\centering 10 stage on CIFAR100]{{\includegraphics[width=0.45\textwidth]{images/cil-cifar.png} }}%
+	\hfill
+	\subfloat[\centering 10 stage on ImageNet100]{{\includegraphics[width=0.45\textwidth]{images/cil-imagenet} }}%
+	\caption{Performance comparison of the CIL algorithms during 10 stages on CIFAR100 and ImageNet100 datasets \cite{zhou2021pycil}.}%
+	\label{fig:cil-comaprison}%
+\end{figure}
 
 \begin{table}
     \centering
@@ -261,14 +269,15 @@ The results are shown in \autoref{fig:cil-comaprison} and the top-1 accuracy at 
 
      \hline
     \end{tabular}
-    \caption{Top-1 accuracy of the CIL algorithms at the $10$-th incremental stage using the CIFAR100 dataset. \cite{zhou2021pycil}.}
+    \caption{Top-1 accuracy of the CIL algorithms at the $10$-th incremental stage using the CIFAR100 dataset \cite{zhou2021pycil}.}
     \label{table:cil-results}
     \end{table}
 
-From the results reported by \cite{zhou2021pycil} in \autoref{fig:cil-comaprison} it is clear that 
+From the final results reported by \cite{zhou2021pycil} in \autoref{table:cil-results} it is clear that the best performing algorithm on the considered datasets is DER \cite{yan2021dynamically}.
 
 
 \subsection{DER: an algorithm for class incremental learning}
+DER 
 \subsubsection{Algorithm description}
 \subsubsection{Weight aligning}
 \subsubsection{Masking and pruning}
