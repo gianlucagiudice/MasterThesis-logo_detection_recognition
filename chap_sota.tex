@@ -84,7 +84,7 @@ To extend a trained model on new classes, a large amount of labeled data for bot
 and old classes is necessary for network finetuning. Otherwise, if the dataset of old classes is no
 longer available, directly finetuning a deployed model with
 new classes can lead to the catastrophic forgetting
-problem \cite{serra2018overcoming, zhang2021few, mccloskey1989catastrophic}. Catastrophic forgetting means that a neural network degrades performance on old classes when retrained on new ones.
+problem \cite{serra2018overcoming, zhang2021few, mccloskey1989catastrophic}. Catastrophic forgetting means that a Deep Neural Network (DNN) degrades performance on old classes when retrained on new ones.
 
 \subsection{Problem setup}
 
@@ -279,7 +279,20 @@ From the final results reported by \cite{zhou2021pycil} in \autoref{table:cil-re
 \subsection{DER: an algorithm for class incremental learning}
 DER (dynamically expandable representation) is an algorithm for class incremental based on a two-stage learning approach that utilizes a dynamically expandable representation and uses a limited memory for the old classes introduced in each incremental task. The system proposed in this thesis takes advantage of this algorithm for what concerns the incremental learning aspect (see \autoref{sec:method-cil}).
 
-As described in \cite{yan2021dynamically}, the algorithm can be divided into three stages:
+
+\begin{figure}%
+	\centering
+
+    \begin{center}
+        \includegraphics[width=\columnwidth]{images/der-pipeline.png}
+    \end{center}
+
+	\caption{Dynamically Expandable Representation Learning method \cite{yan2021dynamically}.}%
+	\label{fig:der-pipeline}%
+\end{figure}
+
+
+The DER algorithm described in \cite{yan2021dynamically} can be divided into three stages (see \autoref{fig:der-pipeline}):
 \begin{enumerate}
     \item \textbf{Representation Learning Stage}: the architecture of the Convolutional Neural Network (CNN) is dynamically expanded at each new incremental learning iteration.
     \item \textbf{Masking and Pruning}: the CNN introduced in the last incremental learning stage is pruned using a channel-level masked-based method.
@@ -287,23 +300,20 @@ As described in \cite{yan2021dynamically}, the algorithm can be divided into thr
 \end{enumerate}
 
 \subsubsection{Expandable Representation Learning}
-At step $t$ of the incremental learning, the algorithm defines a super-feature extractor $\Phi_t$ and the classifier $\mathcal{H}_t$. The algorithm expand the neural network architecture at each step by considering the previous super-feature extractor $\mathcal{H}_{t-1}$ and a newly created feature extractor $\mathcal{F}_t$.
+At step $t$ of the incremental learning, the algorithm defines a super-feature extractor $\Phi_t$ and the classifier $\mathcal{H}_t$. The algorithm expand the neural network architecture at each step by considering the previous super-feature extractor $\Phi_{t-1}$ and a newly created feature extractor $\mathcal{F}_t$. The feature extractor $\mathcal{F}_t$ consists of a Convolutional Neural Network (CNN), and the classifier $\mathcal{H}_t$ is a Fully Connected (FC) layer after the super-feature extractor $\Phi_t$.
 
 Given an image $\textbf{x} \in \tilde{\mathcal{D}}_t$, the feature $u$ extracted by $\Phi_t$ is the result of the following concatenation:
 \begin{equation}
     \textbf{u} = \Phi_t(\textbf{x}) = [\Phi_{t-1}(\textbf{x}), \mathcal{F}_t(x)]
 \end{equation}
-
 The feature $\textbf{u}$ is then fed into the classifier $\mathcal{H}_t$, which is defined in such a way that the input and output dimensions for step $t$ match. Then, the prediction is produced as follows:
 \begin{equation} \label{eq:classification}
     p_{\mathcal{H}_t}(\textbf{y} | \textbf{x}) = \text{Softmax}(\mathcal{H}_t(\textbf{u}))
 \end{equation}
-
 Finally, the actual predicted class is given by:
 \begin{equation}
     \hat{y} = \argmax \mathcal{H}_t(\textbf{y} | \textbf{x}), \quad \hat{y} \in \tilde{\mathcal{Y}}_t
 \end{equation}
-
 The stability-plasticity tradeoff is taken into account considering these two aspects:
 \begin{itemize}
     \item To \textbf{retain old knowledge}, the parameters of $\mathcal{H}_t$ for the old features are inherited from $\mathcal{H}_{t-1}$, and its newly added parameters are randomly initialized.
@@ -325,12 +335,10 @@ Given a new feature extractor $\mathcal{F}_t$, the input feature map of the conv
 \begin{equation}
     \textbf{f}_l \kern 0.05em ' = \textbf{f}_l \odot \textbf{m}_l
 \end{equation}
-
 where $\textbf{f}_l \kern 0.05em '$ is the masked feature map and $\odot$ means channel-level multiplication. To make the value of $\textbf{m}_l$ fall into the interval $[0,1]$, the masks is given by:
 \begin{equation}
     \textbf{m}_l = \sigma(s \textbf{e}_l)
 \end{equation}
-
 where $\textbf{e}_l$ is the learnable mask parameters, $\sigma(\cdot)$ is the sigmoid used as gating function, and $s$ is a scaling factor to control the sharpness of the function.
 
 
@@ -387,4 +395,70 @@ The final loss function is given by the weighted average of \autoref{eq:loss1}, 
 where $\lambda_a$ and $\lambda_s$ are the hyper-parameter to control the effect of the auxiliary classifier and the pruning aspect.
 
 \section{Weight aligning}
+Weight aligning (WA) proposed in \cite{zhao2020maintaining} is a method to alleviate catastrophic forgetting in (DNN). In their work the authors show how a model trained for a CIL task tends
+to classify objects into new classes, treating old classes unfairly. This is due to the weights
+in the trained model's FC layer which are heavily biased. WA aims to correct bias in the FC layer.
 
+\subsubsection{Biased Weights in the FC Layer}
+\label{sec:wa-biased}
+At the $t$-th incremental learning step, the model is given by:
+\begin{equation}
+    o(\textbf{x}) = \textbf{W}^T \Phi(\textbf{x})
+\end{equation}
+where:
+\begin{itemize}
+    \item $\Phi(\textbf{x})$ is the feature extractor which output a $d$-dimensional feature vector.
+    \item $o(\textbf{x})$ is the ($C_{old}^t + C^t$)-dimensional vector of the logits produced in output by the model. $C_{old}^t$ and $C^t$ represent respectively the number of old and new classes at the $t$-th incremental stage. 
+    \item $W \in \mathbb{R}^{d \times (C_{old}^t + C^t)}$ represents the parameters of the FC layer. $W$ can be espressed as $W = {w_c, \, 1 \leq c \leq C_{old}^b + C^b}$, where $w_c$ is a $d$-dimensional weight vector for the $c^{th}$ class.
+\end{itemize}
+The output logits for the $c^{th}$ class is calculated as:
+\begin{equation}
+    o_c(\textbf{x}) = \textbf{w}_c^T \Phi (\textbf{x})
+\end{equation}
+The motivation behind WA is the observation that the norms of weight vectors for new classes are larger, thus leading the output logits for new classes to be larger in general. As a result, the biased FC layer in the model tends to predict an input image as belonging to a new class. This analysis emerges from the experiments performed in \cite{zhao2020maintaining} shown in \autoref{fig:wa-biased}.
+\begin{figure}%
+    \hspace*{-1.25 cm}
+	\subfloat[$C^0=20,C_{old}^0=0$]{{\includegraphics[width=0.22\textwidth]{images/wa-biased_1.png} }}
+	\subfloat[$C^1=20,C_{old}^1=20$]{{\includegraphics[width=0.22\textwidth]{images/wa-biased_2.png} }}
+	\subfloat[$C^2=20,C_{old}^2=40$]{{\includegraphics[width=0.22\textwidth]{images/wa-biased_3.png} }}
+	\subfloat[$C^3=20,C_{old}^3=60$]{{\includegraphics[width=0.22\textwidth]{images/wa-biased_4.png} }}
+	\subfloat[$C^4=20,C_{old}^4=80$]{{\includegraphics[width=0.22\textwidth]{images/wa-biased_5.png} }}
+	\caption{Norm of the weight vectors $\{\textbf{w}_c\}$ after each incremental step. (a) Represents the initial step; (b), (c), (d), (e) are the $1^{st}$, $2^{nd}$, $3^{rd}$ and $4^{th}$ incremental step. The figure show the difference in the norms of the weight between the old and new classes \cite{zhao2020maintaining}.}%
+	\label{fig:wa-biased}
+\end{figure}
+
+\subsubsection{Correct the biased weights in the FC Layer}
+The bias in the weights of the FC layer described in \autoref{sec:wa-biased} is corrected using the WA tec.  The FC layer can be rewritten as $\textbf{W} = (\textbf{W}_{old}, \textbf{W}_{new})$, where 
+$$\textbf{W}_{old} = (\textbf{w}_1, \textbf{w}_2, \, ..., \textbf{w}_{C_{old}^t}) \in \mathbb{R}^{d \times C_{old}^t},$$
+$$\textbf{W}_{new} = (\textbf{w}_{C_{old}^t + 1}, \, ..., \textbf{w}_{C_{old}^t + C^t}) \in \mathbb{R}^{d \times C^t}.$$
+The norms of the weight vectors of old and new classes can be denoted by:
+$$\textbf{Norm}_{old} = (\| \textbf{w}_1 \|,  \, ..., \| \textbf{w}_{C_{old}^t \|}),$$
+$$\textbf{Norm}_{new} = (\| \textbf{w}_{C_{old}^t + 1} \|, \, ..., \| \textbf{w}_{C_{old}^t + C^t} \|).$$
+Then, the weights for new classes is normalized as follows:
+\begin{equation}
+    \hat{\textbf{W}}_{new} = \gamma \cdot \textbf{W}_{new}
+\end{equation}
+where
+\begin{equation}
+    \gamma = \frac{Mean(\textbf{Norm}_{old} )}{Mean(\textbf{Norm}_{new})}
+\end{equation}
+$Mean(\cdot)$ returns the mean value of elements in the vector.
+
+This correction on the FC layer directly affects the output logits produced by the model. In fact, the output logits of the model before WA can be expressed as:
+\begin{equation}
+    \begin{split}
+        \textbf{o}(\textbf{x}) = &\; (\textbf{o}_{old}(\textbf{x}), \textbf{o}_{new}(\textbf{x}))^T \\
+        = &\; (\textbf{W}_{old}^T \Phi(\textbf{x}), \textbf{W}_{new}^T \Phi(\textbf{x}) )^T
+    \end{split}
+\end{equation}
+after applying WA on the FC, the corrected output logits are given by:
+\begin{equation}
+    \begin{split}
+        \textbf{o}_{corrected}(\textbf{x})
+        = &\; (\textbf{W}_{old}^T \Phi(\textbf{x}), \hat{\textbf{W}}_{new}^T \Phi(\textbf{x}))^T \\
+        = &\; (\textbf{W}_{old}^T \Phi(\textbf{x}), \gamma \cdot \textbf{W}_{new}^T \Phi(\textbf{x}))^T \\
+        = &\; (\textbf{o}_{old}(\textbf{x}), \gamma \cdot \textbf{o}_{new}(\textbf{x}))^T
+    \end{split}
+\end{equation}
+
+The final effect of aligning the weights is to rescale the output logits of new classes, thus leading to a fair classification between old and new classes.
