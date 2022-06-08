@@ -273,11 +273,118 @@ The results are shown in \autoref{fig:cil-comaprison} and the top-1 accuracy at 
     \label{table:cil-results}
     \end{table}
 
-From the final results reported by \cite{zhou2021pycil} in \autoref{table:cil-results} it is clear that the best performing algorithm on the considered datasets is DER \cite{yan2021dynamically}.
+From the final results reported by \cite{zhou2021pycil} in \autoref{table:cil-results} it is clear that the best performing algorithm on the considered datasets is DER \cite{yan2021dynamically}. Moreover, even if the authors of PyCIL re-implement the DER algorithm, they point out how the performance obtained from the implementation of PyCIL are very similar to that reported in the original DER paper (69.74 top-1 accuracy in PyCIL vs 69.41 reported by the DER paper).
 
 
 \subsection{DER: an algorithm for class incremental learning}
-DER 
-\subsubsection{Algorithm description}
-\subsubsection{Weight aligning}
+DER (dynamically expandable representation) is an algorithm for class incremental based on a two-stage learning approach that utilizes a dynamically expandable representation and uses a limited memory for the old classes introduced in each incremental task. The system proposed in this thesis takes advantage of this algorithm for what concerns the incremental learning aspect (see \autoref{sec:method-cil}).
+
+As described in \cite{yan2021dynamically}, the algorithm can be divided into three stages:
+\begin{enumerate}
+    \item \textbf{Representation Learning Stage}: the architecture of the Convolutional Neural Network (CNN) is dynamically expanded at each new incremental learning iteration.
+    \item \textbf{Masking and Pruning}: the CNN introduced in the last incremental learning stage is pruned using a channel-level masked-based method.
+    \item \textbf{Classifier Learning Stage}: Retrain the classifier with currently available data $\tilde{\mathcal{D}}_t = \mathcal{D}_t \cup \mathcal{M}_t$ at step $t$.
+\end{enumerate}
+
+\subsubsection{Expandable Representation Learning}
+At step $t$ of the incremental learning, the algorithm defines a super-feature extractor $\Phi_t$ and the classifier $\mathcal{H}_t$. The algorithm expand the neural network architecture at each step by considering the previous super-feature extractor $\mathcal{H}_{t-1}$ and a newly created feature extractor $\mathcal{F}_t$.
+
+Given an image $\textbf{x} \in \tilde{\mathcal{D}}_t$, the feature $u$ extracted by $\Phi_t$ is the result of the following concatenation:
+\begin{equation}
+    \textbf{u} = \Phi_t(\textbf{x}) = [\Phi_{t-1}(\textbf{x}), \mathcal{F}_t(x)]
+\end{equation}
+
+The feature $\textbf{u}$ is then fed into the classifier $\mathcal{H}_t$, which is defined in such a way that the input and output dimensions for step $t$ match. Then, the prediction is produced as follows:
+\begin{equation} \label{eq:classification}
+    p_{\mathcal{H}_t}(\textbf{y} | \textbf{x}) = \text{Softmax}(\mathcal{H}_t(\textbf{u}))
+\end{equation}
+
+Finally, the actual predicted class is given by:
+\begin{equation}
+    \hat{y} = \argmax \mathcal{H}_t(\textbf{y} | \textbf{x}), \quad \hat{y} \in \tilde{\mathcal{Y}}_t
+\end{equation}
+
+The stability-plasticity tradeoff is taken into account considering these two aspects:
+\begin{itemize}
+    \item To \textbf{retain old knowledge}, the parameters of $\mathcal{H}_t$ for the old features are inherited from $\mathcal{H}_{t-1}$, and its newly added parameters are randomly initialized.
+    \item To \textbf{reduce catastrophic forgetting}, the parameters $\theta_{\Phi_{t-1}}$ and the statistics of Batch Normalization \cite{ioffe2015batch} of the old super-feature extractor $\Phi_{t-1}$ are freezed at step $t$, in this way it is possible to maintain the previously learned knowledge.
+\end{itemize}
+
+
+To force the network to learn new and discriminative features at each incremental step, the authors of the algorithm introduce an auxiliary classifier $\mathcal{H}_t^a$. The label space of $\mathcal{H}_t^a$ is $|\mathcal{Y}_t| + 1$, corresponding to the the set $\mathcal{Y}_t$ of all new categories, and treating all the old concepts as a single category. This is done to encourage the network to learn features which discriminate old and new concepts. The classifier $\mathcal{H}_t^a$ predicts the probability:
+\begin{equation} \label{eq:loss-aux}
+    p_{\mathcal{H}_t^a}(\textbf{y}|\textbf{x}) = \text{Softmax}(\mathcal{H}_t^a(\mathcal{F}(\textbf{x})))
+\end{equation}
+
 \subsubsection{Masking and pruning}
+To maintain a compact representation of the model and remove redundancy, the super-feature extractor is pruned after the training of each stage $t$, the method proposed by the authors is adapted from \cite{serra2018overcoming}. This is done using a differentiable channel-level mask-based method to prune filters of the extractor $\mathcal{F}_t$, in which
+the masks are learned with the representation jointly. The mask is then binarized after the learning procedure, and the feature extractor $\mathcal{F}_t$ is pruned using the binary mask, producing in output the pruned network $\mathcal{F}_t^{P}$.
+
+Given a new feature extractor $\mathcal{F}_t$, the input feature map of the convolutional layer $l$ for an image $\textbf{x}$ is denoted as $\textbf{f}_l$. The channel mask $\textbf{m}_l \in \mathbb{R}^{\mathcal{c}_l}$ controls the size of the layer $l$, where $m_l^i \in [0, 1]$ and $c_l$ is the number of channels of layer $l$. The mask $m_l$ is used to modulate $f_l$ as follows:
+
+\begin{equation}
+    \textbf{f}_l \kern 0.05em ' = \textbf{f}_l \odot \textbf{m}_l
+\end{equation}
+
+where $\textbf{f}_l \kern 0.05em '$ is the masked feature map and $\odot$ means channel-level multiplication. To make the value of $\textbf{m}_l$ fall into the interval $[0,1]$, the masks is given by:
+\begin{equation}
+    \textbf{m}_l = \sigma(s \textbf{e}_l)
+\end{equation}
+
+where $\textbf{e}_l$ is the learnable mask parameters, $\sigma(\cdot)$ is the sigmoid used as gating function, and $s$ is a scaling factor to control the sharpness of the function.
+
+
+Using the pruning mechanism, the super-feature $\tilde{\textbf{u}}$ of step $t$ can be rewritten as:
+\begin{equation}
+    \tilde{\textbf{u}} = \Phi_t^P(\textbf{x}) = [\mathcal{F}_1^P, \mathcal{F}_2^P,\, ..., \phi(\textbf{x})]
+\end{equation}
+
+During the training $phi_t(\textbf{x})$ corresponds to $\mathcal{F}_t(\textbf{x})$ with the soft mask. At inference time, thanks to the scaling factor $s$, the masks associated to the filters of the convolutional layers are pruned assigning a large value to $s$. In this way the it is possible to obtain $\mathcal{F}_t^P = \phi_t(\textbf{x})$.
+
+The parameters $\textbf{e}_l$ which define the masks are learned during training. During an epoch, a linear annealing schedule is applied for $s$ as follows:
+\begin{equation}
+    s = \frac{1}{s_{max}} + (s_{max}- \frac{1}{s_{max}}) \frac{b-1}{B-1}
+\end{equation}
+where $b$ is the batch index, $B$ is the number of batches in one epoch, and $s_{max} \gg 1$ is a hyperparameter.
+
+In this way, at the start of the training epoch, $s$ has a small value. Thus, given that $\textbf{m}_l=\sigma(s \textbf{e}_l)$, the gating mechanism leads to values close to $0.5$, regardless of the $\textbf{e}_l$ vector. Then the mask is progressively binarized with the increasing of the batch index $b$ within a epoch.
+
+As described in \cite{serra2018overcoming}, to solve the problem of the unstable gradient of $\textbf{e}_l$ due to the $s$ schedule, the gradient $\textbf{g}_{\textbf{e}_l}$ with respect to $\textbf{e}_l$ is compensated as follows:
+\begin{equation}
+    \textbf{g}_{\textbf{e}_l} ' = \frac{\sigma(\textbf{e}_l)[1-\sigma(\textbf{e}_l)]}{s\sigma(s\textbf{e}_l)[1-\sigma(s\textbf{e}_l)]}\textbf{g}_{\textbf{e}_l}
+\end{equation}
+where $\textbf{g}_{\textbf{e}_l} '$ is the compensated gradient.
+
+
+\subsubsection{Classifier Learning}
+After the representation learning stage, the classifier head is re-trained to reduce the bias in the classifier weight introduced by the imbalanced training set $\tilde{\mathcal{D}}_t$, this is due to the difference in sample size between the old classes in the memory $\mathcal{M}_t$ and the currently available data $\mathcal{D}_t$. For this purpose, the classifier weight are randomly initialized and the classifier is trained on a class-balanced sample of $\tilde{\mathcal{D}}_t$ using the cross-entropy loss with a temperature $\delta$ in the Softmax presented in \cite{zhao2020maintaining}. 
+
+\subsubsection{Loss function}
+The loss function used to change the parameters of the model is composed of three components:
+
+\begin{enumerate}
+    \item \textbf{Classifier Loss}: The first loss component is responsible for the correct classification of all the images. Hence, based on the \autoref{eq:classification}, given an image and its corresponding label $(\textbf{x}_i, y_i)\in \tilde{\mathcal{D}}$, the loss function penalizes wrong class prediction as follows:
+    \begin{equation} \label{eq:loss1}
+        \mathcal{L}_{\mathcal{H}_t} = - \frac{1}{|\tilde{\mathcal{D}}_t|}
+            \sum_{i=1}^{|\tilde{\mathcal{D}}_t|}log(p_{\mathcal{H}_t}(y=y_i | \textbf{x}_i))
+    \end{equation}
+    \item \textbf{Auxiliary Loss}: The second loss component is relative to the auxiliary classifier $\mathcal{H}_t^a$. Consistently with \autoref{eq:loss-aux}, given an image $\textbf{x}_i$ and the associated label $y_i \in \mathcal{Y}_i \cup \{"old"\}$, the auxiliary loss component is defined as follows:
+    \begin{equation} \label{eq:loss2}
+        \mathcal{L}_{\mathcal{H}_t^a} = - \frac{1}{|\tilde{\mathcal{D}}_t|}
+            \sum_{i=1}^{|\tilde{\mathcal{D}}_t|}log(p_{\mathcal{H}_t}(y=y_i | \textbf{x}_i))
+    \end{equation}
+    \item \textbf{Sparsity Loss}: The third loss component encourage the model to maximally reduce the number of parameters with a minimal performance drop. To this reason the sparsity loss considers the ratio of used weights in all available weights:
+    \begin{equation} \label{eq:loss3}
+        \mathcal{L}_S = \frac{\sum_{l=1}^L K_l \| \textbf{m}_{l-1} \|_1  \| \textbf{m}_{l} \|_1 }{\sum_{l=1}^L K_l c_{l-1} c_{l}}
+    \end{equation}
+    where $L$ is the number of layers and $K_l$ is the kernel size of convolutional layer $l$.
+\end{enumerate}
+
+The final loss function is given by the weighted average of \autoref{eq:loss1}, \autoref{eq:loss2} and \autoref{eq:loss3}:
+\begin{equation}
+    \mathcal{L}_{DER} = \mathcal{L}_{\mathcal{H}_t} + \lambda_a \mathcal{L}_{\mathcal{H}_t^a} + \lambda_s \mathcal{L}_{S}
+\end{equation}
+where $\lambda_a$ and $\lambda_s$ are the hyper-parameter to control the effect of the auxiliary classifier and the pruning aspect.
+
+\section{Weight aligning}
+
