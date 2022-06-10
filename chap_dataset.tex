@@ -1,4 +1,62 @@
 \chapter{Dataset}
 \label{chap:dataset}
+
+A crucial part in the development of deep learning model is the dataset used for training. There are several datasets proposed in the literature for logo detection and recognition, however, some of them like BelgaLogos \cite{neumann2002integration} lack of variety in the number of classes and have a small number of images. For this reason, some works aimed to construct some larger dataset, such as WebLogo-2M \cite{su2017weblogo}. The issue with these types of large scale dataset is that they are automatically collected and labeled, leading to some noise in the target label.
+
+A list of datasets proposed in the literature is given by Li et al. in SeeTek \cite{li2022seetek} shown in \autoref{table:logo-datasets}.
+
+\begin{table}
+    \centering
+    \begin{tabular}{c || c | c | c | c | c |c} 
+     \hline
+     \textbf{Dataset} & \textbf{Logos} & \textbf{Images} & \textbf{Annotation} & \textbf{Noisy} & \textbf{Public} & \textbf{Scalability} \\
+     \hline
+     \hline
+     TopLogo-10 & 10 & 700 & Object-Level & no & yes & Weak \\ 
+\hline
+    BelgaLogos & 37 & 10,000 & Object-Level & no & yes & Weak \\ 
+\hline
+    FlickrLogos-32 & 32 & 8,240 & Object-Level & no & yes & Weak \\ 
+\hline
+    FlickrLogos-47 & 47 & 8,240 & Object-Level & no & yes & Weak \\ 
+\hline
+    Logo-NET & 160 & 73,414 & Object-Level & no & yes & Weak \\ 
+\hline
+    WebLogo-2M & 194 & 2,190,757 & Image-Level & yes & yes & Medium \\ 
+\hline
+    QMUL-OpenLogo & 352 & 27,083 & Image-Level & no & yes & Medium \\ 
+\hline
+    Logos in the wild & 871 & 11,054 & Object-Level & yes & yes & Medium \\ 
+\hline
+    BLAC & 2,800 & 6,200 & Object-Level & no & no & Medium \\ 
+\hline
+    Logo Detection 3K & 3,000 & 158,652 & Object-Level & no & yes & Strong \\ 
+\hline
+    PL8K & 7,888 & 3,017,146 & Object-Level & no & no & Strong \\ 
+    \hline
+
+    \end{tabular}
+    \caption{Statistics and characteristics of existing logo detection datasets. \cite{li2022seetek}.}
+    \label{table:logo-datasets}
+\end{table}
+
+
+
+
+lack of diversity and contain a small number of logo categories  contain a 
+
+
+. However, WebLogo-2M is collected from online
+search engines and just automatically be labeled at image level
+with much noise, while PL2K and LOGO-Net are not publicly
+available.
+
+
+Over the years, some larger logo datasets 
+
+\section{Dataset description}
+\section{Inconsistencies in the dataset}
+
+
 % DA RIMUOVERE - LOREM IPSUM PER DIMOSTRAZIONE
 %\foreignlanguage{english}{\Blindtext}
