@@ -1,7 +1,7 @@
 \chapter{Dataset}
 \label{chap:dataset}
 
-A crucial part in the development of deep learning model is the dataset used for training. There are several datasets proposed in the literature for logo detection and recognition, however, some of them like BelgaLogos \cite{neumann2002integration} lack of variety in the number of classes and have a small number of images. For this reason, some works aimed to construct some larger dataset, such as \textit{WebLogo-2M} \cite{su2017weblogo} or \textit{Logos in the wild} \cite{tuzko2017open}. The issue with these types of large scale dataset is that they are automatically collected and labeled, leading to some noise in the target label.
+A crucial part in the development of deep learning model is the dataset used for training. There are several datasets proposed in the literature for logo detection and recognition, however, some of them like BelgaLogos \cite{neumann2002integration} lack of variety in the number of classes and have a small number of images. For this reason, some works aimed to construct some larger dataset, such as WebLogo-2M \cite{su2017weblogo} or Logos in the wild \cite{tuzko2017open}. The issue with these types of large scale dataset is that they are automatically collected and labeled, leading to some noise in the target label.
 
 A list of datasets proposed in the literature is given by Li et al. in SeeTek \cite{li2022seetek}, shown in \autoref{table:logo-datasets}.
 
@@ -42,18 +42,20 @@ A list of datasets proposed in the literature is given by Li et al. in SeeTek \c
     \label{table:logo-datasets}
 \end{table}
 
-Some logos datasets like LogoDet-3K and PL8K are considered more robust for what concern the image annotation (noisy column in \autoref{table:logo-datasets}). In particular, each image of LogoDet-3K is manually examined and
+Some logos datasets like LogoDet-3K and PL8K are considered more robust for what concern the annotation of the images (noisy column in \autoref{table:logo-datasets}). In particular, each image of LogoDet-3K is manually examined and
 reviewed, this guarantees high-quality annotations.
 
 In the face of this, the only two large-scale and non-noisy datasets of \autoref{table:logo-datasets} are LogoDet-3K and PL8K. However, only LogoDet-3K is publicly available, thus being the only viable choice as the target dataset to use for the experiments of this thesis (see \autoref{chap:experiments}).
 
 
 \section{LogoDet-3K: dataset description}
+\label{sec:logodet-desc}
 LogoDet-3K consists of 3,000 logo classes,
-158,652 images and 194,261 logo objects. The dataset is divided into nine categories, each category contains several brand and for each brand there is a set of images of that brand. The \autoref{table:logodet3k-category-statistics} shows the number of brands, images and objects for each category. it is important to point out how an image can contain multiple logo objects and the objects in the same image are not necessary of the same class (brand).
+158,652 images and 194,261 logo objects. The objects correspond to the bounding boxes in each image, and since an image can contain more than one logo, the number of objects is grater than the number of images. 
+The dataset is divided into nine categories, each category contains several brands and for each brand there is a set of images of that brand. The \autoref{table:logodet3k-category-statistics} shows the number of brands, images and objects for each category.
 
-
-In this context, brand is intended as logo class. In fact, the same brand can have multiple versions of logos, for example, a symbolic logo and a textual logo. These type of logos are treaded as different classes in the LogoDet-3K dataset, a suffix such as '\textit{brand}-1' and '\textit{brand}-2' is used to deal with these cases. An example is given in \autoref{fig:logos-suffix}
+In this context, brand is intended as logo class. In fact, the same brand can have multiple versions of logos, for example, a symbolic logo and a textual logo. These type of logos are treaded as different classes in the LogoDet-3K dataset, a suffix such as '\textit{brand}-1' and '\textit{brand}-2' is used to deal with these cases. An example is given in \autoref{fig:logos-suffix}.
+It is important to point out how an image can contain multiple logo objects and the objects in the same image are not necessary of the same class.
 
 
 \begin{figure}%
@@ -72,15 +74,15 @@ In this context, brand is intended as logo class. In fact, the same brand can ha
      \hline
      \textbf{Category} & \textbf{Brand} & \textbf{Images} & \textbf{Objects} \\
      \hline
-     Food & 932 & 53,350 & 64,276 \\ 
+    Food & 932 & 53,350 & 64,276 \\ 
     Clothes & 604 & 31,266 & 37,601 \\ 
     Necessities & 432 & 24,822 & 30,643 \\ 
-    Others & 371 & 15,513 & 20,016 \\ 
     Electronic & 224 & 9,675 & 12,139 \\ 
     Transportation & 213 & 10,445 & 12,791 \\ 
     Leisure & 111 & 5,685 & 6,573 \\ 
     Sports & 66 & 3,953 & 5,041 \\ 
     Medical & 47 & 3,945 & 5,185 \\ 
+    Others & 371 & 15,513 & 20,016 \\ 
     \hline
     Total & 3,000 & 158,652 & 194,261 \\ 
 
@@ -91,11 +93,7 @@ In this context, brand is intended as logo class. In fact, the same brand can ha
 
 \subsection{Dataset statistics}
 The \autoref{fig:logodet-dist} shows the distribution of the number of objects for each logo class.
-
-The main issue of LogoDet-3K is the low number of objects for some classes. Analyzing the boxplot in \autoref{fig:logodet-boxplot} and the statistics of \autoref{table:logodet3k-quartile}
-
-
-\begin{figure}%
+\begin{figure}[ht]
 	\centering
 
     \begin{center}
@@ -106,7 +104,11 @@ The main issue of LogoDet-3K is the low number of objects for some classes. Anal
 \end{figure}
 
 
-\begin{figure}%
+The main issue of LogoDet-3K is the low number of objects for some classes. Analyzing the boxplot in \autoref{fig:logodet-boxplot} and the statistics of \autoref{table:logodet3k-quartile} emerges how the 25\% of the classes have a number of images less or equal to 27. Moreover, half of the classes have a number of images less or equal to 54. This is the main issue with this dataset: since several classes have a low number of images, it could be challenging for the model to correctly predict these classes.  
+
+
+
+\begin{figure}[ht]
 	\centering
 
     \begin{center}
@@ -117,20 +119,72 @@ The main issue of LogoDet-3K is the low number of objects for some classes. Anal
 \end{figure}
 
 
-\begin{table}
+\begin{table}[ht]
     \centering
     \begin{tabular}{c  c  c  c } 
+     \hline
+     \multicolumn{4}{c}{LogoDet-3K statistics}\\
      \hline
      \textbf{$Q_1$} & \textbf{$Q_2$} & \textbf{$Q_3$} & \textbf{$Q_4$} \\
      \hline
      27 & 54 & 86 & 532 \\
     \end{tabular}
-    \caption{Quartile relative to the number of objects for each brand in LogoDet-3K dataset.}
+    \caption{Quartiles relative to the number of objects for each brand in LogoDet-3K dataset.}
     \label{table:logodet3k-quartile}
 \end{table}
 
 \section{Inconsistencies in the dataset}
+The LogoDet-3K dataset is available in the GitHub repository\footnote{PyCIL GitHub repository: \href{https://github.com/G-U-N/PyCIL}{https://github.com/G-U-N/PyCIL}} mentioned in the original paper \cite{wang2022logodet}. The dataset is provided in 9 sub-directories corresponding to each category described in \autoref{sec:logodet-desc}, and for each category there are several sub-directories corresponding to each logo class (brand). Inside each brand's folder there are the images and the metadata containing the annotation regarding the bounding box coordinates and the actual class of the logo, since an image can contain logo of different classes. The dataset structure can be summarized as follows:\\
+
+\begin{forest}
+    for tree={%
+      folder,
+      grow'=0,
+      fit=band,
+    }
+    [LogoDet-3K
+        [Food]
+        [Clothes]
+        [Necessities]
+        [Electronic]
+        [Transportation]
+        [Leisure]
+        [Sports]
+        [Medical]
+        [Others
+            [avery dennison-1
+                [\underline{1.jpg}]
+                [\underline{1.xml}]
+                [...]
+            ]
+            [avery dennison-1
+                [\underline{1.jpg}]
+                [\underline{1.xml}]
+                [...]
+            ]  
+            [...]
+        ]
+    ]
+\end{forest}\\
+Although the number of subdirectories in each category sums to 3,000 (i.e. the number of classes of the dataset), using the dataset provided in the GitHub repository, when analyzing the metadata of the '.xml' files, the number of the uniques logo classes is 2,993. This is a discrepancy in the dataset between what is described in the original paper and the dataset downloaded from the GitHub repository.
+
+Another issue related with this dataset is that some images contain errors regarding the annotation in the metadata. For example, the two images:
+\begin{enumerate}
+    \item \code{Others/avery dennison-1/27.jpg} labeled in \code{Others/avery dennison-1/27.xml}
+    \item \code{Others/avery dennison-2/56.jpg} labeled in \code{Others/avery dennison-2/56.xml}
+\end{enumerate}
+are labeled as shown in \autoref{fig:logodet-error}. 
 
 
-% DA RIMUOVERE - LOREM IPSUM PER DIMOSTRAZIONE
-%\foreignlanguage{english}{\Blindtext}
+\begin{figure}%
+	\centering
+	\subfloat[\centering Image \code{Others/avery dennison-1/27.jpg}]{{\includegraphics[width=0.45\textwidth]{images/image-27.jpg} }}%
+	\hfill
+	\subfloat[\centering Image \code{Others/avery dennison-2/56.jpg}]{{\includegraphics[width=0.45\textwidth]{images/image-56.jpg} }}%
+	\caption{Example of errors in the annotation of the images.}
+	\label{fig:logodet-error}%
+\end{figure}
+
+From \autoref{fig:logodet-error} it is clear how the labeling is not consistent between the two images. In the image \code{Others/avery dennison-1/27.jpg} the logos are treated (correctly) as different classes. On the other hand, in the image \code{Others/avery dennison-2/56.jpg} the two logos are treated as the same class.
+
+The vast majority of images are labeled correctly, however, especially for those classes related to the same brand and distinguished by the use of suffixes, some errors such as the one just discussed are present.
