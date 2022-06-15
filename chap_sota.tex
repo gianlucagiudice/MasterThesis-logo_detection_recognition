@@ -15,6 +15,7 @@ As described in \cite{zhao2019object}, the frameworks of object detection method
 \end{enumerate} 
 
 \subsection{YOLO}
+\label{sec:yolo}
 YOLO (you only look once) \cite{redmon2016you} is a model for object detection composed of a single neural network which treats object detection as a regression problem: given an image as input it produces bounding box coordinates and associated class probabilities. Since the predictions are performed directly on the input image without requiring complex pipelines, YOLO is very efficient and can lead to real-time object detection.
 
 \begin{figure}
@@ -277,6 +278,7 @@ From the final results reported in PyCIL in \autoref{table:cil-results} it is cl
 
 
 \subsection{DER: an algorithm for class incremental learning}
+\label{sec:der-algorithm}
 DER (dynamically expandable representation) is an algorithm for CIL based on a two-stage learning approach that utilizes a dynamically expandable representation and uses a limited memory for the old classes introduced in each incremental step. The system proposed in this thesis takes advantage of this algorithm for what concerns the incremental learning aspect of the classifier (see \autoref{sec:method-classidier}).
 
 
@@ -327,6 +329,7 @@ To force the network to learn new and discriminative features at each incrementa
 \end{equation}
 
 \subsubsection{Masking and pruning}
+\label{sec:masking-pruning}
 To maintain a compact representation of the model and remove redundancy, the super-feature extractor is pruned after the training of each stage $t$, the method proposed by the authors is adapted from \cite{serra2018overcoming}. This is done using a differentiable channel-level mask-based method to prune filters of the extractor $\mathcal{F}_t$, in which
 the masks are learned jointly with the representation. The mask is then binarized after the learning procedure, and the feature extractor $\mathcal{F}_t$ is pruned using the binary mask, producing as output the pruned network $\mathcal{F}_t^{P}$.
 

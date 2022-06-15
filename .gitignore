@@ -305,3 +305,4 @@ TSWLatexianTemp*
 
 # Backup images
 images/*.bkp
+images/*.dtmp
