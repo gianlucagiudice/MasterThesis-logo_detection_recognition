@@ -251,24 +251,34 @@ The results are shown in \autoref{fig:cil-comaprison} and the top-1 accuracy at 
 
 \begin{table}
     \centering
-    \begin{tabular}{c c} 
+    \begin{tabular}{c c c} 
      \hline
-     \textbf{Method} & \textbf{Top-1 accuracy} \\
-     & \textbf{(last stage)}\\
+     \textbf{Method} & \textbf{Reproduced} & \textbf{Reported} \\
+     & \textbf{in PyCIL}\\
      \hline
-     Finetune & 26.25 \\ 
-    Replay & 59.31 \\ 
-    GEM & 40.18 \\ 
-    LwF & 43.56 \\ 
-    iCaRL & 64.42 \\ 
-    EWC & 29.73 \\ 
-    WA & 67.09 \\ 
-    PODNet & 55.22 \\ 
-    BiC & 65.08 \\ 
-    Coil & 65.48 \\ 
-    DER & 69.74 \\ 
-
      \hline
+     Finetune & 26.25& 26.25 \\
+     \hline
+    Replay & 59.31 & - \\ 
+    \hline
+    GEM & 40.18 & - \\ 
+    \hline
+    LwF & 43.56 & - \\ 
+    \hline
+    iCaRL & 64.42 & 64.10 \\ 
+    \hline
+    EWC & 29.73 & - \\ 
+    \hline
+    WA & 67.09 & 64.5 \\ 
+    \hline
+    PODNet & 55.22 & - \\ 
+    \hline
+    BiC & 65.08 & - \\ 
+    \hline
+    Coil & 65.48 & 65.48 \\ 
+    \hline
+    DER & 69.74 & 69.41 \\ 
+    \hline
     \end{tabular}
     \caption{Top-1 accuracy of the CIL algorithms at the $10$-th incremental stage using the CIFAR100 dataset \cite{zhou2021pycil}.}
     \label{table:cil-results}
@@ -279,7 +289,7 @@ From the final results reported in PyCIL in \autoref{table:cil-results} it is cl
 
 \subsection{DER: an algorithm for class incremental learning}
 \label{sec:der-algorithm}
-DER (dynamically expandable representation) is an algorithm for CIL based on a two-stage learning approach that utilizes a dynamically expandable representation and uses a limited memory for the old classes introduced in each incremental step. The system proposed in this thesis takes advantage of this algorithm for what concerns the incremental learning aspect of the classifier (see \autoref{sec:method-classidier}).
+DER (dynamically expandable representation) is an algorithm for CIL based on a two-stage learning approach that utilizes a dynamically expandable representation and uses a limited memory for the old classes introduced in each incremental step. The system proposed in this thesis takes advantage of this algorithm for what concerns the incremental learning aspect of the classifier (see \autoref{sec:method-classifier}).
 
 
 \begin{figure}%

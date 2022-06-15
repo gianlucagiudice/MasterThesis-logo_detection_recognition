@@ -21,10 +21,15 @@ The first step regarding the detection of logos in the image is done by YOLO (se
 
 The detector used in the first step is a class-agnostic logo detector: it is a logo detector since we are not interested in the detection of objects other than logo; and it is class-agnostic since the number of detected classes is only one. In fact, in this first step the detector will be responsible for finding any generic logo (i.e., a single class) in the image. This is a crucial step if we seek to achieve incremental learning logo recognition, because in this way it is possible to decouple the detection from the recognition. If the logo detector localize any generic logo in the image, and delegates the actual recognition to the CIL classifier, there is no need to develop an incremental learning detector as well.
 
+
 An important aspect of the classifier is the model size in terms of number of parameters. A big model comes with several disadvantages like longer time for the training phase, higher memory requirements and longer time to make inference. To this reason, a part of this work aims to decrease the number of parameters of the classifier using two different techniques. The first technique is described in \autoref{sec:method-pruning}, using masking and pruning described in \autoref{sec:masking-pruning} it aims to prune the model after the training of each incremental step, thus reducing the number of parameters. The second approach is the Knowledge Distillation (KD) described in \autoref{sec:method-kd}, where a smaller model is trained from scratch with the supervision of a bigger model trained on the same task.
 
+
+\vspace{1.5\baselineskip}
 This chapter describes all the details about the logo detector in \autoref{sec:method-roi} and continues with the classifier in \autoref{sec:method-classifier}. Then, in \autoref{sec:method-pruning} and \autoref{sec:method-kd} are discussed some techniques with the purpose to reducing the number of parameters of the model. In order to evaluate the drop in the terms of performance of the CIL classifier when compared to a standard close-set classification task (i.e. all the classes are available ath the beginning and there is no need to introduce new classes during time),
-the chapter ends in \autoref{sec:method-baseline} with the introduction of different baselines.  
+the chapter ends in \autoref{sec:method-baseline} with the introduction of different baselines.
+
+The code develop during this thesis is available in the GitHub repository \footnote{GitHub repository relative to the code of developed in this thesis: \\ \href{https://github.com/gianlucagiudice/logo-detection-recognition}{https://github.com/gianlucagiudice/logo-detection-recognition}} linked below.
 
 
 \section{Region proposal}
@@ -40,16 +45,27 @@ Immagine delle diverse size di YOLO
 Tabella delle diverse size di YOLO
 
 \section{Classification}
+\label{sec:method-classifier}
 Given the ROIs, the classification of each cropped region is performed by a model trained using CIL techniques. To achieve this goal, the classifier is trained using the DER algorithm \cite{yan2021dynamically} described in \autoref{sec:der-algorithm}.
 
-The DER algorithm introduces a new feature extractor $\mathcal{F}_t$ at each incremental step. This feature extractor consists of a Convolutional Neural Network (CNN). In the developed system, the backbone of the CNN used as feature extractor is ResNet-34 \cite{he2016deep} pre-trained on ImageNet1000 \cite{deng2009imagenet}. The architecture of ResNet-34 is the following:
+\subsection{ResNet-34}
+The DER algorithm introduces a new feature extractor $\mathcal{F}_t$ at each incremental step. This feature extractor consists of a Convolutional Neural Network (CNN). In the developed system, the backbone of the CNN used as feature extractor is ResNet-34 \cite{he2016deep} pre-trained on ImageNet1000 \cite{deng2009imagenet}.
 
+The peculiar aspect of the ResNet architecture are the Residual Connections, shown in \autoref{fig:residual-connection}.. These connections are a type of skip-connection that, instead of learning unreferenced functions, learn residual functions with respect to the layer inputs. Formally, denoting the desired underlying mapping as $\mathcal{H}(x)$, we let the stacked nonlinear layers fit another mapping of $\mathcal{F}(x) := \mathcal{H}(x) - x$. The original mapping is recast into $\mathcal{F}(x) + x$. 
+
+The intuition is that it is easier to optimize the residual mapping than to optimize the original, unreferenced mapping. To the extreme, if an identity mapping were optimal, it would be easier to push the residual to zero than to fit an identity mapping by a stack of nonlinear layers \cite{he2016deep}.
+
+The architecture of ResNet-34, shown in \autoref{table:resnet}, consists in multiple stacked building blocks. Each building block, represented by the brackets in \autoref{table:resnet}, adopt the residual connection described above.
 
 \begin{table}
     \centering
     \begingroup
     
     \begin{tabular}{>{\centering\arraybackslash}p{.3\textwidth}|>{\centering\arraybackslash}p{.3\textwidth}|>{\centering\arraybackslash}p{.3\textwidth}}
+
+
+        \hline
+        \multicolumn{3}{c}{\textbf{ResNet-34 architecture}}\\
         \hline
         \textbf{Layer name} & \textbf{Output size} & \textbf{Layer} \\
         \hline
@@ -76,15 +92,37 @@ The DER algorithm introduces a new feature extractor $\mathcal{F}_t$ at each inc
         \hline
         \end{tabular}
     \endgroup
-    \caption{Ciao}
+    \caption{Architecture of ResNet-34, the brackets represent}
+    \label{table:resnet}
 \end{table}
 
-\end{document}
 
-\label{sec:method-classifier}
+
+\begin{figure}%
+	\centering
+	\subfloat[\centering Residual learning: a building block]{{\includegraphics[width=0.45\textwidth]{images/residual-theory.png} }}%
+	\hfill
+	\subfloat[ An example of residual connection in a building block on a $56 \times 56$ feature maps. This building block corresponds to \textrm{conv2\char`_x} in \autoref{table:resnet} ]{{\includegraphics[width=0.45\textwidth]{images/residual-practice.png} }}%
+	\caption{Residual connection in ResNet architecture \cite{he2016deep}.}%
+	\label{fig:residual-connection}%
+\end{figure}
+
+\subsection{CIL classifier}
+The classifier is developed in a CIL setup. In this way it is possible to recognize new logos by enriching the old knowledge. The algorithm used for CIL is the DER algorithm described in \autoref{sec:der-algorithm}. An implementation of the DER algorithm is given by PyCIL\footnote{PyCIL GitHub repository: \href{https://github.com/G-U-N/PyCIL}{https://github.com/G-U-N/PyCIL}}, and has been used as the starting for the development of the CIL classifier. All the changes performed to the implementation of DER in PyCIL are described in the following sections, and can be found in this\footnote{GitHub repository relative to the CIL model of this thesis: \\ \href{https://github.com/gianlucagiudice/PyCIL}{https://github.com/gianlucagiudice/PyCIL}} GitHub repository.
+
+
+The implementation of DER in PyCIL reflects the description of the DER paper, the only change is relative to the third stage of the DER algorithm referred to as "Classifier Learning Stage" in \autoref{sec:der-algorithm}. In fact, in PyCIL the Classifier Learning Stage is performed using the WA described in \autoref{sec:wa-biased}; in this way it is possible to solve the problem of biased weights in the FC layer without the need to train the model further. It is important to point out that although this step of the original algorithm has been changed, the final performance reported by PyCIL is very similar to that obtained from the original DER paper (see \autoref{table:cil-results}).
+
 \subsection{Regularization techniques}
+In order to prevent overfitting
 \subsection{Data Augmentation}
+In order to prevent overfitting
+\subsection{Optimizer}
+In order to prevent overfitting
+
+
 \subsection{Pruning}
+in order to reduce the number of parameter has been implemented the amsking and pruning described in section.
 \label{sec:method-pruning}
 \section{Knowledge distillation}
 
