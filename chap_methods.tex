@@ -37,12 +37,55 @@ A key component of the system is the logo detector. Formally, this first step is
 
 
 \label{sec:method-roi}
-\subsection{YOLO}
-The class-agnostic logo detector is based on YOLOv5m6 \cite{glenn_jocher_2021_5563715}.
+\subsection{YOLOv5m6}
+The class-agnostic logo detector is based on YOLOv5-v6.0 \cite{glenn_jocher_2021_5563715}. There are different versions of YOLOv5-v6.0, depending on the size of the model (in terms of the number of parameters), and the size of the input image. In general, larger models perform better, with the disadvantage of longer training time, longer inference time and more computational resources required to train the model. On the other hand, a small model might achieve very low performance, thus misleading the final evaluation of the system, which is actually caused by the small model acting as a bottleneck. On the other hand, a small model might achieve very low performance, thus misleading the final evaluation of the system that relies heavily on the detector. Therefore, a model that is too small could act as a bottleneck for the whole system. A more detailed analysis on the tradeoff is shown in \autoref{fig:yolo-sizes} and \autoref{table:yolo-sizes}.
 
-Immagine delle diverse size di YOLO
+\begin{figure}%
+	\centering
 
-Tabella delle diverse size di YOLO
+    \begin{center}
+        \includegraphics[width=\columnwidth]{images/yolov5-sizes.png}
+    \end{center}
+
+	\caption{Performance and speed comparison for the YOLOv5-v6.0 family of models considering the mAP@0.5:0.95 metric measured on the 5000-image COCO val2017 \cite{lin2014microsoft} dataset. The plot shows the performance of different models varying the input size of the image from $256 \times 256$px to $1536 \times 1536$px \cite{glenn_jocher_2021_5563715}.}
+	\label{fig:yolo-sizes}%
+\end{figure}
+
+
+\begin{table}
+    \centering
+    \centerline{\begin{tabular}{c|c|c|c|c|c|c|c}
+        \hline
+        \multirow{2}{*}{ \textbf{Model}} & 
+        \textbf{size} &
+        \textbf{$\text{mAP}^{\text{val}}$} & 
+        \textbf{$\text{mAP}^{\text{val}}$} & 
+        \textbf{Speed} & 
+        \textbf{Speed} & 
+        \textbf{\# params} & 
+        \textbf{FLOPs} \\
+        & (pixels) & \textbf{0.5:0.95} & \textbf{0.5} & \textbf{CPU} (ms) & \textbf{GPU} (ms) & (M) & @640px (B) \\
+        \hline
+        YOLOv5n & 640 & 28.0 & 45.7 & 45 & 6.3 & 1.9 & 4.5 \\
+        YOLOv5s & 640 & 37.4 & 56.8 & 98 & 6.4 & 7.2 & 16.5 \\
+        YOLOv5m & 640 & 45.4 & 64.1 & 224 & 8.2 &  21.2 & 49.0 \\
+        YOLOv5l & 640 & 49.0 & 67.3 & 430 & 10.1 & 46.5 & 109.1 \\
+        YOLOv5x & 640 & 50.7 & 68.9 & 766 & 12.1 & 86.7 & 205.7 \\
+        \hline
+        \hline
+        
+        YOLOv5n6 & 1280 & 36.0 & 54.4 & 153 & 8.1 & 3.2 & 4.6 \\
+        YOLOv5s6 & 1280 & 44.8 & 63.7 & 385 & 8.2 & 12.6 & 16.8 \\
+        YOLOv5m6 & 1280 & 51.3 & 69.3 & 887 & 11.1 &  35.7 & 50.0 \\
+        YOLOv5l6 & 1280 & 53.7 & 71.3 & 1784 & 15.8 & 76.8 & 111.4 \\
+        YOLOv5x6 & 1280 & 55.0 & 72.7 & 3136 & 26.2 & 140.7 & 209.8 \\
+        \hline        
+        \end{tabular}}
+    \caption{Performance comparison considering the mAP@0.5:0.95 metric of all checkpoints of YOLOv5-v6.0 trained for 300 epochs on COCO dataset \cite{glenn_jocher_2021_5563715}.}
+    \label{table:yolo-sizes}
+\end{table}
+
+The class-agnostic logo detector is based on YOLOv5m6, shown in \autoref{table:yolo-sizes}, with image input size set to $512 \times 512$px and pretrained on the COCO dataset. The model is then finetuned for 30 epochs on the task of class-agnostic logo recognition, thus, not distinguishing the specific logo class. 
 
 \section{Classification}
 \label{sec:method-classifier}
@@ -55,7 +98,7 @@ The peculiar aspect of the ResNet architecture are the Residual Connections, sho
 
 The intuition is that it is easier to optimize the residual mapping than to optimize the original, unreferenced mapping. To the extreme, if an identity mapping were optimal, it would be easier to push the residual to zero than to fit an identity mapping by a stack of nonlinear layers \cite{he2016deep}.
 
-The architecture of ResNet-34, shown in \autoref{table:resnet}, consists in multiple stacked building blocks. Each building block, represented by the brackets in \autoref{table:resnet}, adopt the residual connection described above.
+The architecture of ResNet-34, shown in \autoref{table:resnet}, consists in multiple stacked building blocks. Each building block, represented by the brackets in \autoref{table:resnet}, adopt the residual connection described above. The total number of parameters of ResNet-34 used as feature extractor at each incremental step is 23 million.
 
 \begin{table}
     \centering
@@ -96,8 +139,6 @@ The architecture of ResNet-34, shown in \autoref{table:resnet}, consists in mult
     \label{table:resnet}
 \end{table}
 
-
-
 \begin{figure}%
 	\centering
 	\subfloat[\centering Residual learning: a building block]{{\includegraphics[width=0.45\textwidth]{images/residual-theory.png} }}%
@@ -114,12 +155,32 @@ The classifier is developed in a CIL setup. In this way it is possible to recogn
 The implementation of DER in PyCIL reflects the description of the DER paper, the only change is relative to the third stage of the DER algorithm referred to as "Classifier Learning Stage" in \autoref{sec:der-algorithm}. In fact, in PyCIL the Classifier Learning Stage is performed using the WA described in \autoref{sec:wa-biased}; in this way it is possible to solve the problem of biased weights in the FC layer without the need to train the model further. It is important to point out that although this step of the original algorithm has been changed, the final performance reported by PyCIL is very similar to that obtained from the original DER paper (see \autoref{table:cil-results}).
 
 \subsection{Regularization techniques}
-In order to prevent overfitting
-\subsection{Data Augmentation}
-In order to prevent overfitting
-\subsection{Optimizer}
-In order to prevent overfitting
+In order to prevent the overfitting of the model on the test set images, the architecture of the Neural Network (NN) created using the DER algorithm has been changed. Starting from the original architecture shown in \autoref{fig:der-pipeline}, a dropout layer has been added before the FC layer represented in the figure by the classifier $\mathcal{H}_t$.
 
+\subsubsection{Dropout}
+DNN with a large number of parameters are prone to overfitting the training data and do not generalize well on the test set.
+Dropout \cite{srivastava2014dropout} is a technique for addressing this problem.
+
+At training time, the units of the NN, along with their connections, are randomly dropped with a specified probability $p$ (a common value is $p = 0.5$). At test time, all units are present, but with weights scaled by $p$ (i.e. $w$ becomes $pw$). This procedure is shown in \autoref{fig:dropout}.
+
+The idea is to prevent co-adaptation, where the NN becomes too reliant on particular connections, as this could be symptomatic of overfitting. Intuitively, dropout can be thought of as creating an implicit ensemble of NN.
+
+\begin{figure}%
+	\centering
+	\subfloat[\centering Standard neural network]{{\includegraphics[width=0.30\textwidth,trim={0 24 220 0},clip]{images/dropout.png} }}%
+	\hspace*{2cm}
+	\subfloat[\centering Neural network after applying dropout ]{{\includegraphics[width=0.30\textwidth,trim={220 24 0 0},clip]{images/dropout.png} }}%
+	\caption{Dropout mechanism in a Neural Network with 2 hidden layers \cite{srivastava2014dropout}.}%
+	\label{fig:dropout}%
+\end{figure}
+
+\subsection{Data Augmentation}
+As discussed in \autoref{sec:dataset-stat}.
+\subsection{Training}
+trained on this machine with this gpu.
+\subsubsection{Early stopping}
+\subsubsection{SGD and Adam optimizer}
+wieght decay
 
 \subsection{Pruning}
 in order to reduce the number of parameter has been implemented the amsking and pruning described in section.

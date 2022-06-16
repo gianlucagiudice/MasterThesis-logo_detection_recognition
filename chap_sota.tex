@@ -16,7 +16,7 @@ As described in \cite{zhao2019object}, the frameworks of object detection method
 
 \subsection{YOLO}
 \label{sec:yolo}
-YOLO (you only look once) \cite{redmon2016you} is a model for object detection composed of a single neural network which treats object detection as a regression problem: given an image as input it produces bounding box coordinates and associated class probabilities. Since the predictions are performed directly on the input image without requiring complex pipelines, YOLO is very efficient and can lead to real-time object detection.
+YOLO (you only look once) \cite{redmon2016you} is a model for object detection composed of a single Neural Network (NN) which treats object detection as a regression problem: given an image as input it produces bounding box coordinates and associated class probabilities. Since the predictions are performed directly on the input image without requiring complex pipelines, YOLO is very efficient and can lead to real-time object detection.
 
 \begin{figure}
     \begin{center}
@@ -258,25 +258,25 @@ The results are shown in \autoref{fig:cil-comaprison} and the top-1 accuracy at 
      \hline
      \hline
      Finetune & 26.25& 26.25 \\
-     \hline
+
     Replay & 59.31 & - \\ 
-    \hline
+
     GEM & 40.18 & - \\ 
-    \hline
+
     LwF & 43.56 & - \\ 
-    \hline
+
     iCaRL & 64.42 & 64.10 \\ 
-    \hline
+
     EWC & 29.73 & - \\ 
-    \hline
+
     WA & 67.09 & 64.5 \\ 
-    \hline
+
     PODNet & 55.22 & - \\ 
-    \hline
+
     BiC & 65.08 & - \\ 
-    \hline
+
     Coil & 65.48 & 65.48 \\ 
-    \hline
+
     DER & 69.74 & 69.41 \\ 
     \hline
     \end{tabular}
