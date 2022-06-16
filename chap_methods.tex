@@ -24,13 +24,12 @@ The detector used in the first step is a class-agnostic logo detector: it is a l
 
 An important aspect of the classifier is the model size in terms of number of parameters. A big model comes with several disadvantages like longer time for the training phase, higher memory requirements and longer time to make inference. To this reason, a part of this work aims to decrease the number of parameters of the classifier using two different techniques. The first technique is described in \autoref{sec:method-pruning}, using masking and pruning described in \autoref{sec:masking-pruning} it aims to prune the model after the training of each incremental step, thus reducing the number of parameters. The second approach is the Knowledge Distillation (KD) described in \autoref{sec:method-kd}, where a smaller model is trained from scratch with the supervision of a bigger model trained on the same task.
 
+The code developed in this thesis is available in the GitHub repository\footnote{GitHub repository relative to the code of developed in this thesis: \\ \href{https://github.com/gianlucagiudice/logo-detection-recognition}{https://github.com/gianlucagiudice/logo-detection-recognition}} linked below. The system has been developed using the Python programming language, and the code exploits PyTorch \cite{paszke2019pytorch}, a widely use deep learning framework. 
+
 
 \vspace{1.5\baselineskip}
 This chapter describes all the details about the logo detector in \autoref{sec:method-roi} and continues with the classifier in \autoref{sec:method-classifier}. Then, in \autoref{sec:method-pruning} and \autoref{sec:method-kd} are discussed some techniques with the purpose to reducing the number of parameters of the model. In order to evaluate the drop in the terms of performance of the CIL classifier when compared to a standard close-set classification task (i.e. all the classes are available ath the beginning and there is no need to introduce new classes during time),
 the chapter ends in \autoref{sec:method-baseline} with the introduction of different baselines.
-
-The code develop during this thesis is available in the GitHub repository \footnote{GitHub repository relative to the code of developed in this thesis: \\ \href{https://github.com/gianlucagiudice/logo-detection-recognition}{https://github.com/gianlucagiudice/logo-detection-recognition}} linked below.
-
 
 \section{Region proposal}
 A key component of the system is the logo detector. Formally, this first step is an object detection task, where the objects we seek to detect are the logos in the image. The logo detector produces in output the coordinates of the bounding boxes corresponding to the logos in the image. The bounding boxes can be used to crop the portions of the images generating the regions of interest (ROIs). The ROIs corresponds to what the detector considers as any generic logo, and these can be directly used as input for the CIL model which classifies (i.e. recognize) the logo.
@@ -72,8 +71,6 @@ The class-agnostic logo detector is based on YOLOv5-v6.0 \cite{glenn_jocher_2021
         YOLOv5l & 640 & 49.0 & 67.3 & 430 & 10.1 & 46.5 & 109.1 \\
         YOLOv5x & 640 & 50.7 & 68.9 & 766 & 12.1 & 86.7 & 205.7 \\
         \hline
-        \hline
-        
         YOLOv5n6 & 1280 & 36.0 & 54.4 & 153 & 8.1 & 3.2 & 4.6 \\
         YOLOv5s6 & 1280 & 44.8 & 63.7 & 385 & 8.2 & 12.6 & 16.8 \\
         YOLOv5m6 & 1280 & 51.3 & 69.3 & 887 & 11.1 &  35.7 & 50.0 \\
@@ -135,7 +132,7 @@ The architecture of ResNet-34, shown in \autoref{table:resnet}, consists in mult
         \hline
         \end{tabular}
     \endgroup
-    \caption{Architecture of ResNet-34, the brackets represent}
+    \caption{Architecture of ResNet-34, the brackets represent a stack of building blocks. }
     \label{table:resnet}
 \end{table}
 
@@ -175,7 +172,79 @@ The idea is to prevent co-adaptation, where the NN becomes too reliant on partic
 \end{figure}
 
 \subsection{Data Augmentation}
-As discussed in \autoref{sec:dataset-stat}.
+As discussed in \autoref{sec:dataset-stat}, one problem with the LogoDet-3K dataset is that some classes have a low number of images. Moreover, as shown in \autoref{table:logodet3k-quartile}, these classes are not the exception, but the majority of the classes in the dataset. In fact, the 50\% of the dataset has a number of images less than or equal to 54.
+
+Training a model using a small number of examples per class can be a problem in machine learning in general, but this is especially true in the deep learning domain, where the models require a huge amount of data.
+
+Image Augmentation is a data augmentation method that generates more training data from the existing training samples. This is a very useful technique to address the problem of the low number of images per class in LogoDet-3K. In addition, data augmentation is another helpful technique to avoid overfitting, as it creates synthetic samples by adding random elements the original image while preserving the main characteristics, thus achieve better generalization.
+
+The type of data augmentation adopted during the training of the model is called online data augmentation. This technique consists in applying a random transformation to the original image before pass it to the model. In this way it is possible to achieve, in theory, an infinitely large dataset. The process of data augmentation is highly dependent on the type of transformations applied to the images: excessive transformation of the original image can mislead the model in learning the main features of the image, while keeping the image as similar as possible to the original image can have the same effect as not applying data augmentation at all.
+
+Data augmentation is used for the training of the CIL classifier developed in this thesis. The transformations used to augment the original dataset, shown in \autoref{fig:example-augmentation}, are the following:
+\begin{itemize}
+    \item \textbf{Geometric transformations}:
+    \begin{itemize}
+        \item \textbf{Random affine}: transform the image keeping center invariant.
+        \item \textbf{Random perspective}: perspective transformation of the image.
+    \end{itemize}
+    \item \textbf{Color transformations}:
+    \begin{itemize}
+        \item \textbf{Adjust sharpness}: adjusts the sharpness of the image by a sharpness factor.
+        \item \textbf{Posterize}: reduces the number of bits for each color channel.
+        \item \textbf{Color jitter}: randomly changes the brightness, contrast, saturation and hue of an image.
+    \end{itemize}
+\end{itemize}
+
+As said before, the data augmentation is performed in an online manner, in this way it is possible to obtain slightly different image at each training epoch of the model. The original image is transformed using the transformations listed above, but the final transformed image is given by a combination of both geometric and color transformation. The procedure used to transform the original image is shown in \autoref{fig:data_augmentation}.
+
+
+\begin{figure}%
+	\centering
+
+    \begin{center}
+        \includegraphics[width=\columnwidth]{images/data_augmentation.drawio.png}
+    \end{center}
+
+	\caption{Image transformation pipeline for data augmentation: first the input image is transformed via a geometric transformation, then a color transformation is applied.}%
+	\label{fig:data_augmentation}%
+\end{figure}
+
+\begin{figure}%
+	\centering
+	\subfloat[Original image]{{\includegraphics[height=3cm]{images/augmentations/original.jpg} }}%
+	\hfill
+	\subfloat[Random affine transformation]{{\includegraphics[height=3cm]{images/augmentations/affine.jpg} }}%
+	\hfill
+	\subfloat[Random perspective transformation]{{\includegraphics[height=3cm]{images/augmentations/perspective.jpg} }}%
+	\hfill
+	\subfloat[Adjust sharpness]{{\includegraphics[height=3cm]{images/augmentations/sharpness.jpg} }}%
+	\hspace*   {2cm}
+	\subfloat[Posterize]{{\includegraphics[height=3cm]{images/augmentations/posterize.jpg} }}%
+	\hfill
+    \subfloat[Random color Jitter]{{\includegraphics[height=3cm]{images/augmentations/color_jitter.jpg} }}%
+	\caption{Examples of image transformations. The transformations (d) and (e) are shown in a single image since, given the sharpness factor and the number of bin for the posterization, the result of the transformation is always the same.}%
+	\label{fig:example-augmentation}%
+\end{figure}
+
+The data augmentation procedure, described in \autoref{fig:data_augmentation}, is applied to different logos in \autoref{fig:final_data_augmentation}.
+
+\begin{figure}%
+	\centering
+	\subfloat[Logo 1]{{\includegraphics[height=2cm]{images/augmentations/transf1.png} }}%
+	\hfill
+	\subfloat[Logo 2]{{\includegraphics[height=2cm]{images/augmentations/transf2.png} }}%
+	\hfill
+	\subfloat[Logo 3]{{\includegraphics[height=2cm]{images/augmentations/transf3.png} }}%
+	\hfill
+	\subfloat[Logo 4]{{\includegraphics[height=2cm]{images/augmentations/transf4.png} }}%
+	\hfill
+    \subfloat[Logo 5]{{\includegraphics[height=2cm]{images/augmentations/transf5.png} }}%
+	\hfill
+    \subfloat[Logo 6]{{\includegraphics[height=2cm]{images/augmentations/transf6.png} }}%
+	\caption{Examples of data augmentation on different logos: the first column represents the original image, the other column are some transformation applied to the original image following the pipeline described in \autoref{fig:data_augmentation}.}%
+	\label{fig:final_data_augmentation}%
+\end{figure}
+
 \subsection{Training}
 trained on this machine with this gpu.
 \subsubsection{Early stopping}
