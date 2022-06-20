@@ -24,7 +24,7 @@ The detector used in the first step is a class-agnostic logo detector: it is a l
 
 An important aspect of the classifier is the model size in terms of number of parameters. A big model comes with several disadvantages like longer time for the training phase, higher memory requirements and longer time to make inference. To this reason, a part of this work aims to decrease the number of parameters of the classifier using two different techniques. The first technique is described in \autoref{sec:method-pruning}, using masking and pruning described in \autoref{sec:masking-pruning} it aims to prune the model after the training of each incremental step, thus reducing the number of parameters. The second approach is the Knowledge Distillation (KD) described in \autoref{sec:method-kd}, where a smaller model is trained from scratch with the supervision of a bigger model trained on the same task.
 
-The code developed in this thesis is available in the GitHub repository\footnote{GitHub repository relative to the code of developed in this thesis: \\ \href{https://github.com/gianlucagiudice/logo-detection-recognition}{https://github.com/gianlucagiudice/logo-detection-recognition}} linked below. The system has been developed using the Python programming language, and the code exploits PyTorch \cite{paszke2019pytorch}, a widely use deep learning framework. 
+The code developed in this thesis is available in the GitHub repository\footnote{GitHub repository relative to the code of developed in this thesis: \\ \href{https://github.com/gianlucagiudice/logo-detection-recognition}{https://github.com/gianlucagiudice/logo-detection-recognition}} linked below. The system has been developed using the Python programming language, and the code is implemented using PyTorch \cite{paszke2019pytorch}, a widely use deep learning framework. The training of the models is done using the NVIDIA Tesla K80 GPU with 12GB of memory.
 
 
 \vspace{1.5\baselineskip}
@@ -152,7 +152,7 @@ The classifier is developed in a CIL setup. In this way it is possible to recogn
 The implementation of DER in PyCIL reflects the description of the DER paper, the only change is relative to the third stage of the DER algorithm referred to as "Classifier Learning Stage" in \autoref{sec:der-algorithm}. In fact, in PyCIL the Classifier Learning Stage is performed using the WA described in \autoref{sec:wa-biased}; in this way it is possible to solve the problem of biased weights in the FC layer without the need to train the model further. It is important to point out that although this step of the original algorithm has been changed, the final performance reported by PyCIL is very similar to that obtained from the original DER paper (see \autoref{table:cil-results}).
 
 \subsection{Regularization techniques}
-In order to prevent the overfitting of the model on the test set images, the architecture of the Neural Network (NN) created using the DER algorithm has been changed. Starting from the original architecture shown in \autoref{fig:der-pipeline}, a dropout layer has been added before the FC layer represented in the figure by the classifier $\mathcal{H}_t$.
+In order to prevent overfitting of the model on the test set images, the architecture of the Neural Network (NN) created using the DER algorithm has been changed. Starting from the original architecture shown in \autoref{fig:der-pipeline}, a dropout layer has been added before the FC layer represented in the figure by the classifier $\mathcal{H}_t$.
 
 \subsubsection{Dropout}
 DNN with a large number of parameters are prone to overfitting the training data and do not generalize well on the test set.
@@ -246,10 +246,150 @@ The data augmentation procedure, described in \autoref{fig:data_augmentation}, i
 \end{figure}
 
 \subsection{Training}
-trained on this machine with this gpu.
+The training of the CIL model can be divided into two main steps: the initial step and the iterations of CIL. In the initial step the model is trained for 200 epochs, while for the incremental learning iterations it is trained for 150 epochs. 
+This is done because, regarding the first step, the neural network has to adapt the weights trained on ImageNet to the logo classification task. We also assume that the number of classes at the initial task is greater than the number of classes that are introduced at each incremental learning iteration.
+
+
 \subsubsection{Early stopping}
-\subsubsection{SGD and Adam optimizer}
-wieght decay
+Early stopping is used to avoid overfitting of the model. This is done by monitoring the accuracy of the model during training on the validation set. For what concerns the hyperparameters of  early stopping, the number of epochs with no improvement after which training will be stopped is set to 30 (i.e. patience), and the minimum change in the monitored accuracy to qualify as an improvement is set to 0.5\% (i.e. minimum delta).
+
+\subsubsection{SGD optimizer}
+To update the model weights two different optimizers are tested. One of them is Stochastic Gradient Descent, an iterative method for optimizing an objective function.
+
+As described in \cite{zhang2021dive}, in deep learning the objective function is usually the average of the loss functions for each example in the training dataset. Given a training dataset of $n$ examples, we assume that $f_i(\textbf{w})$ is the loss function with respect to the training example of index $i$, where $\textbf{w}$ is the parameter vector. Then the objective function is given by:
+\begin{equation}
+    f(\textbf{w}) = \frac{1}{n} \sum_{i=1}^n f_i(\textbf{w})
+\end{equation}
+The gradient of the objective function at $\textbf{w}$ is computed as:
+\begin{equation}
+    \nabla f(\textbf{w}) = \frac{1}{n} \sum_{i=1}^n \nabla f_i(\textbf{w})
+\end{equation}
+If gradient descent is used, the computational cost for each independent variable iteration is $\mathcal{O}(n)$, which grows linearly with $n$. Therefore, when the training dataset is larger, the cost of gradient descent for each iteration will be higher.
+
+Stochastic gradient descent (SGD) reduces computational cost at each iteration. At each iteration of stochastic gradient descent, we uniformly sample an index $i \in \{ 1, \, ..., \, n\}$ for data examples at random, and compute the gradient $\nabla f_i (\textbf{w})$ to update $\textbf{w}$:
+
+\begin{equation}
+    \textbf{w} \leftarrow \textbf{w} - \eta \nabla f_i(\textbf{w})
+\end{equation}
+where $\eta$ is the learning rate ($\eta = 0.1$ in the experiments described in \autoref{chap:experiments}). In this way the computational cost for each iteration drops from $\mathcal{O}(n)$ of the gradient descent to the constant $\mathcal{O}(1)$. Moreover, the stochastic gradient $\nabla f_i(\textbf{w})$ is an unbiased estimate of the full gradient $\nabla f(\textbf{w})$ because:
+\begin{equation}
+    \mathbb{E}_i \nabla f_i(\mathbf{w}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\mathbf{w}) = \nabla f(\mathbf{w})
+\end{equation}
+This means that, on average, the stochastic gradient is a good estimate of the gradient.
+
+A compromise between computing the true gradient and the gradient at a single sample is to compute the gradient against more than one training sample (called a "mini-batch") at each step. This means replacing the gradient $\nabla f_i(\textbf{w})$ on a single observation with one over a small batch $\mathcal{B}_t = \{ \textbf{x}^{(1)},\, ..., \, \textbf{x}^{(m)}\}$ (for the experiments described in \autoref{chap:experiments}, $|\mathcal{B}_t| = 2048$). Then, the gradient $\textbf{g}_t$ over a small batch $\mathcal{B}_t$ is given by:
+\begin{equation}
+    \mathbf{g}_t = \frac{1}{|\mathcal{B}_t|} \sum_{i \in \mathcal{B}_t} \nabla f_i(\mathbf{w})
+\end{equation}
+Note that, in an epoch, the examples are not reused for multiple batches. The minibatch SGD algorithm is shown in \autoref{alg:sgd} as described by Goodfellow et al. in \cite{Goodfellow-et-al-2016}.
+
+
+\begin{algorithm}
+    \caption{The Stochastic Gradient Descent (SGD) algorithm with minibatches}\label{alg:sgd}
+    \begin{algorithmic}
+        \Require Learning rate $\eta$
+        \Require Initial parameters $\textbf{w}$
+        
+    \While{stopping criterion not met}
+        
+        Sample a minibatch $\mathcal{B}$ of $m$ examples from the training set $\{ \textbf{x}^{(1)},\, ..., \, \textbf{x}^{(m)}\}$ with corresponding labels $\textbf{y}^{(i)}$.
+
+    Compute gradient estimate: $\hat{\mathbf{g}} = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}_t} \nabla f_i(\mathbf{w})$.
+
+    Apply update: $\textbf{w} \leftarrow \textbf{w} - \eta \hat{\mathbf{g}}$.
+
+    \EndWhile
+    \end{algorithmic}
+    \end{algorithm}
+
+
+\subsubsection{Adam optimizer}
+The second optimizer used in the experiments is Adam \cite{kingma2014adam}, which can be considered as a combination of RMSProp \cite{hinton2012neural} and momentum \cite{sutskever2013importance}. Adam is an adaptive learning rate optimizer, i.e. it uses a separate learning rate for each parameter and automatically adapt these learning rates throughout the course of learning. A key component of Adam is that it uses exponential weighted moving averages (also known as leaky averaging) to obtain an estimate of both the momentum and also the second moment of the gradient.
+
+To estimate the first-order and the second-order moments of the gradient, Adam uses two state variables:
+\begin{equation}
+    \begin{split}\begin{aligned}
+        \mathbf{v}_t & \leftarrow \beta_1 \mathbf{v}_{t-1} + (1 - \beta_1) \mathbf{g}_t \\
+        \mathbf{s}_t & \leftarrow \beta_2 \mathbf{s}_{t-1} + (1 - \beta_2) \mathbf{g}_t^2
+    \end{aligned}\end{split}
+\end{equation}
+where $\beta_1$ and $\beta_2$ are nonnegative weighting parameters. In the experiments in \autoref{chap:experiments}, $\beta_1=0.9$ and $\beta_2=0.999$.
+
+Initially, both $\mathbf{v}_0$ and $\mathbf{s}_0$ are set to 0, resulting in a bias towards smaller values. For this reason, Adam computes the bias-corrected $\hat{\mathbf{v}}_t$ and $\hat{\mathbf{s}}_t$ as follows:
+\begin{equation}
+    \begin{split}\begin{aligned}
+        \hat{\mathbf{v}}_t & = \frac{\mathbf{v}_t}{1 - \beta_1^t} \\
+        \hat{\mathbf{s}}_t & = \frac{\mathbf{s}_t}{1 - \beta_2^t}
+    \end{aligned}\end{split}
+\end{equation}
+Then, the gradient is rescaled accordingly to consider both the first-order and second-order moments:
+\begin{equation}
+    \mathbf{g}_t' = \eta \frac{ \hat{\mathbf{v}}_t}{\sqrt{\hat{\mathbf{s}}_t} + \epsilon}
+\end{equation}
+where, $\eta$ is the learning rate (set to $0.001$ in the experiments in \autoref{chap:experiments}) and $\epsilon = 10^{-8}$ is a constant to achieve numerical stability.
+
+Finally, the parameters are updated as follows:
+\begin{equation}
+    \textbf{w}_t \leftarrow \textbf{w}_{t-1} - \mathbf{g}_t'
+\end{equation}
+
+The Adam algorithm is shown in \autoref{alg:adam} as described by Goodfellow et al. in \cite{Goodfellow-et-al-2016}.
+
+\begin{algorithm}
+    \caption{The Adam algorithm}\label{alg:adam}
+    \begin{algorithmic}
+        \Require Learning rate $\eta$
+        \Require Exponential decay rates for moment estimates, $\beta_1$ and $\beta_2$ in $[0, \, 1)$ (Suggested defaults: $0.9$ and $0.999$ respectively).
+        \Require Small constant $\epsilon$ used for numerical stabilization (Suggested default: $10^{-8}$).
+        \Require Initial parameters $\textbf{w}$\\
+        Initialize 1st and 2nd moment variable $\mathbf{s} = 0$, $\mathbf{r} = 0$\\
+        Initialize time step $t = 0$
+    \While{stopping criterion not met}
+        
+        Sample a minibatch $\mathcal{B}$ of $m$ examples from the training set $\{ \textbf{x}^{(1)},\, ..., \, \textbf{x}^{(m)}\}$ with corresponding labels $\textbf{y}^{(i)}$.
+        
+        Compute gradient estimate: $\hat{\mathbf{g}} = \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}_t} \nabla f_i(\mathbf{w})$.
+
+        $t \leftarrow t +1$
+        
+        Update biased first moment estimate: $\mathbf{v} \leftarrow \beta_1 \mathbf{v} + (1 - \beta_1) \mathbf{\hat{g}}$
+
+        Update biased second moment estimate: $\mathbf{s} \leftarrow \beta_2 \mathbf{s} + (1 - \beta_2) \mathbf{\hat{g}}^2$
+
+        Correct bias in first moment: $\hat{\mathbf{v}} = \frac{\mathbf{v}}{1 - \beta_1^t}$
+  
+        Correct bias in second moment: $\hat{\mathbf{s}} = \frac{\mathbf{s}}{1 - \beta_2^t}$
+
+        Compute update: $\Delta \mathbf{w} = \eta \frac{ \hat{\mathbf{v}}}{\sqrt{\hat{\mathbf{s}}} + \epsilon}$
+
+        Apply update: $\textbf{w} \leftarrow \textbf{w} - \Delta \mathbf{w}$.
+
+    \EndWhile
+    \end{algorithmic}
+    \end{algorithm}
+
+\subsubsection{Learning rate decay}
+For both the optimizers, an exponential decay scheduling is applied to the learning rate: once the number of epoch reaches one of the predetermined epochs, called milestones, the learning rate of the optimizer is multiplied by a factor $\gamma = 0.1$. The milestones are set to 60, 100 and 150 for the initial learning stage, and to 40, 75, 100 for each incremental learning iteration.
+
+Adjusting the learning rate is an important aspect of the optimization process; some of the motivations behind learning rate scheduling are described below:
+\begin{itemize}
+    \item The magnitude of the learning rate is a key factor in the optimization procedure: if the learning rate is too large, optimization diverges, while if it is too small, either training takes too long or a suboptimal result is achieved.
+    \item If the learning rate remains high, the algorithm may bounce around the minima or even jump over the minima and thus failing to reach optimality. 
+\end{itemize}
+
+The learning rate decay is used to train the models for the experiments described in \autoref{chap:experiments}. An example of the effect of the learning rate decay is shown in \autoref{fig:lr_decay}. The figure shows the accuracy of the model at each training epoch, it can be seen that when a milestone is reached (epoch 60) the learning rate is scaled by a fact of $10^{-1}$, thus leading to an increase in the model's accuracy in subsequent epochs.
+
+\begin{figure}%
+	\centering
+
+    \begin{center}
+        \includegraphics[width=\columnwidth]{images/lr_decay.drawio.png}
+    \end{center}
+
+	\caption{Effect of the learning rate decay: the figure shows the accuracy of the model at each training epoch. At epoch 60, the learning rate is scaled by a factor of $10^{-1}$, this leads to an increase in the model's accuracy in subsequent epochs. }
+	\label{fig:lr_decay}%
+\end{figure}
+
 
 \subsection{Pruning}
 in order to reduce the number of parameter has been implemented the amsking and pruning described in section.
