@@ -89,6 +89,7 @@ The class-agnostic logo detector is based on YOLOv5m6, shown in \autoref{table:y
 Given the ROIs, the classification of each cropped region is performed by a model trained using CIL techniques. To achieve this goal, the classifier is trained using the DER algorithm \cite{yan2021dynamically} described in \autoref{sec:der-algorithm}.
 
 \subsection{ResNet-34}
+\label{sec:resnet}
 The DER algorithm introduces a new feature extractor $\mathcal{F}_t$ at each incremental step. This feature extractor consists of a Convolutional Neural Network (CNN). In the developed system, the backbone of the CNN used as feature extractor is ResNet-34 \cite{he2016deep} pre-trained on ImageNet1000 \cite{deng2009imagenet}.
 
 The peculiar aspect of the ResNet architecture are the Residual Connections, shown in \autoref{fig:residual-connection}.. These connections are a type of skip-connection that, instead of learning unreferenced functions, learn residual functions with respect to the layer inputs. Formally, denoting the desired underlying mapping as $\mathcal{H}(x)$, we let the stacked nonlinear layers fit another mapping of $\mathcal{F}(x) := \mathcal{H}(x) - x$. The original mapping is recast into $\mathcal{F}(x) + x$. 
@@ -241,7 +242,7 @@ The data augmentation procedure, described in \autoref{fig:data_augmentation}, i
     \subfloat[Logo 5]{{\includegraphics[height=2cm]{images/augmentations/transf5.png} }}%
 	\hfill
     \subfloat[Logo 6]{{\includegraphics[height=2cm]{images/augmentations/transf6.png} }}%
-	\caption{Examples of data augmentation on different logos: the first column represents the original image, the other column are some transformation applied to the original image following the pipeline described in \autoref{fig:data_augmentation}.}%
+	\caption{Examples of data augmentation on different logos: the first column represents the original image, the other columns are some transformation applied to the original image following the pipeline described in \autoref{fig:data_augmentation}.}%
 	\label{fig:final_data_augmentation}%
 \end{figure}
 
@@ -379,7 +380,7 @@ Adjusting the learning rate is an important aspect of the optimization process; 
 
 The learning rate decay is used to train the models for the experiments described in \autoref{chap:experiments}. An example of the effect of the learning rate decay is shown in \autoref{fig:lr_decay}. The figure shows the accuracy of the model at each training epoch, it can be seen that when a milestone is reached (epoch 60) the learning rate is scaled by a fact of $10^{-1}$, thus leading to an increase in the model's accuracy in subsequent epochs.
 
-\begin{figure}%
+\begin{figure}[H]
 	\centering
 
     \begin{center}
@@ -392,11 +393,56 @@ The learning rate decay is used to train the models for the experiments describe
 
 
 \subsection{Pruning}
-in order to reduce the number of parameter has been implemented the amsking and pruning described in section.
 \label{sec:method-pruning}
-\section{Knowledge distillation}
 
+The DER algorithm, described in \autoref{sec:der-algorithm}, addresses the problem of class incremental learning by expanding the neural network architecture at each incremental stage. The super-feature extractor at step $t$ of incremental learning is given by the following concatenation $\Phi_t(\mathbf{x}) = [\mathcal{F}_0,\mathcal{F}_1(\mathbf{x}), \, ..., \, \mathcal{F}_t(\mathbf{x})]$. As discussed in \autoref{sec:resnet}, the feature extractors consists of a CNN that corresponds to ResNet-34 in the system implementation of this thesis.
+
+Each feature extractor, i.e. ResNet-34, is a CNN with 22 million parameters. Giving the definition of the super-feature extractor, it is possible to see how the parameters how the neural network grow linearly as a function of the number of incremental learning stages. It is important to note that as the number of parameters of the super-feature extractor increases, the number of parameters for the classifier $\mathcal{H}_t$ also increases.
+The classifier $\mathcal{H}_t$ corresponds to the fully connected layer of the neural network; at each incremental learning stage, new classes are introduced, thus new connections are created between the classifier predicting the output class and the super-feature extractor.
+
+This means that, using the LogoDet-3K dataset described in \autoref{chap:dataset}, and the incremental learning setup described in \autoref{sec:whole_dataset_clf}, at the 8th stage of CIL the neural network consists of 205 million parameters. This number of parameters is due to task 0 (initial task), in which 22 million parameters are used, and the 8 incremental learning stages, each of which adds approximately 22 million parameters to the total number of parameters.
+
+After only eight iterations of incremental learning, the final neural network reaches 205 million parameters, which is quite a high number of parameters. 
+For this reason, there is a need to reduce the number of parameters of the neural network.
+To do so, the pruning of the network is implemented using masks, as described in \autoref{sec:masking-pruning}.
+
+Each mask $\mathbf{m}_l$ associated with the channels of each layer $l$ of the CNN is computed as shown in \autoref{eq:mask}.
+At the incremental learning task $t$, after the training of the feature extractor $\mathcal{F}_t(\mathbf{x})$, the variable $s$ is set to a really high value ($10^{4}$ in the implementation). Since $s$ in fed into the sigmoid used as gating function, this results in a stepwise activation mechanism (this is true in the limit but is achieved in practice using high value of $s$). Then, if a value $e_{li}$ of the mask $\mathbf{e}_l$ is positive, $m_{li}$ tends to 1, whereas if $e_{li}$ is negative, $m_{li}$ tends to 0. Finally, to perform the actual binarization of each mask value, a threshold $\rho$ with a low value set to $10^{-4}$ is used as follows:
+
+
+\begin{align*}
+    m_{li}&=\left\{
+        \begin{array}{@{}ll@{}}
+            1, & \text{if } m_{li} > \rho\\
+            0, & \text{if } m_{li} < \rho\\
+        \end{array}\right.\\
+\end{align*}
+
+An important aspect to consider during the pruning of each convolutional layers $l$ of the feature extractor $\mathcal{F}_t(\mathbf{x})$ is the input and output dimension of the feature maps.
+Since $\mathbf{m}_l$ is a channel-level mask, the effect of pruning is to reduce the number of channels in the convolutional layers of the CNN.
+This results in altering the output dimension of the convolutional layer $l$, so the input dimension of the convolutional layer $l+1$ must be consistent with the output dimension of the tensor of the convolutional layer $l$.
+
+Another point to consider is the architecture used to implement the feature extractors $\mathcal{F}_t$. In fact, each feature extractor has as its backbone ResNet-34, which is an architecture based on residual connections (see \autoref{table:resnet} and \autoref{fig:residual-connection}).
+This is a limitation from a pruning perspective, because not only each feature map produced as output from a convolutional layer must have a dimension consistent with the input of the next convolutional layer, but there is the additional constraint caused by the residual connections that must also be consistent with the dimension of the input of the convolutional layers. This issue is shown and described in \autoref{fig:pruning-resnet}.
+
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=\columnwidth]{images/resnet-pruning.png}
+    \end{center}
+    \caption{Pruning strategy of ResNet. The pruning is performed in such a way that the final size of the output is maintained, so that the residual connection can be added. Image from \cite{8416559}.}
+    \label{fig:pruning-resnet}
+\end{figure}
+
+The use of residual connections involves pruning at block level.
+The definition of block depends on the specific ResNet architecture, but in the case of ResNet-34, a block consists of two convolutional layers, as shown in \autoref{table:resnet}, so pruning is applied to pairs of convolutional layers.
+This approach is necessary to maintain a feature maps in which the identity carried by the residual connection can be added.
+
+\section{Knowledge distillation}
 \label{sec:method-kd}
+Another approach used to address the problem of the large number of model parameters described in the previous section is Knowledge Distillation (KD).
+
+
 \section{Proposed baseline for the classifier}
 \label{sec:method-baseline}
 \subsection{Baseline without incremental steps}

@@ -320,7 +320,7 @@ At step $t$ of the incremental learning, the algorithm defines a super-feature e
 
 Given an image $\textbf{x} \in \tilde{\mathcal{D}}_t$, the feature $u$ extracted by $\Phi_t$ is the result of the following concatenation:
 \begin{equation}
-    \textbf{u} = \Phi_t(\textbf{x}) = [\Phi_{t-1}(\textbf{x}), \mathcal{F}_t(x)]
+    \textbf{u} = \Phi_t(\textbf{x}) = [\Phi_{t-1}(\textbf{x}), \mathcal{F}_t(\mathbf{x})]
 \end{equation}
 The feature $\textbf{u}$ is then fed into the classifier $\mathcal{H}_t$, which is defined in such a way that the input and output dimensions for step $t$ match. Then, the prediction is produced as follows:
 \begin{equation} \label{eq:classification}
@@ -353,7 +353,7 @@ Given a new feature extractor $\mathcal{F}_t$, the input feature map of the conv
     \textbf{f}_l \kern 0.05em ' = \textbf{f}_l \odot \textbf{m}_l
 \end{equation}
 where $\textbf{f}_l \kern 0.05em '$ is the masked feature map and $\odot$ means channel-level multiplication. To make the values of $\textbf{m}_l$ fall into the interval $[0,1]$, the mask is given by:
-\begin{equation}
+\begin{equation}\label{eq:mask}
     \textbf{m}_l = \sigma(s \textbf{e}_l)
 \end{equation}
 where $\textbf{e}_l$ is the learnable mask parameters, $\sigma(\cdot)$ is the sigmoid used as gating function, and $s$ is a scaling factor to control the sharpness of the function.
