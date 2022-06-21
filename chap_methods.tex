@@ -92,11 +92,13 @@ Given the ROIs, the classification of each cropped region is performed by a mode
 \label{sec:resnet}
 The DER algorithm introduces a new feature extractor $\mathcal{F}_t$ at each incremental step. This feature extractor consists of a Convolutional Neural Network (CNN). In the developed system, the backbone of the CNN used as feature extractor is ResNet-34 \cite{he2016deep} pre-trained on ImageNet1000 \cite{deng2009imagenet}.
 
-The peculiar aspect of the ResNet architecture are the Residual Connections, shown in \autoref{fig:residual-connection}.. These connections are a type of skip-connection that, instead of learning unreferenced functions, learn residual functions with respect to the layer inputs. Formally, denoting the desired underlying mapping as $\mathcal{H}(x)$, we let the stacked nonlinear layers fit another mapping of $\mathcal{F}(x) := \mathcal{H}(x) - x$. The original mapping is recast into $\mathcal{F}(x) + x$. 
+The peculiar aspect of the ResNet architecture are the Residual Connections, shown in \autoref{fig:residual-connection}. These connections are a type of skip-connection that, instead of learning unreferenced functions, learn residual functions with respect to the layer inputs. Formally, denoting the desired underlying mapping as $\mathcal{H}(x)$, we let the stacked nonlinear layers fit another mapping of $\mathcal{F}(x) := \mathcal{H}(x) - x$. The original mapping is recast into $\mathcal{F}(x) + x$. 
 
 The intuition is that it is easier to optimize the residual mapping than to optimize the original, unreferenced mapping. To the extreme, if an identity mapping were optimal, it would be easier to push the residual to zero than to fit an identity mapping by a stack of nonlinear layers \cite{he2016deep}.
 
-The architecture of ResNet-34, shown in \autoref{table:resnet}, consists in multiple stacked building blocks. Each building block, represented by the brackets in \autoref{table:resnet}, adopt the residual connection described above. The total number of parameters of ResNet-34 used as feature extractor at each incremental step is 23 million.
+The architecture of ResNet-34, shown in \autoref{table:resnet}, consists in multiple stacked building blocks. Each building block, represented by the brackets in \autoref{table:resnet}, adopt the residual connection described above.
+The combination of both the skip-connection and the batch-normalization (BN) \cite{ioffe2015batch} in ResNet enable the training of an very deep neural network achieving high performance.
+The total number of parameters of ResNet-34 used as feature extractor at each incremental step is 23 million.
 
 \begin{table}
     \centering
@@ -414,7 +416,7 @@ At the incremental learning task $t$, after the training of the feature extracto
     m_{li}&=\left\{
         \begin{array}{@{}ll@{}}
             1, & \text{if } m_{li} > \rho\\
-            0, & \text{if } m_{li} < \rho\\
+            0, & \text{if } m_{li} \leq \rho\\
         \end{array}\right.\\
 \end{align*}
 
@@ -440,8 +442,54 @@ This approach is necessary to maintain a feature maps in which the identity carr
 
 \section{Knowledge distillation}
 \label{sec:method-kd}
-Another approach used to address the problem of the large number of model parameters described in the previous section is Knowledge Distillation (KD).
 
+\begin{figure}[H]%
+	\centering
+
+    \begin{center}
+        \includegraphics[width=\columnwidth]{images/kd.drawio.png}
+    \end{center}
+
+	\caption{Knowledge distillation pipeline: the student model is trained by exploiting the teacher model using the distillation loss. This loss considers both the logits of the teacher and the real data labels.}%
+	\label{fig:kd}%
+\end{figure}
+
+Another approach used to address the problem of the large number of model parameters described in the previous section is Knowledge Distillation (KD) \cite{hinton2015distilling}. Knowledge distillation is the process of transferring knowledge from a large model to a smaller one. While large models (such as very deep neural networks like ResNet-152) have higher knowledge capacity than small models, this capacity might not be fully utilized.
+
+KD is essentially a model compression method in which a small model is trained to mimic a pre-trained, larger model.
+A large model with regularization (e.g. using dropout) generalizes better than a small model when trained directly on the data and labels, however, a small model can be trained to generalize better with help of a large model. This training setting is referred to as "teacher-student", where the large model is the teacher and the small model is the student.
+
+As described by Gou et al. in \cite{gou2021knowledge},
+Response-Based Knowledge is a type of KD which refers to the neural
+response of the last output layer of the teacher model.
+In thesis, the implementation of the KD is based on the paper of Hinton et al. in \cite{hinton2015distilling}.
+The main idea is to directly mimic the final prediction
+of the teacher model.
+The reason behind this is that the output probabilities of a trained model give more information than the labels because it assigns non-zero probabilities to incorrect classes as well.
+Knowledge is transferred from the teacher model to the student using a loss function known as the distillation loss, which captures the difference between the logits of the student and teacher models. In this way, the student become more accurate in making predictions similar to the teacher as this loss is reduced over time. The teacher-student setting for KD matching the logits between the two models is shown in \autoref{fig:kd}.
+
+The distillation loss used to train the student model is computed considering both the logits produced in output by the teacher and the real data labels.
+The probability $p_i$ of each class $i$, is computed by the teacher model using its logits $z_i$ as follows:
+\begin{equation}
+    p_i = \frac{exp(z_i)}{\sum_j exp(z_j)}
+\end{equation}
+
+The small model is trained to minimize the KL Divergence between its output probability distribution and the large network's output probability distribution (soft targets).
+
+One issue with this technique is that the probabilities assigned to incorrect classes by the large network are often very small and don't contribute to the loss. For this reason, the logits are softened using a "temperature" $T$ in the softmax, effectively smoothing out the probability distribution and revealing inter-class relationships learned by the teacher. Then, the softened probabilities are given by:
+\begin{equation}\label{eq:kd_prob}
+    p_i^t = \frac{exp(\frac{z_i^t}{T})}{\sum_j exp(\frac{z_i^t}{T})}
+\end{equation}
+where higher values for $T$ will produce softer probabilities. The predictions $p_i^t$ are called soft targets, shown in \autoref{fig:kd}.
+
+In the same way, the \autoref{eq:kd_prob} is used to compute the class probabilities $p_i^s$ predicted by the student using the logits $z_i^s$ of the model and the same temperature $T$. Hinton et al. in \cite{hinton2015distilling} found that it is also beneficial to train the student model to produce the real data labels in addition to the teacher's soft targets. Therefore, by setting $T = 1$, the \autoref{eq:kd_prob} is used to compute the "standard" class probabilities $\hat{y}_i^s$ using the student model.
+
+Thus, considering bot the KL divergence of the output probability distribution of the two models, and the Cross-Entropy between the output probabilities $\hat{y}_i^s$ of the student and the true data labels $y_i$, the final distillation loss is given by:
+\begin{equation}
+    \mathcal{L}_{KD} = \alpha \left[\sum_{i=1}^{\substack{\text{output}\\\text{size}}} p_i^t \, log \left( \frac{p_i^t}{p_i^a} \right) \right]
+    + (1-\alpha) \left[-\sum_{i=1}^{\substack{\text{output}\\\text{size}}} y_i^s \, (\log \hat{y}_i^s) \right]
+\end{equation}
+where $\alpha \in [0, 1]$ is a hyper-parameter controlling the weighted average between the two components.
 
 \section{Proposed baseline for the classifier}
 \label{sec:method-baseline}
