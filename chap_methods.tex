@@ -482,11 +482,12 @@ One issue with this technique is that the probabilities assigned to incorrect cl
 \end{equation}
 where higher values for $T$ will produce softer probabilities. The predictions $p_i^t$ are called soft targets, shown in \autoref{fig:kd}.
 
-In the same way, the \autoref{eq:kd_prob} is used to compute the class probabilities $p_i^s$ predicted by the student using the logits $z_i^s$ of the model and the same temperature $T$. Hinton et al. in \cite{hinton2015distilling} found that it is also beneficial to train the student model to produce the real data labels in addition to the teacher's soft targets. Therefore, by setting $T = 1$, the \autoref{eq:kd_prob} is used to compute the "standard" class probabilities $\hat{y}_i^s$ using the student model.
+In the same way, the \autoref{eq:kd_prob} is used to compute the class probabilities $p_i^s$ predicted by the student using the logits $z_i^s$ of the model and the same temperature $T$. In addition to the teacher's soft targets, Hinton et al. in \cite{hinton2015distilling} found that it is also beneficial to train the student model to produce the real data labels, called hard targets and shown in \autoref{fig:kd}.
+Therefore, by setting $T = 1$, the \autoref{eq:kd_prob} is used to compute the "standard" class probabilities $\hat{y}_i^s$ using the student model.
 
 Thus, considering bot the KL divergence of the output probability distribution of the two models, and the Cross-Entropy between the output probabilities $\hat{y}_i^s$ of the student and the true data labels $y_i$, the final distillation loss is given by:
 \begin{equation}
-    \mathcal{L}_{KD} = \alpha \left[\sum_{i=1}^{\substack{\text{output}\\\text{size}}} p_i^t \, log \left( \frac{p_i^t}{p_i^a} \right) \right]
+    \mathcal{L}_{KD} = \alpha \left[\sum_{i=1}^{\substack{\text{output}\\\text{size}}} p_i^t \, log \left( \frac{p_i^t}{p_i^s} \right) \right]
     + (1-\alpha) \left[-\sum_{i=1}^{\substack{\text{output}\\\text{size}}} y_i^s \, (\log \hat{y}_i^s) \right]
 \end{equation}
 where $\alpha \in [0, 1]$ is a hyper-parameter controlling the weighted average between the two components.
