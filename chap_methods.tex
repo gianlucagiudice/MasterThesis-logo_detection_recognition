@@ -551,3 +551,8 @@ A CNN that has ResNet-152 as a backbone is then used. The architecture of ResNet
 Even though this new baseline is an improvement over the previous one, the number of parameters may still be lower than in the CIL model, as in the case of the baseline of the first type.
 
 \subsection{DER-based architecture}
+The third baseline introduced solves the problem of the different number of parameters between the CIL model and the baseline.
+To this purpose, referring to the exact same setup used for training the CIL model and considering the number of iterations $t$, the DER algorithm is exploited to define another neural network by performing $t$ incremental learning steps without actually training the new network.
+Subsequently, since at timestamp $t$ of incremental learning the DER algorithm freezes the weights of the feature extractors associated with the timestamps $t-1$, all weights, both relative to the feature extractors $\mathcal{F}_i$ and to the classifier $\mathcal{H}_{i}$, are allowed to be trained.
+
+This new network will serve as the baseline, and unlike the DER algorithm, the optimisation process will aim to classify all the classes (intended as all those introduced incrementally during the training of the CIL model) correctly without taking into account the auxiliary classifier $\mathcal{H}^a$ and the masks for pruning described in \autoref{sec:der-algorithm}.
