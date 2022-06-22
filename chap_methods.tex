@@ -482,10 +482,10 @@ One issue with this technique is that the probabilities assigned to incorrect cl
 \end{equation}
 where higher values for $T$ will produce softer probabilities. The predictions $p_i^t$ are called soft targets, shown in \autoref{fig:kd}.
 
-In the same way, the \autoref{eq:kd_prob} is used to compute the class probabilities $p_i^s$ predicted by the student using the logits $z_i^s$ of the model and the same temperature $T$. In addition to the teacher's soft targets, Hinton et al. in \cite{hinton2015distilling} found that it is also beneficial to train the student model to produce the real data labels, called hard targets and shown in \autoref{fig:kd}.
+In the same way, the \autoref{eq:kd_prob} is used to compute the class probabilities $p_i^s$ predicted by the student using the logits $z_i^s$ of the model and the same temperature $T$. In addition to the teacher's soft targets, Hinton et al. in \cite{hinton2015distilling} show that it is also beneficial to train the student model to produce the real data labels, called hard targets and shown in \autoref{fig:kd}.
 Therefore, by setting $T = 1$, the \autoref{eq:kd_prob} is used to compute the "standard" class probabilities $\hat{y}_i^s$ using the student model.
 
-Thus, considering bot the KL divergence of the output probability distribution of the two models, and the Cross-Entropy between the output probabilities $\hat{y}_i^s$ of the student and the true data labels $y_i$, the final distillation loss is given by:
+Thus, considering both the KL divergence of the output probability distribution of the two models, and the Cross-Entropy between the output probabilities $\hat{y}_i^s$ of the student and the true data labels $y_i$, the final distillation loss is given by:
 \begin{equation}
     \mathcal{L}_{KD} = \alpha \left[\sum_{i=1}^{\substack{\text{output}\\\text{size}}} p_i^t \, log \left( \frac{p_i^t}{p_i^s} \right) \right]
     + (1-\alpha) \left[-\sum_{i=1}^{\substack{\text{output}\\\text{size}}} y_i^s \, (\log \hat{y}_i^s) \right]
@@ -494,6 +494,60 @@ where $\alpha \in [0, 1]$ is a hyper-parameter controlling the weighted average 
 
 \section{Proposed baseline for the classifier}
 \label{sec:method-baseline}
+To evaluate CIL models and compare performance with a model in a traditional setup, without the possibility of introducing new classes after training, there is a need to define a baseline. CIL models are very useful for introducing new classes after training, but in general this advantage is at the expense of model performance. Consequently, a CIL model will perform less well when compared to one trained in a traditional setup, but a good CIL algorithm should narrow this gap as much as possible. 
+
+Since, without considering the CIL aspect, different approaches can be defined to handle a classical classification problem, this chapter discusses the different baselines introduced with the aim of comparing them with the CIL models.
+
 \subsection{Baseline without incremental steps}
+The most direct approach is to define a baseline using the DER algorithm. This means taking all the classes introduced incrementally at each iteration of incremental learning, and using them from the very beginning at task 0 to train the model with the DER algorithm. The foregoing defines the first type of baseline considered for comparison with the CIL model.
+
+Although this approach appears to be simple and straightforward, it has a problem related to what is described in section \autoref{sec:method-pruning}. In fact, such an approach is not very fair, as the baseline has a number of parameters $N$ equal to the CNN used as the backbone for the feature extractor, whereas the CIL model trained with the DER algorithm will have a number of parameters equal to $N + t \times N$, where $t$ is the number of iterations of incremental learning. As a result, the CIL model may perform better than the baseline only because it has a significantly larger number of parameters.
+
 \subsection{ResNet-152 architecture}
+In order to solve the problem of the first baseline definition, relating to the difference in parameters between the baseline and the CIL model, a second type of baseline is defined. In this second approach, the DER algorithm is not used anymore but simply a network with a significantly higher number of parameters, e.g. ResNet-152, is used in order to bridge the gap in the number of parameters between the baseline and the CIL model.
+
+A CNN that has ResNet-152 as a backbone is then used. The architecture of ResNet-152 is very similar to the one described in the table \autoref{table:resnet}, in fact it maintains all the main features such as skip-connections, but has each block composed of more convolutional layers, and the number of stacked blocks increases. The architecture of ResNet-152 consists of 60 million parameters and is described in \autoref{table:resnet-152}.
+
+
+\begin{table}
+    \centering
+    \begingroup
+    
+    \begin{tabular}{>{\centering\arraybackslash}p{.3\textwidth}|>{\centering\arraybackslash}p{.3\textwidth}|>{\centering\arraybackslash}p{.3\textwidth}}
+
+
+        \hline
+        \multicolumn{3}{c}{\textbf{ResNet-152 architecture}}\\
+        \hline
+        \textbf{Layer name} & \textbf{Output size} & \textbf{Layer} \\
+        \hline
+        \hline
+        conv1 & $112 \times 122$ & $7 \times 7, 64,$ stride $2$ \\
+        \hline
+          & $56 \times 56$ & $3 \times 3$ max pool, stride $2$ \\
+        \hline
+
+        \[ \textrm{conv2\char`_x} \] &  \[56 \times 56 \] & \[\left[ \begin{array}{c} 1 \times 1, \, 64\\ 3 \times 3, \, 64 \\ 1 \times 1, \, 256  \end{array} \right] \times 3 \]\\
+        \hline
+
+        \[ \textrm{conv3\char`_x} \] &  \[28 \times 28 \] & \[\left[ \begin{array}{c} 1 \times 1, \, 128 \\ 3 \times 3, \, 128  \\ 1 \times 1, \, 256  \end{array}\right] \times 8 \]\\
+        \hline
+
+        \[ \textrm{conv4\char`_x} \] &  \[14 \times 14 \] & \[\left[ \begin{array}{c} 1 \times 1, \, 256\\ 3 \times 3, \, 256\\ 1 \times 1, \, 1024  \end{array}\right] \times 36 \]\\
+        \hline
+
+        \[ \textrm{conv5\char`_x} \] &  \[7 \times 7 \] & \[\left[ \begin{array}{c} 1 \times 1, \, 512\\ 3 \times 3, \, 512\\ 1 \times 1, \, 2048  \end{array}\right] \times 3 \]\\
+        \hline
+        & $1000 \times 1$ & average pool \\
+        \hline
+        FC & $1000 \times 1$ & $1000$-d FC layer, softmax \\
+        \hline
+        \end{tabular}
+    \endgroup
+    \caption{Architecture of ResNet-152, the brackets represent a stack of building blocks.}
+    \label{table:resnet-152}
+\end{table}
+
+Even though this new baseline is an improvement over the previous one, the number of parameters may still be lower than in the CIL model, as in the case of the baseline of the first type.
+
 \subsection{DER-based architecture}
