@@ -290,7 +290,7 @@ where $\eta$ is the learning rate ($\eta = 0.1$ in the experiments described in 
 \end{equation}
 This means that, on average, the stochastic gradient is a good estimate of the gradient.
 
-A compromise between computing the true gradient and the gradient at a single sample is to compute the gradient against more than one training sample (called a "mini-batch") at each step. This means replacing the gradient $\nabla f_i(\textbf{w})$ on a single observation with one over a small batch $\mathcal{B}_t = \{ \textbf{x}^{(1)},\, ..., \, \textbf{x}^{(m)}\}$ (for the experiments described in \autoref{chap:experiments}, $|\mathcal{B}_t| = 2048$). Then, the gradient $\textbf{g}_t$ over a small batch $\mathcal{B}_t$ is given by:
+A compromise between computing the true gradient and the gradient at a single sample is to compute the gradient against more than one training sample (called a 'mini-batch') at each step. This means replacing the gradient $\nabla f_i(\textbf{w})$ on a single observation with one over a small batch $\mathcal{B}_t = \{ \textbf{x}^{(1)},\, ..., \, \textbf{x}^{(m)}\}$ (for the experiments described in \autoref{chap:experiments}, $|\mathcal{B}_t| = 2048$). Then, the gradient $\textbf{g}_t$ over a small batch $\mathcal{B}_t$ is given by:
 \begin{equation}
     \mathbf{g}_t = \frac{1}{|\mathcal{B}_t|} \sum_{i \in \mathcal{B}_t} \nabla f_i(\mathbf{w})
 \end{equation}
@@ -467,7 +467,7 @@ This approach is necessary to maintain a feature maps in which the identity carr
 Another approach used to address the problem of the large number of model parameters described in the previous section is Knowledge Distillation (KD) \cite{hinton2015distilling}. Knowledge distillation is the process of transferring knowledge from a large model to a smaller one. While large models (such as very deep neural networks like ResNet-152) have higher knowledge capacity than small models, this capacity might not be fully utilized.
 
 KD is essentially a model compression method in which a small model is trained to mimic a pre-trained, larger model.
-A large model with regularization (e.g. using dropout) generalizes better than a small model when trained directly on the data and labels, however, a small model can be trained to generalize better with help of a large model. This training setting is referred to as "teacher-student", where the large model is the teacher and the small model is the student.
+A large model with regularization (e.g. using dropout) generalizes better than a small model when trained directly on the data and labels, however, a small model can be trained to generalize better with help of a large model. This training setting is referred to as 'teacher-student', where the large model is the teacher and the small model is the student.
 
 As described by Gou et al. in \cite{gou2021knowledge},
 Response-Based Knowledge is a type of KD which refers to the neural
@@ -486,14 +486,14 @@ The probability $p_i$ of each class $i$, is computed by the teacher model using 
 
 The small model is trained to minimize the KL Divergence between its output probability distribution and the large network's output probability distribution (soft targets).
 
-One issue with this technique is that the probabilities assigned to incorrect classes by the large network are often very small and don't contribute to the loss. For this reason, the logits are softened using a "temperature" $T$ in the softmax, effectively smoothing out the probability distribution and revealing inter-class relationships learned by the teacher. Then, the softened probabilities are given by:
+One issue with this technique is that the probabilities assigned to incorrect classes by the large network are often very small and don't contribute to the loss. For this reason, the logits are softened using a 'temperature' $T$ in the softmax, effectively smoothing out the probability distribution and revealing inter-class relationships learned by the teacher. Then, the softened probabilities are given by:
 \begin{equation}\label{eq:kd_prob}
     p_i^t = \frac{exp(\frac{z_i^t}{T})}{\sum_j exp(\frac{z_i^t}{T})}
 \end{equation}
 where higher values for $T$ will produce softer probabilities. The predictions $p_i^t$ are called soft targets, shown in \autoref{fig:kd}.
 
 In the same way, the \autoref{eq:kd_prob} is used to compute the class probabilities $p_i^s$ predicted by the student using the logits $z_i^s$ of the model and the same temperature $T$. In addition to the teacher's soft targets, Hinton et al. in \cite{hinton2015distilling} show that it is also beneficial to train the student model to produce the real data labels, called hard targets and shown in \autoref{fig:kd}.
-Therefore, by setting $T = 1$, the \autoref{eq:kd_prob} is used to compute the "standard" class probabilities $\hat{y}_i^s$ using the student model.
+Therefore, by setting $T = 1$, the \autoref{eq:kd_prob} is used to compute the 'standard' class probabilities $\hat{y}_i^s$ using the student model.
 
 Thus, considering both the KL divergence of the output probability distribution of the two models, and the Cross-Entropy between the output probabilities $\hat{y}_i^s$ of the student and the true data labels $y_i$, the final distillation loss is given by:
 \begin{equation}
