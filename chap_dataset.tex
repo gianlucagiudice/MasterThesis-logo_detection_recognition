@@ -1,13 +1,12 @@
-\chapter{Dataset}
+\chapter{Datasets}
 \label{chap:dataset}
 
-A crucial part in the development of deep learning models is the dataset used for training. There are several datasets proposed in the literature for logo detection and recognition, however, some of them like BelgaLogos \cite{neumann2002integration} lack of variety in the number of classes and have a small number of images. For this reason, some works aimed to construct some larger dataset, such as WebLogo-2M \cite{su2017weblogo} or Logos in the wild \cite{tuzko2017open}. The issue with these types of large scale dataset is that they are automatically collected and labeled, leading to some noise in the target label.
+A crucial part in the development of deep learning models is the dataset used for training. There are several datasets proposed in the literature for logo detection and recognition, however, some of them like BelgaLogos \cite{neumann2002integration} have few classes and a small number of images. For this reason, some works aimed to construct some larger dataset, such as WebLogo-2M \cite{su2017weblogo} or Logos in the wild \cite{tuzko2017open}. The issue with these types of large scale datasets is that they are automatically collected and labeled, leading to some noise in the target label.
 
 A list of datasets proposed in the literature is given by Li et al. in SeeTek \cite{li2022seetek}, shown in \autoref{table:logo-datasets}.
 
 \begin{table}
-    \begin{center}
-        \begin{tabular}{c || c | c | c | c | c |c} 
+    \centerline{\begin{tabular}{c || c | c | c | c | c |c} 
             \hline
             \textbf{Dataset} & \textbf{Logos} & \textbf{Images} & \textbf{Annotation} & \textbf{Noisy} & \textbf{Public} & \textbf{Scalability} \\
             \hline
@@ -24,10 +23,7 @@ A list of datasets proposed in the literature is given by Li et al. in SeeTek \c
            LogoDet-3K \cite{wang2022logodet} & 3,000 & 158,652 & Object-Level & no & yes & Strong \\ 
            PL8K \cite{li2022seetek} & 7,888 & 3,017,146 & Object-Level & no & no & Strong \\ 
            \hline
-       
-           \end{tabular}
-    \end{center}
-    
+           \end{tabular}}
     \caption{Statistics and characteristics of existing logo detection datasets \cite{li2022seetek}.}
     \label{table:logo-datasets}
 \end{table}
@@ -42,9 +38,9 @@ In the face of this, the only two large-scale and non-noisy datasets of \autoref
 \label{sec:logodet-desc}
 LogoDet-3K consists of 3,000 logo classes,
 158,652 images and 194,261 logo objects. The objects correspond to the bounding boxes in each image, and since an image can contain more than one logo, the number of objects is greater than the number of images. 
-The dataset is divided into nine categories, each category contains several brands and for each brand there is a set of images. The \autoref{table:logodet3k-category-statistics} shows the number of brands, images and objects for each category.
+The dataset is divided into nine categories, each category contains several brands and for each brand there is a set of images. \autoref{table:logodet3k-category-statistics} shows the number of brands, images and objects for each category.
 
-In this context, a brand is intended as a logo class. In fact, the same brand can have multiple versions of logos, for example, a symbolic logo and a textual logo. These type of logos are treated as different classes in the LogoDet-3K dataset, a suffix such as '\textit{brand}-1' and '\textit{brand}-2' is used to deal with these cases. An example is given in \autoref{fig:logos-suffix}.
+In this context, a brand is intended as a logo class. In fact, the same brand can have multiple versions of logos, for example, a symbolic logo and a textual logo. These types of logos are treated as different classes in the LogoDet-3K dataset, a suffix such as '\textit{brand}-1' and '\textit{brand}-2' is used to deal with these cases. An example is given in \autoref{fig:logos-suffix}.
 It is important to point out how an image can contain multiple logo objects and the objects in the same image are not necessary of the same class.
 
 
@@ -83,7 +79,7 @@ It is important to point out how an image can contain multiple logo objects and 
 
 \subsection{Dataset statistics}
 \label{sec:dataset-stat}
-The \autoref{fig:logodet-dist} shows the distribution of the number of objects for each logo class.
+\autoref{fig:logodet-dist} shows the distribution of the number of objects for each logo class.
 \begin{figure}[ht]
 	\centering
 
@@ -95,7 +91,7 @@ The \autoref{fig:logodet-dist} shows the distribution of the number of objects f
 \end{figure}
 
 
-The main issue of LogoDet-3K is the low number of objects for some classes. Analyzing the boxplot in \autoref{fig:logodet-boxplot} and the statistics of \autoref{table:logodet3k-quartile} we can see how the 25\% of the classes have a number of images lowe or equal to 27. Moreover, half of the classes have a number of images lower or equal to 54. This is the main issue with this dataset: since several classes have a low number of images, it could be challenging for the model to correctly predict these classes.  
+The main issue of LogoDet-3K is the low number of objects for some classes. Analyzing the boxplot in \autoref{fig:logodet-boxplot} and the statistics of \autoref{table:logodet3k-quartile} we can see how the 25\% of the classes have a number of images lower or equal to 27. Moreover, half of the classes have a number of images lower or equal to 54. This is the main issue with this dataset: since several classes have a low number of images, it could be challenging for the model to correctly predict these classes.  
 
 
 
@@ -157,7 +153,7 @@ The LogoDet-3K dataset is available in the GitHub repository\footnote{PyCIL GitH
         ]
     ]
 \end{forest}\\
-Although the number of subdirectories in each category sums to 3,000 (i.e. the number of classes of the dataset), using the dataset provided in the GitHub repository, when analyzing the metadata of the '.xml' files, the number of the uniques logo classes is 2,993. This is a discrepancy in the dataset between what is described in the original paper and the dataset downloaded from the GitHub repository.
+Although the number of subdirectories in each category sum to 3,000 (i.e. the number of classes of the dataset), using the dataset provided in the GitHub repository, when analyzing the metadata of the '.xml' files, the number of the uniques logo classes is 2,993. This is a discrepancy in the dataset between what is described in the original paper and the dataset downloaded from the GitHub repository.
 
 Another issue related with this dataset is that some images contain errors regarding the annotations in the metadata. For example, the two images:
 \begin{enumerate}
