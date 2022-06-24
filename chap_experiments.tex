@@ -48,6 +48,15 @@ Other useful insights can be derived from the training history of a task (e.g. T
 \end{figure}
 
 
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering Accuracy on the training set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp1-train.png} }}%
+	\subfloat[\centering Accuracy on the validation set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp1-val.png} }}%
+	\caption{Comparison of the accuracy at each training epoch at task 7 between the training and validation set.}%
+	\label{fig:exp1-train_val}%
+\end{figure}
+
+
 \begin{table}[H]
     \centering
     \centerline{
@@ -71,25 +80,17 @@ CIL\_30\_10\_100-mem100-resnet50-SGD-nopretrained-drop0 &ResNet-50&no& 50.43 & 8
 CIL\_30\_10\_100-mem100-resnet50-SGD-pretrained-drop0 &ResNet-50&yes& 58.54 & 92.59\\
         \hline        
     \end{tabular}}
-    \caption{Top-1 and Top-5 accuracy of the models at the task 7.}
+    \caption{Top-1 and Top-5 accuracy of the models at task 7.}
     \label{table:exp1}
 \end{table}
-
-
-\begin{figure}[H]
-	\centering
-	\subfloat[\centering Accuracy on the training set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp1-train.png} }}%
-	\subfloat[\centering Accuracy on the validation set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp1-val.png} }}%
-	\caption{Comparison of the accuracy at each training epoch on task 7 between the validation and test set.}%
-	\label{fig:exp1-train_val}%
-\end{figure}
 
 \subsubsection{Regularization and data augmentation}
 Following the analysis discussed above, it is necessary to regularize the model.
 To do so, the next experiments are performed using the dropout layer (see \autoref{sec:methods-dropout}) and data augmentation (see \autoref{sec:methods-augment}). As said before, the backbone of each model is ResNet-34 and each one is pre-trained on ImageNet.
 
-As expected, the performance at each task is higher than before, as shown in \autoref{fig:exp2} and in \autoref{table:exp2}. Analyzing \autoref{fig:exp2-train_val}, the accuracy on the train and validation set at task 7 (the same as before), the training accuracy is lower than models without regularization, but the validation accuracy is higher. This is a sign that the regularization works as intended.
+As expected, the performance at each task is higher than before, as shown in \autoref{fig:exp2}. Analyzing \autoref{fig:exp2-train_val}, the accuracy on the train and validation set at task 7 (the same as before), the training accuracy is lower than models without regularization, but the validation accuracy is higher. This is a sign that the regularization works as intended.
 
+As shown in \autoref{table:exp2}, the top-1 accuracy of the best regularized model which adopting data augmentation is 7\% higher than that without regularization and data augmentation.
 
 \begin{figure}[H]
 	\centering
@@ -99,7 +100,13 @@ As expected, the performance at each task is higher than before, as shown in \au
 	\label{fig:exp2}%
 \end{figure}
 
-
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering Accuracy on the training set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp2-train.png} }}%
+	\subfloat[\centering Accuracy on the validation set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp2-val.png} }}%
+	\caption{Regularized models with data augmentation: comparison of the accuracy at each training epoch at task 7 between training and validation.}%
+	\label{fig:exp2-train_val}%
+\end{figure}
 
 \begin{table}[H]
     \centering
@@ -126,20 +133,106 @@ CIL\_30\_10\_100-mem100-resnet34-SGD-pretrained-drop0.3-augmented&yes&0.3&\textb
 CIL\_30\_10\_100-mem100-resnet34-SGD-pretrained-drop0.5-augmented&yes&0.5&65.57&	96.24\\
         \hline        
     \end{tabular}}
-    \caption{Regularized models with data augmentation. Top-1 and Top-5 accuracy at the task 7.}
+    \caption{Regularized models with data augmentation. Top-1 and Top-5 accuracy at task 7.}
     \label{table:exp2}
 \end{table}
 
+\subsubsection{Top-100 Classes}
+In order to assess the extent to which those classes with few examples contribute to performance deterioration, the next experiments are carried out by considering only the top-100 classes, i.e. those with the largest number of examples (see the left-hand side of the distribution in \autoref{fig:logodet-dist}). This is useful to be aware of how much the model is limited in performance by the dataset.
+
+Considering the regularized models and data augmentation, models trained on 100 randomly sampled classes and those trained on the top-100 classes are compared in \autoref{fig:exp3} and \autoref{table:exp3}. As we can see, even if the top-5 accuracy does not change between the two cases, considering the top-1 accuracy there is a drastic improvement in performance. This is a clear sign that classes with few examples deteriorate performance a lot.
+
 \begin{figure}[H]
 	\centering
-	\subfloat[\centering Accuracy on the training set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp2-train.png} }}%
-	\subfloat[\centering Accuracy on the validation set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp2-val.png} }}%
-	\caption{Regularized models with data augmentation: comparison of the accuracy at each training epoch on task 7 between the validation and test set.}%
-	\label{fig:exp2-train_val}%
+	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp3-top1.png} }}%
+	\subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp3-top5.png} }}%
+	\caption{Comparison of models trained on 100 randomly sampled classed and top-100 classes.}%
+	\label{fig:exp3}%
 \end{figure}
 
+\begin{table}[H]
+    \centering
+    \centerline{
+    \begin{tabular}{c|c|c|c|c}
+        \hline
+        \textbf{Name} &
+        \textbf{Dropout} &
+        \textbf{Sampling} &
+        \textbf{Top-1} & 
+        \textbf{Top-5} \\
+        &
+        \textbf{rate} &
+        \textbf{method} &
+        \textbf{acc. (\%)} & 
+        \textbf{acc. (\%)} \\
+        \hline
+        \hline
+CIL\_30\_10\_100-mem100-[...]-drop0.1-augmented&0.1&random&	67.17&98.15\\
+CIL\_30\_10\_100-mem100-[...]-drop0.3-augmented&0.3&random&67.28&	97.3\\
+CIL\_30\_10\_100-mem100-[...]-drop0.5-augmented&0.5&random&65.57&	96.24\\
+\hline
+CIL\_30\_10\_100-mem100-[...]-drop0.1-augmented-onlytop&0.1&top-100&\textbf{89.1}&\textbf{96.59}\\
+CIL\_30\_10\_100-mem100-[...]-drop0.3-augmented-onlytop&0.3&top-100&88.14&96.39\\
+CIL\_30\_10\_100-mem100-[...]-drop0.5-augmented-onlytop&0.5&top-100&87.6&95.92\\
+        \hline
+    \end{tabular}}
+    \caption{Comparison of models trained on 100 randomly sampled classed and top-100 classes. Top-1 and Top-5 accuracy at task 7.}
+    \label{table:exp3}
+\end{table}
 
 \subsubsection{Introduction of Adam optimizer}
+The next experiments aim to compare the SGD (see \autoref{sec:sgd_opt}) and Adam (see \autoref{sec:adam_opt}) optimizers. Considering the regularized models, data augmentation and the top-100 classes, the result of this comparison is shown in \autoref{fig:exp4} and \autoref{table:exp4}.
+
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp4-top1.png} }}%
+	\subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp4-top5.png} }}%
+	\caption{Comparison of models trained using SGD and Adam.}%
+	\label{fig:exp4}%
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \centerline{
+    \begin{tabular}{c|c|c|c|c}
+        \hline
+        \textbf{Name} &
+        \textbf{Dropout} &
+        \textbf{Optimizer} &
+        \textbf{Top-1} & 
+        \textbf{Top-5} \\
+        &
+        \textbf{rate} &
+        \textbf{method} &
+        \textbf{acc. (\%)} & 
+        \textbf{acc. (\%)} \\
+        \hline
+        \hline
+CIL\_30\_10\_100-[...]-SGD-pretrained-drop0.1-augmented-onlytop&0.1&SGD&89.1&96.59\\
+CIL\_30\_10\_100-[...]-SGD-pretrained-drop0.3-augmented-onlytop&0.3&SGD&88.14&96.39\\
+CIL\_30\_10\_100-[...]-SGD-pretrained-drop0.5-augmented-onlytop&0.5&SGD&87.6&95.92\\
+\hline
+CIL\_30\_10\_100-[...]-adam-pretrained-drop0.1-augmented-onlytop&0.1&Adam&92.15&97.92\\
+CIL\_30\_10\_100-[...]-adam-pretrained-drop0.3-augmented-onlytop&0.3&Adam&91.55&97.75\\
+CIL\_30\_10\_100-[...]-adam-pretrained-drop0.5-augmented-onlytop&0.5&Adam&\textbf{95.04}&\textbf{98.4}\\
+        \hline
+    \end{tabular}}
+    \caption{Comparison of models trained using SGD and Adam. Top-1 and Top-5 accuracy at task 7.}
+    \label{table:exp4}
+\end{table}
+
+Faster convergence and higher performance: From the training history we can see optimizer Adam migliora molto. \autoref{fig:exp4-train_val}.\todo{Spiegare}
+
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering Accuracy on the training set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp4-train.png} }}%
+	\subfloat[\centering Accuracy on the validation set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp4-val.png} }}%
+	\caption{Models trained using SGD and Adam: comparison of the accuracy at each training epoch at task 7 between the validation and training set.}%
+	\label{fig:exp4-train_val}%
+\end{figure}
+
+\subsubsection{Pruning}
+Ora\todo{Spiegare}
 
 \subsection{2993 Classes}
 \label{sec:whole_dataset_clf}

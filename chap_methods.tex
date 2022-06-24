@@ -277,6 +277,7 @@ This is done by monitoring the accuracy of the model during training on the vali
 The hyperparameters of early stopping are the following: the number of epochs with no improvement after which training will be stopped is set to 30 (i.e. patience); the minimum change in the monitored accuracy to be considered as an improvement is set to 0.5\% (i.e., the minimum delta).
 
 \subsubsection{SGD optimizer}
+\label{sec:sgd_opt}
 To update the model weights two different optimizers are tested.
 One of them is Stochastic Gradient Descent (SGD), an iterative method for optimizing an objective function.
 
@@ -328,6 +329,7 @@ Note that, in an epoch, the examples are not reused for multiple batches. The mi
 
 
 \subsubsection{Adam optimizer}
+\label{sec:adam_opt}
 The second optimizer used in the experiments is Adam \cite{kingma2014adam}, which can be considered as a combination of RMSProp \cite{hinton2012neural} and momentum \cite{sutskever2013importance}. Adam is an adaptive learning rate optimizer, i.e. it uses a separate learning rate for each parameter and automatically adapts these learning rates throughout the course of learning. A key component of Adam is that it uses exponential weighted moving averages (also known as leaky averaging) to obtain an estimate of the momentum and the second moment of the gradient.
 
 To estimate the first-order and the second-order moments of the gradient, Adam uses two state variables:
