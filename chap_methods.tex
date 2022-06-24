@@ -6,7 +6,7 @@ As discussed in \autoref{chap:introduction}, the system developed in this thesis
     \item \textbf{Object Proposal}: detection of all the logos in the image
     \item \textbf{Classification}: recognition of each logo
 \end{enumerate}
-The first step of logo detection in the image is done by YOLO (see \autoref{sec:yolo}), while the actual logo recognition is performed by the classifier in an incremental learning setup. The system pipeline is shown in \autoref{fig:roi_and_classification}.
+The first step is done by YOLO (see \autoref{sec:yolo}), while the actual logo recognition is performed by the classifier in an incremental learning setup. The system pipeline is shown in \autoref{fig:roi_and_classification}.
 
 \begin{figure}%
 	\centering
@@ -15,7 +15,7 @@ The first step of logo detection in the image is done by YOLO (see \autoref{sec:
         \includegraphics[width=\columnwidth]{images/roi+classification.drawio.png}
     \end{center}
 
-	\caption{Pipeline of the system: the class-agnostic logo detector generates Regions of interest (ROIs), then the classification is performed by the CIL classifier.}%
+	\caption{Pipeline of the system: the class-agnostic logo detector generates Regions of interest (ROIs), then the recognition is performed by the CIL classifier.}%
 	\label{fig:roi_and_classification}%
 \end{figure}
 
@@ -23,7 +23,7 @@ The detector used in the first step is a class-agnostic logo detector: it is a l
 
 An important aspect of the classifier is the size of the model (in terms of the number of parameters). To this reason, a part of this work aims to decrease the number of parameters of the classifier using two different techniques. The first one is described in \autoref{sec:method-pruning}, using masking and pruning introduced in \autoref{sec:masking-pruning} it aims to prune the model after the training of each incremental step, thus reducing the number of parameters. The second technique is the Knowledge Distillation (KD) described in \autoref{sec:method-kd}, where a smaller model is trained with the supervision of a bigger model trained on the same task.
 
-The code developed in this thesis is available in the GitHub repository\footnote{GitHub repository relative to the code of developed in this thesis: \\ \href{https://github.com/gianlucagiudice/logo-detection-recognition}{https://github.com/gianlucagiudice/logo-detection-recognition}} linked below. The system has been developed using the Python programming language, and the code is implemented using PyTorch \cite{paszke2019pytorch}, a widely used deep learning framework. The training of the models is done using the NVIDIA Tesla K80 GPU with 12GB of memory.
+The code developed in this thesis is available in the GitHub repository\footnote{GitHub repository with the code developed in this thesis: \\ \href{https://github.com/gianlucagiudice/logo-detection-recognition}{https://github.com/gianlucagiudice/logo-detection-recognition}} linked below. The system is developed using the Python programming language, and the code is implemented using PyTorch \cite{paszke2019pytorch}, a widely used deep learning framework. The training of the models is done using the NVIDIA Tesla K80 GPU with 12GB of memory.
 
 \vspace{1.5\baselineskip}
 This chapter describes all the details about the logo detector in \autoref{sec:method-roi} and continues with the classifier in \autoref{sec:method-classifier}. Then, in \autoref{sec:method-pruning} and \autoref{sec:method-kd} are discussed some techniques to reduce the number of model parameters. In order to evaluate the drop in performance of the CIL classifier when compared to a standard close-set classification task (i.e. all classes are available from the beginning and no new ones are introduced over time),
@@ -31,16 +31,18 @@ the chapter ends in \autoref{sec:method-baseline} with the introduction of diffe
 
 \section{Region proposal}
 A key component of the system is the logo detector. Formally, this first step is an object detection task, where the objects to be detected are the logos in the image. The logo detector outputs the coordinates of the bounding boxes corresponding to the logos in the image.
-Bounding boxes can be used to crop the portions of the image creating regions of interest (ROIs). ROIs correspond to what the detector considers to be a generic logo and can be used directly as input to the CIL model that classifies (i.e. recognizes) the logo.
+Bounding boxes can be used to crop the portions of the image creating regions of interest (ROIs).
+ROIs correspond to what the detector considers a generic logo and can be used directly as input to the CIL model that classifies (i.e. recognizes) the logo.
 
 \label{sec:method-roi}
 \subsection{YOLOv5m6}
-The class-agnostic logo detector is based on YOLOv5-v6.0 \cite{glenn_jocher_2021_5563715}. There are different versions of YOLOv5-v6.0, depending on the size of the model and the size of the input image.
+The class-agnostic logo detector is based on YOLOv5-v6.0 \cite{glenn_jocher_2021_5563715}.
+There are different versions of YOLOv5-v6.0, depending on the size of the model and the size of the input image.
 In general, larger models perform better, with the disadvantage of longer training time, longer inference time and more computational resources required to train the model.
 On the other hand, a small model might achieve very low performance, thus misleading the final evaluation of the system that relies heavily on the detector.
-Therefore, a model that is too small could act as a bottleneck for the whole system. A more detailed analysis on the tradeoff is shown in \autoref{fig:yolo-sizes} and \autoref{table:yolo-sizes}.
+Therefore, a model that is too small could act as a bottleneck for the whole system. A more detailed analysis of this trade-off is shown in \autoref{fig:yolo-sizes} and \autoref{table:yolo-sizes}.
 
-\begin{figure}%
+\begin{figure}
 	\centering
 
     \begin{center}
@@ -83,7 +85,8 @@ Therefore, a model that is too small could act as a bottleneck for the whole sys
     \label{table:yolo-sizes}
 \end{table}
 
-The class-agnostic logo detector is based on YOLOv5m6, shown in \autoref{table:yolo-sizes}, with image input size set to $512 \times 512$px and pre-trained on the COCO dataset. The model is then finetuned for 30 epochs on the task of class-agnostic logo detection.
+The class-agnostic logo detector is based on YOLOv5m6, shown in \autoref{table:yolo-sizes}, with an image input size of $512 \times 512$px and pre-trained on the COCO dataset.
+The model is then finetuned for 30 epochs on the task of class-agnostic logo detection.
 
 \section{Classification}
 \label{sec:method-classifier}
@@ -93,11 +96,13 @@ Given the ROIs, the classification of each cropped region is performed by a mode
 \label{sec:resnet}
 The DER algorithm introduces a new feature extractor $\mathcal{F}_t$ at each incremental step. This feature extractor consists of a CNN. In the developed system, the backbone of the CNN, used as feature extractor, is ResNet-34 \cite{he2016deep} pre-trained on ImageNet1000 \cite{deng2009imagenet}.
 
-The peculiar aspects of the ResNet architecture are the Residual Connections, shown in \autoref{fig:residual-connection}. These connections are types of skip-connection that, instead of learning unreferenced functions, learn residual functions with respect to the layer inputs. Formally, denoting the desired underlying mapping as $\mathcal{H}(x)$, we let the stacked nonlinear layers fit another mapping of $\mathcal{F}(x) := \mathcal{H}(x) - x$. The original mapping is recast into $\mathcal{F}(x) + x$.
+The peculiar aspects of ResNet architecture are the Residual Connections, shown in \autoref{fig:residual-connection}.
+These connections are types of skip-connection that, instead of learning unreferenced functions, learn residual functions with respect to the layer inputs.
+Formally, denoting the desired underlying mapping as $\mathcal{H}(x)$, we let the stacked nonlinear layers fit another mapping of $\mathcal{F}(x) := \mathcal{H}(x) - x$. The original mapping is recast into $\mathcal{F}(x) + x$.
 
 The intuition is that it is easier to optimize the residual mapping instead of optimizing the original, unreferenced mapping. In the extreme case, if an identity mapping is optimal, it is easier to push the residual to zero than to fit an identity mapping using a stack of non-linear layers \cite{he2016deep}.
 
-The architecture of ResNet-34, shown in \autoref{table:resnet}, consists in multiple stacked building blocks. Each building block, represented by the brackets in \autoref{table:resnet}, adopts the residual connection described above.
+The architecture of ResNet-34, shown in \autoref{table:resnet}, consists of multiple stacked building blocks. Each building block, represented by the brackets in \autoref{table:resnet}, adopts the residual connection described above.
 The combination of both skip-connection and batch-normalization (BN) \cite{ioffe2015batch} in ResNet enable the training of a very deep neural network, achieving high performance.
 The total number of parameters of ResNet-34 used as feature extractor at each incremental step is 23 million.
 
@@ -150,16 +155,17 @@ The total number of parameters of ResNet-34 used as feature extractor at each in
 \end{figure}
 
 \subsection{CIL classifier}
-The classifier is developed in a CIL setup. This makes it possible to recognise new logos by enriching old knowledge. The algorithm used for CIL is the DER algorithm described in \autoref{sec:der-algorithm}. An implementation of the DER algorithm is provided by PyCIL\footnote{PyCIL GitHub repository: \href{https://github.com/G-U-N/PyCIL}{https://github.com/G-U-N/PyCIL}}, and is used as the starting point for the development of the CIL classifier. 
+%The classifier is developed in a CIL setup. This makes it possible to recognise new logos by enriching old knowledge. The algorithm used for CIL is the DER algorithm described in \autoref{sec:der-algorithm}.
+An implementation of the DER algorithm is provided by PyCIL\footnote{PyCIL GitHub repository: \href{https://github.com/G-U-N/PyCIL}{https://github.com/G-U-N/PyCIL}} (see \autoref{sec:pycil}), and is used as a starting point for the development of the CIL classifier. 
 All the changes made to the implementation of DER in PyCIL are described in the following sections, and can be found in this\footnote{GitHub repository relative to the CIL model of this thesis: \\ \href{https://github.com/gianlucagiudice/PyCIL}{https://github.com/gianlucagiudice/PyCIL}} GitHub repository.
 
-The implementation of DER in PyCIL reflects the description given in the DER paper, with only one difference: the third phase of the DER algorithm, whose name is 'classifier learning phase' in \autoref{sec:der-algorithm}. 
+The implementation of DER in PyCIL reflects the description given in the DER paper, with only one difference to the third phase of the DER algorithm (called 'classifier learning phase' in \autoref{sec:der-algorithm}). 
 In fact, in PyCIL the Classifier Learning Stage is performed using the WA described in \autoref{sec:wa-biased}; in this way it is possible to solve the problem of biased weights in the FC layer without the need to train the model further.
-It is important to point out that although this step of the original algorithm is modified, the final performance reported by PyCIL is very similar to that obtained from the original DER paper (see \autoref{table:cil-results}).
+It is important to emphasize that, although this step of the algorithm is modified, the final performance reported by PyCIL is very similar to that obtained from the original DER paper (see \autoref{table:cil-results}).
 
 \subsection{Regularization techniques}
-To avoid overfitting of the model on the test set images, the architecture of the NN created with the DER algorithm is modified.
-Starting from the original architecture shown in \autoref{fig:der-pipeline}, a dropout layer is added before the FC layer represented in the figure by the classifier $\mathcal{H}_t$.
+To avoid model overfitting, the architecture of the NN created with the DER algorithm is modified.
+Starting from the original architecture, a dropout layer is added before the FC layer represented in \autoref{fig:der-pipeline} by the classifier $\mathcal{H}_t$.
 
 \subsubsection{Dropout}
 \label{sec:methods-dropout}
@@ -179,20 +185,21 @@ The idea is to prevent co-adaptation, where the NN becomes too reliant on partic
 	\label{fig:dropout}%
 \end{figure}
 
-\subsection{Data Augmentation}
+\subsection{Data augmentation}
 \label{sec:methods-augment}
-As discussed in \autoref{sec:dataset-stat}, one problem with the LogoDet-3K dataset is that some classes have a low number of images. Moreover, as shown in \autoref{table:logodet3k-quartile}, these classes are not an exception, but the majority of the classes in the dataset. In fact, 50\% of the dataset has a number of images less than or equal to 54.
+As discussed in \autoref{sec:dataset-stat}, one problem with the LogoDet-3K dataset is that some classes have a low number of images. Moreover, as shown in \autoref{table:logodet3k-quartile}, these classes are not an exception but the majority of those in the dataset. In fact, 50\% of the dataset has a number of images less than or equal to 54.
 
 Training a model using a small number of examples per class can be a problem in machine learning in general, but this is particularly true in the deep learning domain, where models require a huge amount of data.
 
-Image Augmentation is a data augmentation method that generates more training data from the existing training samples. This is a very useful technique to address the problem of the low number of images per class in LogoDet-3K.
-In addition, data augmentation is another useful technique to avoid overfitting, as it creates synthetic samples by adding random elements to the original image, while preserving its main characteristics and thus achieving better generalization.
+Image augmentation is a data augmentation method that generates more training data from the existing training samples.
+This is a very useful technique to address the problem of low number of images per class in LogoDet-3K.
+In addition, data augmentation is another way to avoid overfitting, as it creates synthetic samples by adding random elements to the original image yet preserving its main characteristics, thus achieving better generalization.
 
 The type of data augmentation adopted during the training of the model is called online data augmentation.
 This technique consists of applying a random transformation to the original image before feeding it to the model.
 In this way, it is theoretically possible to obtain an infinitely large dataset. The process of data augmentation is heavily dependent on the type of transformations applied to the images: an excessive transformation of the original image may mislead the model in learning the main features of the image, while keeping the image as similar as possible to the original one may have the same effect as not applying data augmentation at all.
 
-The CIL classifier developed in this thesis is trained using data augmentation techniques. The transformations used to augment the original dataset, shown in \autoref{fig:example-augmentation}, are the following:
+The transformations used to augment the original dataset, shown in \autoref{fig:example-augmentation}, and used to train the CIL classifier are the following:
 \begin{itemize}
     \item \textbf{Geometric transformations}:
     \begin{itemize}
@@ -262,10 +269,12 @@ The data augmentation procedure, described in \autoref{fig:data_augmentation}, i
 The training of the CIL model can be divided into two main steps: the initial step and the iterations of CIL. In the initial step the model is trained for 200 epochs, while for the incremental learning iterations it is trained for 150 epochs.
 
 The number of training epochs in the initial step is higher because in this stage the network requires a longer time to converge, this is due to these two factors: the neural network must adapt the weights trained on ImageNet to the logo classification task;
-it is assumed that the number of classes in the initial task is greater than the number of classes that are introduced at each incremental learning iteration.
+it is assumed that the number of classes at the initial task is greater than the number of classes introduced at each incremental learning iteration.
 
 \subsubsection{Early stopping}
-Early stopping is used to avoid overfitting of the model. This is done by monitoring the accuracy of the model during training on the validation set. The hyperparameters of early stopping are the following: the number of epochs with no improvement after which training will be stopped is set to 30 (i.e. patience), and the minimum change in the monitored accuracy to be considered an improvement is set to 0.5\% (i.e., the minimum delta).
+Early stopping is used to avoid overfitting of the model.
+This is done by monitoring the accuracy of the model during training on the validation set.
+The hyperparameters of early stopping are the following: the number of epochs with no improvement after which training will be stopped is set to 30 (i.e. patience); the minimum change in the monitored accuracy to be considered as an improvement is set to 0.5\% (i.e., the minimum delta).
 
 \subsubsection{SGD optimizer}
 To update the model weights two different optimizers are tested.
@@ -279,20 +288,20 @@ The gradient of the objective function at $\textbf{w}$ is computed as:
 \begin{equation}
     \nabla f(\textbf{w}) = \frac{1}{n} \sum_{i=1}^n \nabla f_i(\textbf{w})
 \end{equation}
-If gradient descent is used, the computational cost for each independent variable iteration is $\mathcal{O}(n)$, which grows linearly with $n$. Therefore, when the training dataset is larger, the cost of gradient descent for each iteration will be higher.
+If gradient descent is used, the computational cost for each independent iteration is $\mathcal{O}(n)$, which grows linearly with $n$. Therefore, when the training dataset is larger, the cost of gradient descent for each iteration will be higher.
 
-SGD reduces the computational cost at each iteration by uniformly sampling an index $i \in \{ 1, \, ..., \, n\}$ for data examples, and computes the gradient $\nabla f_i (\textbf{w})$ to update $\textbf{w}$:
+SGD reduces the computational cost at each iteration by uniformly sampling an index $i \in \{ 1, \, ..., \, n\}$ from data examples, and computes the gradient $\nabla f_i (\textbf{w})$ to update $\textbf{w}$:
 
 \begin{equation}
     \textbf{w} \leftarrow \textbf{w} - \eta \nabla f_i(\textbf{w})
 \end{equation}
-where $\eta$ is the learning rate ($\eta = 0.1$ in the experiments described in \autoref{chap:experiments}). In this way the computational cost for each iteration drops from $\mathcal{O}(n)$ of the gradient descent to the constant $\mathcal{O}(1)$. Moreover, the stochastic gradient $\nabla f_i(\textbf{w})$ is an unbiased estimate of the full gradient $\nabla f(\textbf{w})$ because:
+where $\eta$ is the learning rate ($\eta = 0.1$ in the experiments described in \autoref{chap:experiments}). In this way the computational cost for each iteration drops from $\mathcal{O}(n)$ of the gradient descent to the constant $\mathcal{O}(1)$ of SGD. Moreover, the stochastic gradient $\nabla f_i(\textbf{w})$ is an unbiased estimate of the full gradient $\nabla f(\textbf{w})$ because:
 \begin{equation}
     \mathbb{E}_i \nabla f_i(\mathbf{w}) = \frac{1}{n} \sum_{i = 1}^n \nabla f_i(\mathbf{w}) = \nabla f(\mathbf{w})
 \end{equation}
 This means that, on average, the stochastic gradient is a good estimate of the gradient.
 
-A compromise between computing the true gradient and the gradient at a single sample is to compute the gradient against more than one training sample (called a 'mini-batch') at each step. This means replacing the gradient $\nabla f_i(\textbf{w})$ on a single observation with one over a small batch $\mathcal{B}_t = \{ \textbf{x}^{(1)},\, ..., \, \textbf{x}^{(m)}\}$ (for the experiments described in \autoref{chap:experiments}, $|\mathcal{B}_t| = 2048$). Then, the gradient $\textbf{g}_t$ over a small batch $\mathcal{B}_t$ is given by:
+A compromise between computing the true gradient and the gradient with a single sample is to compute the gradient against more than one training sample (called a 'mini-batch'). This means replacing the gradient $\nabla f_i(\textbf{w})$ on a single observation with one over a small batch $\mathcal{B}_t = \{ \textbf{x}^{(1)},\, ..., \, \textbf{x}^{(m)}\}$ (for the experiments described in \autoref{chap:experiments}, $|\mathcal{B}_t| = 2048$). Then, the gradient $\textbf{g}_t$ over a small batch $\mathcal{B}_t$ is given by:
 \begin{equation}
     \mathbf{g}_t = \frac{1}{|\mathcal{B}_t|} \sum_{i \in \mathcal{B}_t} \nabla f_i(\mathbf{w})
 \end{equation}
@@ -392,7 +401,8 @@ Adjusting the learning rate is an important aspect of the optimization process. 
     \item If the learning rate remains high, the algorithm may bounce around the minimum or even jump over it and thus failing to reach optimality. 
 \end{itemize}
 
-The learning rate decay is used to train models for the experiments described in \autoref{chap:experiments}. An example of the effect of the learning rate decay is shown in \autoref{fig:lr_decay}. The figure shows the accuracy of the model at each training epoch, it is possible to notice that when a milestone is reached (epoch 60) the learning rate is scaled by a factor of $10^{-1}$, thus leading to an increase in the model's accuracy in subsequent epochs.
+The learning rate decay is used to train models for the experiments described in \autoref{chap:experiments}. An example of the effect of the learning rate decay is shown in \autoref{fig:lr_decay}.
+By plotting the accuracy of the model at each training epoch, it is possible to notice that, when a milestone is reached (epoch 60) and the learning rate is scaled by a factor of $10^{-1}$, there is an improvement in the accuracy of the model in subsequent epochs.
 
 \begin{figure}[H]
 	\centering
@@ -411,21 +421,20 @@ The learning rate decay is used to train models for the experiments described in
 
 The DER algorithm, described in \autoref{sec:der-algorithm}, addresses the problem of class incremental learning by expanding the neural network architecture at each incremental stage. The super-feature extractor at step $t$ of incremental learning is given by the following concatenation $\Phi_t(\mathbf{x}) = [\mathcal{F}_0,\mathcal{F}_1(\mathbf{x}), \, ..., \, \mathcal{F}_t(\mathbf{x})]$. As discussed in \autoref{sec:resnet}, the feature extractor is a CNN, which in this thesis is implemented using ResNet-34.
 
-Each feature extractor, is a CNN with 22 million parameters.
-Giving the definition of the super-feature extractor, it is possible to see how the parameters how the neural network grow linearly as a function of the number of incremental learning stages.
-It is important to note that as the number of parameters of the super-feature extractor increases, the number of parameters for the classifier $\mathcal{H}_t$ increases as well.
+Giving the definition of the super-feature extractor, it is possible to see how the parameters of the neural network grow linearly as a function of the number of incremental learning steps.
+It is important to note that as the parameters of the super-feature extractor increase, those of the classifier $\mathcal{H}_t$ do as well.
 The classifier $\mathcal{H}_t$ corresponds to the fully connected layer of the neural network. At each incremental learning stage new classes are introduced, thus new connections are created between the classifier predicting the output class and the super-feature extractor.
 
-This means that, using the LogoDet-3K dataset described in \autoref{chap:dataset}, and the incremental learning setup described in \autoref{sec:whole_dataset_clf}, at the 8th stage of CIL the neural network consists of 205 million parameters. This number of parameters is due to task 0 (initial task), in which 22 million parameters are used, and the 8 incremental learning stages, each of which adds approximately 22 million parameters to the total number of parameters.
+This means that, using the LogoDet-3K dataset described in \autoref{chap:dataset}, and the incremental learning setup described in \autoref{sec:whole_dataset_clf}, at the 8th stage of CIL the total number of parameters is given by: the number of parameters at task 0 (initial task), in which 22 million parameters (number of parameters of ResNet-34) are used; the 8 incremental learning stages, each adding 22 million parameters to the total.
 
-After only 8 iterations of incremental learning, the final neural network reaches 205 million parameters, which is a large number of parameters compared to a single ResNet-34 used as the backbone of each feature extractor.
+After only 8 iterations of incremental learning, the final neural network reaches 205 million parameters, which is a large number of parameters compared to a single ResNet-34 used as backbone of each feature extractor.
 For this reason, there is a need to reduce the number of parameters of the neural network.
 To do so, the pruning of the network is implemented using masks, as described in \autoref{sec:masking-pruning}.
 
 Each mask $\mathbf{m}_l$ associated with the channels of each layer $l$ of the CNN is computed as shown in \autoref{eq:mask}.
 At the incremental learning task $t$, after the training of the feature extractor $\mathcal{F}_t(\mathbf{x})$, the variable $s$ is set to a really high value ($10^{4}$ in the implementation).
-Since $s$ is fed into the sigmoid used as a gating function, a steep activation mechanism is obtained (which leads to a binary activation when the limit of $s$ tends to infinity, but this behavior is achieved in practice using high value of $s$).
-So, if a value $e_{li}$ of the mask $\mathbf{e}_l$ is positive, $m_{li}$ tends to 1, while if $e_{li}$ is negative, $m_{li}$ tends to 0.
+Since $s$ is fed into the sigmoid used as gating function, a steep activation mechanism is obtained (which leads to a binary activation when the limit of $s$ tends to infinity, but this behavior is achieved in practice using high value of $s$).
+So, if a value $e_{li}$ of the mask $\mathbf{e}_l$ is positive, $m_{li}$ tends to 1, else if $e_{li}$ is negative, $m_{li}$ tends to 0.
 Finally, to perform the actual binarization of each mask value, a threshold $\rho$ with a low value set to $10^{-4}$ is used as follows:
 
 \begin{align*}
@@ -438,10 +447,10 @@ Finally, to perform the actual binarization of each mask value, a threshold $\rh
 
 An important aspect to consider during the pruning of each convolutional layers $l$ of the feature extractor $\mathcal{F}_t(\mathbf{x})$ is the input and output dimension of the feature maps.
 Since $\mathbf{m}_l$ is a channel-level mask, the effect of pruning is to reduce the number of channels in the convolutional layers of the CNN.
-This results in a change of the output dimension of the convolutional layer $l$, so the input dimension of the convolutional layer $l+1$ must be consistent with that output dimension.
+This results in a change in the output dimension of the convolutional layer $l$, so the input dimension of the convolution $l+1$ must be consistent with that output dimension.
 
 Another point to consider is the architecture used to implement the feature extractors $\mathcal{F}_t$. In fact, each feature extractor has ResNet-34 as its backbone, which is an architecture based on residual connections (see \autoref{table:resnet} and \autoref{fig:residual-connection}).
-This is a limitation from a pruning perspective: as mentioned above, each feature map produced as output from one convolutional layer must have a consistent dimension with the input of the next convolution;
+This is a limitation from a pruning perspective: as mentioned above, each feature map produced as output from one convolutional layer must have a consistent dimension with the input next one;
 in addition the residual connection adds a new constraint relative to the input dimension of convolutional layers. This issue is shown and described in \autoref{fig:pruning-resnet}.
 
 
@@ -470,37 +479,38 @@ The definition of a block depends on the specific  architecture of ResNet. In th
 	\label{fig:kd}%
 \end{figure}
 
-Another approach used to tackle the problem of the large number of model parameters described in the previous section is Knowledge Distillation (KD) \cite{hinton2015distilling}. KD is the process of transferring knowledge from a pre-trained large model to a smaller one. Even if large models (such as very deep neural networks like ResNet-152) have higher knowledge capacity than small models, this capacity might not be fully exploited.
-                   
-A large model with regularization (e.g. dropout) generalizes better than a small model when trained directly on the data and labels, however, a small model can be trained to generalize better with the help of a large model. This training setting is referred to as 'teacher-student', where the smaller model is the student and it is trained to mimic the larger one which is the teacher.
+Another approach used to tackle the problem of the large number of model parameters, described in the previous section, is Knowledge Distillation (KD) \cite{hinton2015distilling}. KD is the process of transferring knowledge from a pre-trained large model to a smaller one. Even if large models (such as very deep neural networks like ResNet-152) have higher knowledge capacity than small models, this capacity might not be fully exploited. A large model with regularization (e.g. dropout) generalizes better than a small model when trained directly on the data and labels, however, a small model can be trained to generalize better with the help of a large model. This training setting is referred to as 'teacher-student', where the smaller model is the student and it is trained to mimic the larger one which is the teacher.
 
 As described by Gou et al. in \cite{gou2021knowledge},
-Response-Based Knowledge is a type of KD which refers to the neural
-response of the last output layer of the teacher model.
+Response-Based Knowledge is a type of KD which refers to the output layer of the teacher model.
 In this thesis, the implementation of the KD is based on the paper of Hinton et al. in \cite{hinton2015distilling}.
 The main idea is to directly mimic the final prediction
 of the teacher model.
 The reason behind this is that the output probabilities of a trained model give more information than the raw labels, because they assign non-zero probabilities to incorrect classes.
-Knowledge is transferred from the teacher to the student using a loss function known as the distillation loss, which captures the difference between the logits of the student and teacher models.
+Knowledge is transferred from the teacher to the student using a loss function, known as the distillation loss, which captures the differences between the logits of the student and teacher models.
 As the loss is reduced over time, the student becomes more accurate in making predictions similar to those of the teacher.
 The teacher-student setting for KD matching the logits between the two models is shown in \autoref{fig:kd}.
 
 The distillation loss used to train the student model is computed considering both the logits produced in output by the teacher (soft targets) and the real data labels (hard targets).
-The probability $p_i$ of each class $i$, is computed by the teacher model using its logits $z_i$ as follows:
+The probability $p_i$ of each class $i$, is computed by the teacher model using its logit $z_i$ as follows:
 \begin{equation}
     p_i = \frac{exp(z_i)}{\sum_j exp(z_j)}
 \end{equation}
 
-The small model is trained to minimize the KL Divergence between its output probability distribution and that of the large network. One issue with this technique is that the probabilities assigned to incorrect classes by the large network are often very small and do not contribute to the loss. For this reason, the logits are softened using a 'temperature' $T$ in the softmax, smoothing the probability distribution and revealing inter-class relationships learned by the teacher. Then, the softened probabilities are given by:
+The small model is trained to minimize the KL Divergence between its output probability distribution and the one of the large network.
+One issue with this technique is that the probabilities assigned to incorrect classes by the large network are often very small and do not contribute to the loss.
+For this reason, the logits are softened using a 'temperature' $T$ in the softmax, smoothing the probability distribution and revealing inter-class relationships learned by the teacher.
+Then, the softened probability is given by:
 \begin{equation}\label{eq:kd_prob}
     p_i^t = \frac{exp(\frac{z_i^t}{T})}{\sum_j exp(\frac{z_i^t}{T})}
 \end{equation}
-where higher values for $T$ produce softer probabilities. The prediction $p_i^t$ is called soft target, shown in \autoref{fig:kd}.
+where higher values of $T$ produce softer probabilities. The prediction $p_i^t$ is called soft target, shown in \autoref{fig:kd}.
 
-In the same way, the \autoref{eq:kd_prob} is used to compute the class probability $p_i^s$ predicted by the student using the logit $z_i^s$ of the model and the same temperature $T$. In addition to the teacher's soft targets, Hinton et al. in \cite{hinton2015distilling} show that it is also beneficial to train the student model to produce the real data labels, called hard targets and shown in \autoref{fig:kd}.
-Therefore, by setting $T = 1$, the \autoref{eq:kd_prob} is used to compute the 'standard' class probability $\hat{y}_i^s$ using the student model.
+Similarly, the \autoref{eq:kd_prob} is used to compute the class probability $p_i^s$ predicted by the student using its logit $z_i^s$ and the same temperature $T$.
+In addition to the soft targets of the teacher, Hinton et al. in \cite{hinton2015distilling} show that it is also beneficial to train the student model to produce the real data labels, called hard targets and shown in \autoref{fig:kd}.
+Therefore, by setting $T = 1$, the student uses \autoref{eq:kd_prob} to compute the 'standard' class probability $\hat{y}_i^s$.
 
-Thus, considering both the KL divergence of the output probability distribution of the two models, and the Cross-Entropy between the output probability $\hat{y}_i^s$ of the student and the true data label $y_i$, the final distillation loss is given by:
+Thus, considering both the KL divergence of the output probability distribution, and the Cross-Entropy between $\hat{y}_i^s$ and the true data label $y_i$, the final distillation loss is given by:
 \begin{equation}
     \mathcal{L}_{KD} = \alpha \left[\sum_{i=1}^{\substack{\text{output}\\\text{size}}} p_i^t \, log \left( \frac{p_i^t}{p_i^s} \right) \right]
     + (1-\alpha) \left[-\sum_{i=1}^{\substack{\text{output}\\\text{size}}} y_i^s \, (\log \hat{y}_i^s) \right]
@@ -509,19 +519,24 @@ where $\alpha \in [0, 1]$ is a hyper-parameter controlling the weighted average 
 
 \section{Proposed baseline for the classifier}
 \label{sec:method-baseline}
-To evaluate CIL models and compare performance with a model in a traditional setup, without the possibility of introducing new classes after training, there is a need to define a baseline. CIL models are very useful for introducing new classes after training, but in general this advantage is at the expense of model performance. Consequently, a CIL model will perform less well when compared to one trained in a traditional setup, but a good CIL algorithm should narrow this gap as much as possible. 
+To evaluate the CIL models and compare their performance with a model in a traditional setup, it is necessary to define a baseline.
+The CIL setup is very useful for introducing new classes after training, but in general this advantage is at the expense of the model's performance. Consequently, a CIL model performs worse than a traditional one, but a good CIL algorithm should narrow this gap in performance as much as possible.
 
-Since, without considering the CIL aspect, different approaches can be defined to handle a classical classification problem, this chapter discusses the different baselines introduced with the aim of comparing them with the CIL models.
+Without considering the CIL aspect, different approaches can be defined to handle a classical classification problem. This chapter discusses the different baselines introduced with the aim of comparing them with the CIL models.
 
 \subsection{Baseline without incremental steps}
-The most direct approach is to define a baseline using the DER algorithm. This means taking all the classes introduced incrementally at each iteration of incremental learning, and using them from the very beginning at task 0 to train the model with the DER algorithm. The foregoing defines the first type of baseline considered for comparison with the CIL model.
+The most direct approach is to define a baseline using the DER algorithm.
+This means taking all the classes introduced at each iteration of incremental learning and using them from the very beginning, at task 0, to train the model with the DER algorithm.
+The process described above defines the first type of baseline.
 
-Although this approach appears to be simple and straightforward, it has a problem related to what is described in section \autoref{sec:method-pruning}. In fact, such an approach is not very fair, as the baseline has a number of parameters $N$ equal to the CNN used as the backbone for the feature extractor, whereas the CIL model trained with the DER algorithm will have a number of parameters equal to $N + t \times N$, where $t$ is the number of iterations of incremental learning. As a result, the CIL model may perform better than the baseline only because it has a significantly larger number of parameters.
+Although this approach appears to be simple and straightforward, it has a problem related to what is described in section \autoref{sec:method-pruning}. In fact, such an approach is not very fair, as the baseline has a number of parameters $N$ equal to the CNN used as the backbone for the feature extractor, while the CIL model trained with the DER algorithm has a number of parameters equal to $N + t \times N$ (where $t$ is the number of iterations of incremental learning).
+As a result, the CIL model may perform better than the baseline only because it has a significantly larger number of parameters.
 
 \subsection{ResNet-152 architecture}
-In order to solve the problem of the first baseline definition, relating to the difference in parameters between the baseline and the CIL model, a second type of baseline is defined. In this second approach, the DER algorithm is not used anymore but simply a network with a significantly higher number of parameters, e.g. ResNet-152, is used in order to bridge the gap in the number of parameters between the baseline and the CIL model.
+In order to solve the problem of the first baseline definition, relating to the difference in parameters between the baseline and the CIL model, a second type of baseline is defined.
+In this second approach, the DER algorithm is no more exploited, instead it is used ResNet-152 which is a network with a significantly higher number of parameters compared to ResNet-34. This is done to bridge the gap of the number of parameters between the baseline and the CIL model. The CNN based on ResNet-152 is then trained for the classification task considering all the classes.
 
-A CNN that has ResNet-152 as a backbone is then used. The architecture of ResNet-152 is very similar to the one described in the table \autoref{table:resnet}, in fact it maintains all the main features such as skip-connections, but has each block composed of more convolutional layers, and the number of stacked blocks increases. The architecture of ResNet-152 consists of 60 million parameters and is described in \autoref{table:resnet-152}.
+The architecture of ResNet-152 is very similar to the one described in table \autoref{table:resnet}, in fact it maintains all the main features such as skip-connections, but has each block composed of more convolutional layers, and the number of stacked blocks increases. The architecture of ResNet-152 consists of 60 million parameters and is described in \autoref{table:resnet-152}.
 
 
 \begin{table}
@@ -563,11 +578,11 @@ A CNN that has ResNet-152 as a backbone is then used. The architecture of ResNet
     \label{table:resnet-152}
 \end{table}
 
-Even though this new baseline is an improvement over the previous one, the number of parameters may still be lower than in the CIL model, as in the case of the baseline of the first type.
+Although this new baseline is an improvement over the previous one, the number of parameters may still be lower than in the CIL model, as in the case of the baseline of the first type.
 
 \subsection{DER-based architecture}
 The third baseline introduced solves the problem of the different number of parameters between the CIL model and the baseline.
 To this purpose, referring to the exact same setup used for training the CIL model and considering the number of iterations $t$, the DER algorithm is exploited to define another neural network by performing $t$ incremental learning steps without actually training the new network.
 Subsequently, since at timestamp $t$ of incremental learning the DER algorithm freezes the weights of the feature extractors associated with the timestamps $t-1$, all weights, both relative to the feature extractors $\mathcal{F}_i$ and to the classifier $\mathcal{H}_{i}$, are allowed to be trained.
 
-This new network will serve as the baseline, and unlike the DER algorithm, the optimisation process will aim to classify all the classes (intended as all those introduced incrementally during the training of the CIL model) correctly without taking into account the auxiliary classifier $\mathcal{H}^a$ and the masks for pruning described in \autoref{sec:der-algorithm}.
+This new network will serve as the baseline, and unlike the DER algorithm, the optimization process will aim to classify all the classes (intended as all those introduced incrementally during the training of the CIL model) without taking into account the auxiliary classifier $\mathcal{H}^a$ and the masks for pruning described in \autoref{sec:der-algorithm}.
