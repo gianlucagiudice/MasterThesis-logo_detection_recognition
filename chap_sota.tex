@@ -6,7 +6,7 @@
 Object detection is one of the most fundamental and challenging problems in computer vision \cite{zou2019object}. This task can be defined as follows: given an image, determine whether or not there are instances of a predefined set of objects, usually referred to as classes, and, if present, return the location of each instance \cite{liu2020deep}. The spatial location of an object in an image can be represented using bounding boxes.
 
 Object detection was initially addressed using handcrafted features and shallow trainable architectures.
-With the rapid development in deep learning, more powerful techniques are used to address the problems existing in traditional models \cite{zhao2019object}. 
+With the rapid development in deep learning, more powerful techniques are used to address the problems existing in traditional solutions \cite{zhao2019object}. 
 
 As described in \cite{zhao2019object}, the frameworks of object detection methods can mainly be categorized into two types:
 \begin{enumerate}
@@ -22,7 +22,7 @@ YOLO (you only look once) \cite{redmon2016you} is a model for object detection c
     \begin{center}
         \includegraphics[width=\columnwidth]{images/yolo-model.png}
     \end{center}
-    \caption{Pipeline of YOLO: it divides the image into an $S \times S$ grid and for each grid cell predicts $B$ bounding boxes, confidence for those boxes, and $C$ class probabilities. These predictions are encoded as an $S \times S \times (B * 5 + C)$ tensor \cite{redmon2016you}.}
+    \caption{Pipeline of YOLO object detector: it divides the image into an $S \times S$ grid and for each grid cell predicts $B$ bounding boxes, confidence for those boxes, and $C$ class probabilities. These predictions are encoded as an $S \times S \times (B * 5 + C)$ tensor \cite{redmon2016you}.}
     \label{fig:yolo-model}
 \end{figure}
 
@@ -367,7 +367,7 @@ Using the pruning mechanism, the super-feature $\tilde{\textbf{u}}$ of step $t$ 
 
 During the training $\phi_t(\textbf{x})$ corresponds to $\mathcal{F}_t(\textbf{x})$ with the soft mask. At inference time, thanks to the scaling factor $s$, the masks associated to the filters of the convolutional layers are pruned assigning a large value to $s$. In this way it is possible to obtain $\mathcal{F}_t^P = \phi_t(\textbf{x})$.
 
-The parameters $\textbf{e}_l$ which define the masks are learned during training. During an epoch, a linear annealing schedule is applied to $s$ as follows:
+The parameters $\textbf{e}_l$ which define the masks are learned during training. During an epoch, a linear annealing schedule is applied for scaling factor $s$ as follows:
 \begin{equation}
     s = \frac{1}{s_{max}} + (s_{max}- \frac{1}{s_{max}}) \frac{b-1}{B-1}
 \end{equation}
@@ -413,7 +413,7 @@ The final loss function is given by the weighted average of \autoref{eq:loss1}, 
 where $\lambda_a$ and $\lambda_s$ are the hyper-parameter to control the effect of the auxiliary classifier and the pruning aspect.
 
 \section{Weight aligning}
-Weight aligning (WA) proposed in \cite{zhao2020maintaining} is a method to alleviate catastrophic forgetting in Deep Neural Networks (DNN). In their work the authors show how a model trained for a CIL task tends
+Weight aligning (WA) proposed in \cite{zhao2020maintaining} is a method to alleviate catastrophic forgetting in Deep Neural Networks (DNNs). In their work the authors show how a model trained for a CIL task tends
 to classify objects into new classes, treating old classes unfairly. This is due to the weights
 in the trained model's FC layer which are heavily biased. WA aims to correct bias in the FC layer.
 
