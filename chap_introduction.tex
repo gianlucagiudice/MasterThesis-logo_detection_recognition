@@ -13,7 +13,7 @@ There is a huge variety of logos and this problem has both high intra-class and 
 
 Since many new brands are constantly being created and each brand has its own logo, it is necessary to develop systems that keep up with the creation of new logos. A method for logo detection and recognition should take into account this particular aspect of the problem and should properly recognize each new logo.
 
-For this reason, there is the need to develop a system which is able to adapt to these changes where standard closed-set classification techniques would fail. One possible approach could be to train a new classifier each time a new logo is created. This method is very inefficient and unfeasible for large scale datasets of logos. Moreover, retraining a model in such a way would require to store examples, since both the data from the previous logos and the new ones would be needed.
+For this reason, there is the need to develop a system which is able to adapt to these changes where standard closed-set classification techniques would fail. One possible approach could be to train a new classifier each time a new logo is created. However, this method is very inefficient and unfeasible for large scale datasets of logos. Moreover, retraining a model in such a way would require to store a large quantity of examples, since both the data from the previous logos and the new ones would be needed.
 
 Open set logo recognition allows models to
 detect logos that are not available during the training stage. In this way, it is possible to overcome the problems discussed above. As a consequence, systems in which logo detection and recognition is performed in an open environment have been proposed in the literature \cite{fehervari2019scalable, li2022seetek}.
