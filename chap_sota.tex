@@ -407,7 +407,7 @@ The loss function used to change the parameters of the model is defined by three
 \end{enumerate}
 
 The final loss function is given by the weighted average of \autoref{eq:loss1}, \autoref{eq:loss2} and \autoref{eq:loss3}:
-\begin{equation}
+\begin{equation}\label{eq:final_der_loss}
     \mathcal{L}_{DER} = \mathcal{L}_{\mathcal{H}_t} + \lambda_a \mathcal{L}_{\mathcal{H}_t^a} + \lambda_s \mathcal{L}_{S}
 \end{equation}
 where $\lambda_a$ and $\lambda_s$ are the hyper-parameter to control the effect of the auxiliary classifier and the pruning aspect.

@@ -37,53 +37,57 @@ The first group of experiments aims to compare two types of architecture: ResNet
 
 The results of the experiments in picture \autoref{fig:exp1} and table \autoref{table:exp1}, reporting the top-1 and top-5 accuracy of the models at varying CIL tasks on the test set, show that pre-trained CNNs perform better, but there is not much difference between ResNet-34 and ResNet-50. For this reason, the architecture chosen for the experiments to follow is ResNet-34, so as to have a slightly smaller network than ResNet-50, and the network is pre-trained on ImageNet.
 
-Other useful insights can be derived from the training history of a task (e.g. Task 7) which reports the top-1 accuracy on the training and validation set. In fact, as we can see from \autoref{fig:exp1-train_val} the accuracy on the training set is much higher than the validation set, which is a clear sign of overfitting of the model.
-
 \begin{figure}[H]
-	\centering
-	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp1-top1.png} }}%
-	\subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp1-top5.png} }}%
-	\caption{Top-1 and Top-5 accuracy of the models at varying CIL tasks on the test set.}%
+    \centering
+	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp1-top1.png} }}%
+    \qquad
+    \subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp1-top5.png} }}%
+    \caption{Top-1 and Top-5 accuracy of the models at varying CIL tasks on the test set.}%
 	\label{fig:exp1}%
 \end{figure}
-
-
-\begin{figure}[H]
-	\centering
-	\subfloat[\centering Accuracy on the training set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp1-train.png} }}%
-	\subfloat[\centering Accuracy on the validation set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp1-val.png} }}%
-	\caption{Comparison of the accuracy at each training epoch at task 7 between the training and validation set.}%
-	\label{fig:exp1-train_val}%
-\end{figure}
-
 
 \begin{table}[H]
     \centering
     \centerline{
     \begin{tabular}{c|c|c|c|c}
         \hline
-        \textbf{Name} &
+        \textbf{Model} &
         \textbf{Backbone} &
         \textbf{Pre-trained} &
         \textbf{Top-1} & 
         \textbf{Top-5} \\
-        &
+        \textbf{name} &
         &
         &
         \textbf{acc. (\%)} & 
         \textbf{acc. (\%)} \\
         \hline
         \hline
-CIL\_30\_10\_100-mem100-resnet34-SGD-nopretrained-drop0 &ResNet-34&no& 52.97 & 87.02\\
-CIL\_30\_10\_100-mem100-resnet34-SGD-pretrained-drop0 &ResNet-34&yes& \textbf{60.37} & \textbf{93.19}\\
-CIL\_30\_10\_100-mem100-resnet50-SGD-nopretrained-drop0 &ResNet-50&no& 50.43 & 86.28\\
-CIL\_30\_10\_100-mem100-resnet50-SGD-pretrained-drop0 &ResNet-50&yes& 58.54 & 92.59\\
+resnet34-SGD-nopretrained-drop0 &ResNet-34&no& 52.97 & 87.02\\
+resnet34-SGD-pretrained-drop0 &ResNet-34&yes& \textbf{60.37} & \textbf{93.19}\\
+resnet50-SGD-nopretrained-drop0 &ResNet-50&no& 50.43 & 86.28\\
+resnet50-SGD-pretrained-drop0 &ResNet-50&yes& 58.54 & 92.59\\
         \hline        
     \end{tabular}}
     \caption{Top-1 and Top-5 accuracy of the models at task 7.}
     \label{table:exp1}
 \end{table}
 
+
+Other useful insights can be derived from the training history of a task (e.g. Task 7) which reports the top-1 accuracy on the training and validation set. In fact, as we can see from \autoref{fig:exp1-train_val} the accuracy on the training set is much higher than the validation set, which is a clear sign of overfitting of the model.
+
+\begin{figure}[H]
+    \centering
+    \subfloat[\centering Accuracy on the training set]{{\includegraphics[width=0.80\textwidth]{images/exp/exp1-train.png} }}%
+    \qquad
+    \centering
+    \subfloat[\centering Accuracy on the validation set]{{\includegraphics[width=0.80\textwidth]{images/exp/exp1-val.png} }}%
+    \caption{Comparison of the accuracy at each training epoch at task 7 between the training and validation set.}%
+
+        \label{fig:exp1-train_val}%
+\end{figure}
+
+\newpage
 \subsubsection{Regularization and data augmentation}
 Following the analysis discussed above, it is necessary to regularize the model.
 To do so, the next experiments are performed using the dropout layer (see \autoref{sec:methods-dropout}) and data augmentation (see \autoref{sec:methods-augment}). As said before, the backbone of each model is ResNet-34 and each one is pre-trained on ImageNet.
@@ -92,103 +96,174 @@ As expected, the performance at each task is higher than before, as shown in \au
 
 As shown in \autoref{table:exp2}, the top-1 accuracy of the best regularized model which adopting data augmentation is 7\% higher than that without regularization and data augmentation.
 
-\begin{figure}[H]
-	\centering
-	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp2-top1.png} }}%
-	\subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp2-top5.png} }}%
-	\caption{Top-1 and Top-5 accuracy of the regularized models using data augmentation.}%
-	\label{fig:exp2}%
-\end{figure}
-
-\begin{figure}[H]
-	\centering
-	\subfloat[\centering Accuracy on the training set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp2-train.png} }}%
-	\subfloat[\centering Accuracy on the validation set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp2-val.png} }}%
-	\caption{Regularized models with data augmentation: comparison of the accuracy at each training epoch at task 7 between training and validation.}%
-	\label{fig:exp2-train_val}%
-\end{figure}
 
 \begin{table}[H]
     \centering
     \centerline{
     \begin{tabular}{c|c|c|c|c}
         \hline
-        \textbf{Name} &
+        \textbf{Model} &
         \textbf{Data} &
         \textbf{Dropout} &
         \textbf{Top-1} & 
         \textbf{Top-5} \\
-        &
+        \textbf{name} &
         \textbf{augm.} &
         \textbf{rate} &
         \textbf{acc. (\%)} & 
         \textbf{acc. (\%)} \\
         \hline
         \hline
-CIL\_30\_10\_100-mem100-resnet34-SGD-nopretrained-drop0 &no&0.0& 52.97 & 87.02\\
-CIL\_30\_10\_100-mem100-resnet34-SGD-pretrained-drop0 &no&0.0& 60.37 & 93.19\\
+SGD-nopretrained-drop0 &no&0.0& 52.97 & 87.02\\
+SGD-pretrained-drop0 &no&0.0& 60.37 & 93.19\\
 \hline
-CIL\_30\_10\_100-mem100-resnet34-SGD-pretrained-drop0.1-augmented&yes&0.1&	67.17&\textbf{98.15}\\
-CIL\_30\_10\_100-mem100-resnet34-SGD-pretrained-drop0.3-augmented&yes&0.3&\textbf{67.28}&	97.3\\
-CIL\_30\_10\_100-mem100-resnet34-SGD-pretrained-drop0.5-augmented&yes&0.5&65.57&	96.24\\
+SGD-pretrained-drop0.1-augmented&yes&0.1&	67.17&\textbf{98.15}\\
+SGD-pretrained-drop0.3-augmented&yes&0.3&\textbf{67.28}&	97.3\\
+SGD-pretrained-drop0.5-augmented&yes&0.5&65.57&	96.24\\
         \hline        
     \end{tabular}}
-    \caption{Regularized models with data augmentation. Top-1 and Top-5 accuracy at task 7.}
+    \caption{Regularized models with data augmentation. Top-1 accuracy at task 7.}
     \label{table:exp2}
 \end{table}
 
+\newpage
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp2-top1.png} }}%
+    \qquad
+	\subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp2-top5.png} }}%
+	\caption{Top-1 and Top-5 accuracy of the regularized models using data augmentation.}%
+	\label{fig:exp2}%
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering Accuracy on the training set]{{\includegraphics[width=0.80\textwidth]{images/exp/exp2-train.png} }}%
+    \qquad
+	\subfloat[\centering Accuracy on the validation set]{{\includegraphics[width=0.80\textwidth]{images/exp/exp2-val.png} }}%
+	\caption{Regularized models with data augmentation: comparison of the top-1 accuracy at each training epoch at task 7 between training and validation.}%
+	\label{fig:exp2-train_val}%
+\end{figure}
+
+\newpage
 \subsubsection{Top-100 Classes}
 In order to assess the extent to which those classes with few examples contribute to performance deterioration, the next experiments are carried out by considering only the top-100 classes, i.e. those with the largest number of examples (see the left-hand side of the distribution in \autoref{fig:logodet-dist}). This is useful to be aware of how much the model is limited in performance by the dataset.
 
 Considering the regularized models and data augmentation, models trained on 100 randomly sampled classes and those trained on the top-100 classes are compared in \autoref{fig:exp3} and \autoref{table:exp3}. As we can see, even if the top-5 accuracy does not change between the two cases, considering the top-1 accuracy there is a drastic improvement in performance. This is a clear sign that classes with few examples deteriorate performance a lot.
 
-\begin{figure}[H]
-	\centering
-	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp3-top1.png} }}%
-	\subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp3-top5.png} }}%
-	\caption{Comparison of models trained on 100 randomly sampled classed and top-100 classes.}%
-	\label{fig:exp3}%
-\end{figure}
-
 \begin{table}[H]
     \centering
     \centerline{
     \begin{tabular}{c|c|c|c|c}
         \hline
-        \textbf{Name} &
+        \textbf{Model} &
         \textbf{Dropout} &
         \textbf{Sampling} &
         \textbf{Top-1} & 
         \textbf{Top-5} \\
-        &
+        \textbf{name} &
         \textbf{rate} &
         \textbf{method} &
         \textbf{acc. (\%)} & 
         \textbf{acc. (\%)} \\
         \hline
         \hline
-CIL\_30\_10\_100-mem100-[...]-drop0.1-augmented&0.1&random&	67.17&98.15\\
-CIL\_30\_10\_100-mem100-[...]-drop0.3-augmented&0.3&random&67.28&	97.3\\
-CIL\_30\_10\_100-mem100-[...]-drop0.5-augmented&0.5&random&65.57&	96.24\\
+drop0.1-augmented&0.1&random&	67.17&98.15\\
+drop0.3-augmented&0.3&random&67.28&	97.3\\
+drop0.5-augmented&0.5&random&65.57&	96.24\\
 \hline
-CIL\_30\_10\_100-mem100-[...]-drop0.1-augmented-onlytop&0.1&top-100&\textbf{89.1}&\textbf{96.59}\\
-CIL\_30\_10\_100-mem100-[...]-drop0.3-augmented-onlytop&0.3&top-100&88.14&96.39\\
-CIL\_30\_10\_100-mem100-[...]-drop0.5-augmented-onlytop&0.5&top-100&87.6&95.92\\
+drop0.1-augmented-onlytop&0.1&top-100&\textbf{89.1}&\textbf{96.59}\\
+drop0.3-augmented-onlytop&0.3&top-100&88.14&96.39\\
+drop0.5-augmented-onlytop&0.5&top-100&87.6&95.92\\
         \hline
     \end{tabular}}
-    \caption{Comparison of models trained on 100 randomly sampled classed and top-100 classes. Top-1 and Top-5 accuracy at task 7.}
+    \caption{Comparison of models trained on 100 randomly sampled classed and top-100 classes. Top-1 accuracy at task 7.}
     \label{table:exp3}
 \end{table}
+\newpage
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp3-top1.png} }}%
+    \qquad
+	\subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp3-top5.png} }}%
+	\caption{Comparison of models trained on 100 randomly sampled classed and top-100 classes.}%
+	\label{fig:exp3}%
+\end{figure}
 
+\newpage
 \subsubsection{Introduction of Adam optimizer}
 The next experiments aim to compare the SGD (see \autoref{sec:sgd_opt}) and Adam (see \autoref{sec:adam_opt}) optimizers. Considering the regularized models, data augmentation and the top-100 classes, the result of this comparison is shown in \autoref{fig:exp4} and \autoref{table:exp4}.
 
+
+As we can see from the results shown in \autoref{table:exp4}, the top-1 accuracy at task 7 improves by more than 6\% using the Adam as the optimization algorithm. 
+In addition to the performance aspect, the training history in \autoref{fig:exp4-train_val} shows that Adam leads to faster convergence. In fact the models trained with this algorithm achieve the highest value of top-1 accuracy on the validation set after only a few training epochs.
+
+\begin{table}[H]
+    \centering
+    \centerline{
+    \begin{tabular}{c|c|c|c|c}
+        \hline
+        \textbf{Model} &
+        \textbf{Dropout} &
+        \textbf{Optimizer} &
+        \textbf{Top-1} & 
+        \textbf{Top-5} \\
+        \textbf{name} &
+        \textbf{rate} &
+        \textbf{method} &
+        \textbf{acc. (\%)} & 
+        \textbf{acc. (\%)} \\
+        \hline
+        \hline
+SGD-drop0.1-augmented-onlytop&0.1&SGD&89.1&96.59\\
+SGD-drop0.3-augmented-onlytop&0.3&SGD&88.14&96.39\\
+SGD-drop0.5-augmented-onlytop&0.5&SGD&87.6&95.92\\
+\hline
+adam-drop0.1-augmented-onlytop&0.1&Adam&92.15&97.92\\
+adam-drop0.3-augmented-onlytop&0.3&Adam&91.55&97.75\\
+adam-drop0.5-augmented-onlytop&0.5&Adam&\textbf{95.04}&\textbf{98.4}\\
+        \hline
+    \end{tabular}}
+    \caption{Comparison of models trained using SGD and Adam. Top-1 accuracy at task 7.}
+    \label{table:exp4}
+\end{table}
+
+\newpage
+
 \begin{figure}[H]
 	\centering
-	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp4-top1.png} }}%
-	\subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp4-top5.png} }}%
+	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp4-top1.png} }}%
+    \qquad
+	\subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp4-top5.png} }}%
 	\caption{Comparison of models trained using SGD and Adam.}%
 	\label{fig:exp4}%
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering Accuracy on the training set]{{\includegraphics[width=0.80\textwidth]{images/exp/exp4-train.png} }}%
+    \qquad
+	\subfloat[\centering Accuracy on the validation set]{{\includegraphics[width=0.80\textwidth]{images/exp/exp4-val.png} }}%
+	\caption{Models trained using SGD and Adam: comparison of the accuracy at each training epoch at task 7 between the validation and training set.}%
+	\label{fig:exp4-train_val}%
+\end{figure}
+
+\newpage
+\subsubsection{Pruning}
+An important aspect discussed in \autoref{sec:method-pruning} is the number of model parameters. All the models tested up to this point add approximately 22 million parameters with each new incremental iteration of learning, thus reaching 170 million parameters at task 7 (22 million for the initial task and 7 iterations of incremental learning).
+
+The following experiments are designed to assess the pruning capacity of the channel-level masks and the drop in performance obtained by using this method. To this end, the pruned models are compared to those described in the previous section. An important difference in the training procedure of the pruned model is to monitor the loss on the validation set instead of the validation accuracy. Since the validation loss decreases with increasing sparsity of the model, we want to encourage a sparser model given the same accuracy on the validation set.
+
+The results regarding the performance comparison are shown in \autoref{fig:exp5} and \autoref{table:exp5}. As we can see, the drop in performance is negligible, with some pruned models performing even better than un-pruned ones. This can be explained by considering pruning as a regularization technique, in fact, the number of parameters reduced (effectively reducing the Vapnik-Chervonenkis dimension \cite{vapnik1999nature}). However, it is important to emphasize that these models are trained considering the top-100 classes, so it is essential to test the scalability of the models, and also of pruning, to the entire dataset.
+
+
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp5-top1.png} }}%
+    \qquad
+	\subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp5-top5.png} }}%
+	\caption{Performance comparison between the pruned model and standard model.}%
+	\label{fig:exp5}%
 \end{figure}
 
 \begin{table}[H]
@@ -196,46 +271,236 @@ The next experiments aim to compare the SGD (see \autoref{sec:sgd_opt}) and Adam
     \centerline{
     \begin{tabular}{c|c|c|c|c}
         \hline
-        \textbf{Name} &
+        \textbf{Model} &
         \textbf{Dropout} &
-        \textbf{Optimizer} &
+        \textbf{Pruning} &
         \textbf{Top-1} & 
         \textbf{Top-5} \\
-        &
+        \textbf{name} &
         \textbf{rate} &
-        \textbf{method} &
+        &
         \textbf{acc. (\%)} & 
         \textbf{acc. (\%)} \\
         \hline
         \hline
-CIL\_30\_10\_100-[...]-SGD-pretrained-drop0.1-augmented-onlytop&0.1&SGD&89.1&96.59\\
-CIL\_30\_10\_100-[...]-SGD-pretrained-drop0.3-augmented-onlytop&0.3&SGD&88.14&96.39\\
-CIL\_30\_10\_100-[...]-SGD-pretrained-drop0.5-augmented-onlytop&0.5&SGD&87.6&95.92\\
+drop0.1-augmented-onlytop&0.1&no&92.15&97.92\\
+drop0.3-augmented-onlytop&0.3&no&91.55&97.75\\
+drop0.5-augmented-onlytop&0.5&no&\textbf{95.04}&\textbf{98.4}\\
 \hline
-CIL\_30\_10\_100-[...]-adam-pretrained-drop0.1-augmented-onlytop&0.1&Adam&92.15&97.92\\
-CIL\_30\_10\_100-[...]-adam-pretrained-drop0.3-augmented-onlytop&0.3&Adam&91.55&97.75\\
-CIL\_30\_10\_100-[...]-adam-pretrained-drop0.5-augmented-onlytop&0.5&Adam&\textbf{95.04}&\textbf{98.4}\\
+PRUNED-drop0.1-augmented-onlytop&0.1&yes&92.58&96.96\\
+PRUNED-drop0.3-augmented-onlytop&0.3&yes&92.05&96.29\\
+PRUNED-drop0.5-augmented-onlytop&0.5&yes&91.45&95.67\\
         \hline
     \end{tabular}}
-    \caption{Comparison of models trained using SGD and Adam. Top-1 and Top-5 accuracy at task 7.}
-    \label{table:exp4}
+    \caption{Performance comparison between the pruned models and the un-pruned ones. Top-1 accuracy at task 7.}
+    \label{table:exp5}
 \end{table}
 
-Faster convergence and higher performance: From the training history we can see optimizer Adam migliora molto. \autoref{fig:exp4-train_val}.\todo{Spiegare}
+The result of pruning regarding the number of parameters is shown in \autoref{fig:exp5-params} and \autoref{table:exp5-params}. As we can see, this technique is very effective. The final number of model parameters is reduced by almost a factor of 5x, the models not using pruning already exceed the total number of parameters of those using pruning for task 1 (43 for the un-pruned vs. 32 for pruned approx.).
+
+\begin{table}[ht]
+    \begin{minipage}[b]{0.49\linewidth}
+        \centering
+        \includegraphics[width=1\linewidth]{images/exp/exp5-params.png}
+        \captionof{figure}{Number of model parameters at each task using the pruning technique.}
+        \label{fig:exp5-params}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.49\linewidth}
+        \centering
+        \begin{tabular}{c|c}
+            \hline
+            \textbf{Model} &
+            \textbf{\#Params} \\
+            \textbf{name} &
+            \textbf{(M)} \\
+            \hline
+            \hline
+UNPRUNED-drop0.1&170\\
+UNPRUNED-drop0.3&170\\
+UNPRUNED-drop0.5&170\\
+\hline
+PRUNED-drop0.1&34.08\\
+PRUNED-drop0.3&32.48\\
+PRUNED-drop0.5&36.41\\
+            \hline
+        \end{tabular}
+            \caption{Number of model parameters at task 7.}
+            \label{table:exp5-params}
+    \end{minipage}
+\end{table}
+
+Other interesting insights emerge by analyzing the training history of the models at task 0. The loss function of the DER algorithm (\autoref{eq:final_der_loss}) is defined as the sum of: the loss of the classifier, the loss of the auxiliary classifier and loss related to the pruning masks. In \autoref{fig:exp5-loss} we can see the classification loss (c), the sparsity loss (d) and the final loss (b) of the model for each training epoch at task 0. Initially, the loss (c) tends to decrease, but as the training epochs advance, the sparsity loss (d) increasingly limits the channels of the convolutional layers. This leads to a continuous decrease in parameters, but the classification (c) is affected considerably. The deterioration in performance can also be seen in the top-1 accuracy (a) on the validation set.
+
 
 \begin{figure}[H]
 	\centering
-	\subfloat[\centering Accuracy on the training set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp4-train.png} }}%
-	\subfloat[\centering Accuracy on the validation set]{{\includegraphics[width=0.49\textwidth]{images/exp/exp4-val.png} }}%
-	\caption{Models trained using SGD and Adam: comparison of the accuracy at each training epoch at task 7 between the validation and training set.}%
-	\label{fig:exp4-train_val}%
+	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp5-val_acc.png} }}%
+    
+	\subfloat[\centering Final loss]{{\includegraphics[width=0.50\textwidth]{images/exp/exp5-val_loss.png} }}%
+    
+	\subfloat[\centering Classification loss]{{\includegraphics[width=0.50\textwidth]{images/exp/exp5-val_clf.png} }}%
+    
+	\subfloat[\centering Sparsity loss]{{\includegraphics[width=0.50\textwidth]{images/exp/exp5-val_spars.png} }}%
+	\caption{Training history of the pruned model on the validation set at task 0.}%
+	\label{fig:exp5-loss}%
 \end{figure}
 
-\subsubsection{Pruning}
-Ora\todo{Spiegare}
 
 \subsection{2993 Classes}
 \label{sec:whole_dataset_clf}
+
+The following experiments test the scalability capabilities of the model. In fact, in this section, models will be trained on 2993 classes, i.e. the entire dataset.
+
+\subsubsection{Varying the memory size}
+Another important factor for testing the scalability of the model is the number of stored examples for old classes. Indeed, when many classes are introduced, it is necessary to limit the memory used to save old examples.
+In this first section, the models are trained by varying the size of the memory used by the models to store examples of the old classes. The memory size is tested using: 50, 20 and 10 examples.
+
+Regarding the other specifications of the model, it is trained according to the best results obtained previously with the experiments on 100 classes. Thus, the architecture of each feature extractor is ResNet-34 pretrained on ImageNet, the optimizer is Adam, regularization with a dropout layer is used as well as data augmentation, but initially no pruning is performed.
+
+The results of the experiments are shown in \autoref{fig:exp6} and \autoref{table:exp6}.
+As we can see, the models scale fairly well over the entire dataset, as a comparison of the setup of 100 classes shown in \autoref{table:exp5}, the drop in performance is only about 8\%, even though the examples stored in the setup of 2993 classes are 1/10 than before. As expected, the more samples stored for incremental learning iterations, the better the overall accuracy. The total number of examples stored by each model at task 8 is shown in \autoref{table:exp6-memsize}.
+
+\begin{table}[H]
+    \centering
+    \centerline{
+    \begin{tabular}{c|c|c|c|c}
+        \hline
+        \textbf{Model} &
+        \textbf{Dropout} &
+        \textbf{Mem.} &
+        \textbf{Top-1} & 
+        \textbf{Top-5} \\
+        \textbf{name} &
+        \textbf{rate} &
+        \textbf{size} &
+        \textbf{acc. (\%)} & 
+        \textbf{acc. (\%)} \\
+        \hline
+        \hline
+CIL\_2993-mem10-drop0.5-adam&0.1&10&87.2&92.19\\
+CIL\_2993-mem20-drop0.5-adam&0.1&20&88.47&92.58\\
+CIL\_2993-mem50-drop0.5-adam&0.1&50&89.22&92.97\\
+        \hline
+    \end{tabular}}
+    \caption{Performance of the models at each incremental task trained on the entire dataset using different dimensions of memory size. Top-1 accuracy at task 8.}
+    \label{table:exp6}
+\end{table}
+
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c|c}
+        \hline
+        \textbf{Model} &
+        \textbf{Mem.} &
+        \textbf{\# Total saved} \\
+        \textbf{name} &
+        \textbf{per class} &
+        \textbf{examples (K)} \\
+        \hline
+        \hline
+CIL\_2993-mem10-drop0.5-adam&10&102\\
+CIL\_2993-mem20-drop0.5-adam&20&53\\
+CIL\_2993-mem50-drop0.5-adam&50&29\\
+        \hline
+    \end{tabular}
+    \caption{Number of total examples stored by each model at task 8.}
+    \label{table:exp6-memsize}
+\end{table}
+
+
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp6-top1.png} }}%
+    \qquad
+	\subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp6-top5.png} }}%
+	\caption{Performance of the models at each incremental task trained on the entire dataset using different dimensions of memory size.}%
+	\label{fig:exp6}%
+\end{figure}
+
+\newpage
+
+\subsubsection{Pruning}
+\label{sec:pruning-entire}
+Similarly to the setup with 100 classes, the pruning strategy is tested for models trained on the entire dataset. As we can see from \autoref{fig:exp7} and \autoref{table:exp7}, when using the pruning in combination to the Weight Aligning (WA), the performance drops dramatically. Therefore, only for models using pruning, WA is disabled.
+
+In contrast to the experiments on 100 classes, now pruning results in poor performance, in fact the drop in accuracy is considerable compared to those models without pruning. Even considering the case using 50 samples for the pruning model, performance deteriorates by almost 20\%.
+
+Regarding the number of parameters, even in the setup with 2993 classes the model is reduced in size considerably. As we can see from \autoref{table:exp7-params}, however, the pruning factor corresponds to approximately 3x compared to the 5x achieved in the previous setup.
+
+In conclusion, the pruning strategy is not effective in the case of models trained on the entire dataset. For this reason, the KD is used and the result of the experiments is shown in \autoref{sec:exp-kd}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c|c|c|c|c}
+        \hline
+        \textbf{Model} &
+        \textbf{Mem.} &
+        \textbf{WA} &
+        \textbf{Pruning} &
+        \textbf{Top-1} & 
+        \textbf{Top-5} \\
+        \textbf{name} &
+        \textbf{size} &
+        &
+        &
+        \textbf{acc. (\%)} & 
+        \textbf{acc. (\%)} \\
+        \hline
+        \hline
+UNPRUNED-noWA-mem10-drop0.5&10&yes&no&87.2&92.19\\
+UNPRUNED-noWA-mem20-drop0.5&20&yes&no&88.47&92.58\\
+UNPRUNED-noWA-mem50-drop0.5&50&yes&no&89.22&92.97\\
+\hline
+PRUNED-noWA-mem10-drop0.3&10&no&yes&51.69&62.56\\
+PRUNED-noWA-mem20-drop0.3&20&no&yes&63.2&73.97\\
+PRUNED-noWA-mem50-drop0.3&50&no&yes&70.37&81.85\\
+\hline
+PRUNED-WA-mem10-drop0.3&50&no&yes&7.6&10.67\\
+\hline
+\end{tabular}
+\caption{Performance comparison between the pruned and un-pruned models. Top-1 accuracy at task 8.}
+    \label{table:exp7}
+\end{table}
+
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c}
+        \hline
+        \textbf{Model} &
+        \textbf{\#Params} \\
+        \textbf{name} &
+        \textbf{(M)} \\
+        \hline
+        \hline
+UNPRUNED-CIL\_2993-noWA-mem10-drop0.5&205\\
+UNPRUNED-CIL\_2993-noWA-mem20-drop0.5&205\\
+UNPRUNED-CIL\_2993-noWA-mem50-drop0.5&205\\
+\hline
+PRUNED-CIL\_2993-noWA-mem10-drop0.3&68.79\\
+PRUNED-CIL\_2993-noWA-mem20-drop0.3&71.66\\
+PRUNED-CIL\_2993-noWA-mem50-drop0.3&68.33\\
+\hline
+PRUNED-CIL\_2993-WA-mem10-drop0.3&70.69\\
+        \hline
+    \end{tabular}
+	\caption{Number of model parameters at task 8.}%
+    \label{table:exp7-params}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp7-top1.png} }}%
+    \qquad
+	\subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp7-top5.png} }}%
+	\caption{Performance comparison between the pruned and unpruned models trained on the entire dataset.}%
+	\label{fig:exp7}%
+\end{figure}
+
+\newpage
+
 \section{Logo detector}
 \label{sec:exp-det}
 \subsection{Metrics}
@@ -246,6 +511,8 @@ WA non utilizzato ma non peggiora molto le cose, probabilemnte perchè ci sono p
 
 \section{Knowledge Distillation}
 \label{sec:exp-kd}
+To address the drastic drop in accuracy when using pruning on models trained on the whole dataset (see \autoref{sec:pruning-entire}), KD is adopted as described in \autoref{sec:method-kd}.
+
 \section{End to end classification}
 \label{sec:exp-end2end}
 
