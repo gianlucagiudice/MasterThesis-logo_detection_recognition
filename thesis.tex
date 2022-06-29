@@ -118,10 +118,10 @@
 
 % INFORMAZIONI PDF - PERSONALIZZARE
 \pdfinfo{%
-  /Title    (Foo Bar Baz)
-  /Author   (Tinaso de Tinasis)
-  /Subject  (How to write meaningful titles)
-  /Keywords (LaTeXi foo bar baz meaningful PIT Presicce)
+  /Title    (Large scale incremental learning logo detection and recognition)
+  /Author   (Gianluca Giudice)
+  /Subject  (Master degree thesis)
+  /Keywords (DeepLearning ComputerVision ObjectDetection Classification )
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -151,56 +151,42 @@ app_a,%
 % FRONTESPIZIO - PERSONALIZZARE
 % ELIMINATE LE VOCI CHE NON VI SERVONO
 
-% UNIVERSITA - NOME
-\ateneo{Presicce Institute of Technology}
-
-% FACOLTA - DICITURA
-\FacoltaDi{Faculty of}
-% FACOLTA - NOME
-\facolta{Engineering}
-
-% CORSO DI LAUREA - DICITURA (MANTENERE LO SPAZIO)
-\CorsoDiLaureaIn{Master of Science in }
-% CORSO DI LAUREA - NOME
-\corsodilaurea{Theoretic Catering}
-
-% TIPOLOGIA TESI
-\TesiDiLaurea{Master Thesis}
-
-% TITOLO
-\titolo{Foo Bar Baz}
-
-% SOTTOTITOLO
-\sottotitolo{How to write meaningful titles}
-
-% RELATORE/I - DICITURA
-\AdvisorName{Advisors}
-% RELATORE - PROF. NOME E COGNOME
-\relatore{prof.\ Darth Vader}
-% RELATORE AGGIUNTIVO - PROF NOME E COGNOME
-% SE SI HA SOLO UN RELATORE ELIMINARE E CAMBIARE Advisors in Advisor
-\secondorelatore{prof.\ Neo Cortex}
-
-% TUTORE AZIENDALE - TITOLO NOME E COGNOME
-\tutoreaziendale{Ing. Pug Dog}
-% TUTORE AZIENDALE - DICITURA//AZIENDA
-\NomeTutoreAziendale{Company tutors\\FeelGood Inc}
-
-% CANDIDATO - DICITURA (MANTENERE I DUE PUNTI)
-\CandidateName{Candidate:}
-% SECONDO CANDIDATO - ELIMINARE O DECOMMENTARE
-%secondocandidato{Bombo de Bombis}
-
-% CANDIDATO - NOME E COGNOME
-\candidato{Tinaso de Tinasis}
-
-% LOGO UNIVERSITA
-\logosede{images/logo}
-
-% DATA - MESE ANNO
-\sedutadilaurea{September 1984}
-
-\frontespizio
+\begin{titlepage}
+  \noindent
+	\begin{minipage}[t]{0.21\textwidth}
+		\vspace{-7mm}{\includegraphics[scale=1.25]{images/logo_unimib.pdf}}
+	\end{minipage}
+	\begin{minipage}[t]{0.79\textwidth}
+	{
+{\textsc{University of Milano-Bicocca}} \\\\
+\textbf{Department of Informatics, Systems and Communication} \\\\
+\textbf{Master Degree in Computer Science} \\
+	\par
+	}
+	\end{minipage}
+	\vspace{25mm}
+	
+	\begin{center}{\Huge{\textbf{Large scale incremental learning logo detection and recognition}\par}}
+	\end{center}        
+	\vspace{25mm}
+	\noindent
+	{\large \textbf{Supervisor:} Prof. Simone Bianco} \\\\
+	{\large \textbf{Co-Supervisor:} PhD Marco Buzzelli} \\        
+	\vspace{20mm}
+	\begin{flushright}
+		{\large \textbf{Master Degree Thesis by:}} \\
+\vspace{2mm}
+\large{Gianluca Giudice} \\
+\vspace{2mm}
+\large{ID 830694} \\
+	\end{flushright}
+	\vspace{25mm}
+	\begin{center}
+		{\large{Academic Year 2021-2022}}
+	\end{center}
+\end{titlepage}
+	
+%\frontespizio
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
