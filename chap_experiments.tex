@@ -496,14 +496,71 @@ PRUNED-CIL\_2993-WA-mem10-drop0.3&70.69\\
     \qquad
 	\subfloat[\centering Top-5 accuracy]{{\includegraphics[width=0.80\textwidth]{images/exp/exp7-top5.png} }}%
 	\caption{Performance comparison between the pruned and unpruned models trained on the entire dataset.}%
-	\label{fig:exp7}%
+	\label{fig:exp7}
 \end{figure}
 
 \newpage
 
 \section{Logo detector}
 \label{sec:exp-det}
+This section described the experiments designed to evaluate the class-agnostic logo detector introduced in \autoref{sec:method-roi}.
+The CIL classifier is trained starting from the cropped regions.
+However, the detector predicts the bounding boxes using the entire image as input.
+Since an image can contain multiple logos, the detector is trained to exploit the same training, validation and testing set used by the CIL classifier.
+This is done by considering the training labels for the detector only if that bounding box corresponds to a ROI used as a training example for the classifier, otherwise the bounding box is used in the validation or test set, depending on the split used for the classifier.
+This process is shown in \autoref{fig:detector-split-dataset}.
+This results in an unbiased evaluation of both the detector and the classifier.
+
+\begin{figure}[H]
+	\centering
+    \includegraphics[width=0.7\textwidth]{images/logos-split.drawio.png}
+	\caption{Training, validation and test split for the detector based on the splits used to train the CIL classifier.}%
+	\label{fig:detector-split-dataset}%
+\end{figure}
+
 \subsection{Metrics}
+Mean Average Precision (mAP) metric is a metric used to evaluate object detection models. This metric is based on: Intersection over Union (IoU), Recall, Precision.
+
+\subsubsection{Intersection over Union}
+Given a ground-truth bounding box $box_{gt}$ and a detected bounding box $box_{pred}$, the IoU is computed as the ratio of the overlap and union areas $\text{IoU} = \frac{box_{gt} \cap box_{pred}}{box_{gt} \cup box_{pred}}$, as shown in \autoref{fig:iou}. Then a prediction is considered correted if IoU $ \geq \tau$, where $\tau$ is a threshold (a typical value for $\tau$ is $0.5$).
+
+\begin{figure}[H]
+	\centering
+    \includegraphics[width=1\textwidth]{images/iou.drawio.png}
+	\caption{Intersection over Union (IoU). The green box represents the ground-truth bounding box, the red one represents the predicted bounding box and the intersection is given by the yellow region. Then, the IoU is computed as the ratio of the overlap and union areas.}
+	\label{fig:iou}
+\end{figure}
+
+\subsubsection{Precision and Recall}
+Given the IoU and a threshold $\tau$ it is possible to count the number of:
+\begin{itemize}
+    \item True Positive (\textbf{TP}): The number of bounding boxes which have a IoU $geq \tau$ with the ground-truth bounding box.
+    \item False Positive (\textbf{FP}): The number of bounding boxes that predict an object which is not actually an object.
+    \item False Negative (\textbf{FN}): The number of bounding boxes which have a IoU $< \tau$ with the ground-truth bounding box.
+\end{itemize}
+Note that the True Negative (TN) are not considered in an object detection task, as this would mean counting as TN the background of the image that contains no object.
+
+Then, the Precision $P$ is given by:
+\begin{equation} %tp / (tp + fp)
+    P = \frac{TP}{TP + FP}
+\end{equation}
+and the Recall $R$ is given by:
+\begin{equation} %tp / (tp + fn)
+    R = \frac{TP}{TP + FP}
+\end{equation}
+Intuitively, precision is the ability of the detector not to consider as object a part of the image that is not, and recall is the ability of the detector to find all objects in the image.
+The threshold $\tau$ affects the number of TP, FP, FN, thus the value of Precision and Recall. For this reason, given a value for $\tau$ (e.g. $\tau = 0.5$), when computing the Precision/Recall at $\tau = 0.5$, this is denoted by $P@.5$ and $R@.5$.
+
+\subsubsection{Mean Average Precision}
+Average Precision (AP) is calculated as the weighted mean of precisions at each threshold; the weight is the increase in recall from the prior threshold. For values of $\tau \in \omega$, where $T = [0.50, 0.55, 0.60,\, ..., \, 0.95 ]$, the AP is given by:
+\begin{equation}
+    AP = 1 \sum_{i=1}^{|T| - 1}(R@\tau_i - R@\tau_{i+1} ) * P@\tau_{i}
+\end{equation}
+Finally, given $k$ different classes, the mAP is the average of the AP among each class:
+\begin{equation}
+    mAP = \frac{1}{|T|} \sum_{i=1}^{|T|} AP_i
+\end{equation}
+
 \subsection{100 Classes}
 \subsection{2993 Classes}
 \subsubsection{Ablation study}
@@ -512,6 +569,8 @@ WA non utilizzato ma non peggiora molto le cose, probabilemnte perchè ci sono p
 \section{Knowledge Distillation}
 \label{sec:exp-kd}
 To address the drastic drop in accuracy when using pruning on models trained on the whole dataset (see \autoref{sec:pruning-entire}), KD is adopted as described in \autoref{sec:method-kd}.
+
+The detector is trained to exploit the same train, validation and test split used by the CIL classifier. This results in an unbiased evaluation of both the detector and the classifier. This approach is shown in IMMAGINE.
 
 \section{End to end classification}
 \label{sec:exp-end2end}
