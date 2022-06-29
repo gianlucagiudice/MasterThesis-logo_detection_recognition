@@ -642,9 +642,9 @@ In conclusion, the pruning strategy is not effective in the case of models train
         \textbf{acc. (\%)} \\
         \hline
         \hline
-UNPRUNED-noWA-mem10-drop0.5&10&yes&no&87.2&92.19\\
-UNPRUNED-noWA-mem20-drop0.5&20&yes&no&88.47&92.58\\
-UNPRUNED-noWA-mem50-drop0.5&50&yes&no&\textbf{89.22}&\textbf{92.97}\\
+UNPRUNED-WA-mem10-drop0.5&10&yes&no&87.2&92.19\\
+UNPRUNED-WA-mem20-drop0.5&20&yes&no&88.47&92.58\\
+UNPRUNED-WA-mem50-drop0.5&50&yes&no&\textbf{89.22}&\textbf{92.97}\\
 \hline
 PRUNED-noWA-mem10-drop0.3&10&no&yes&51.69&62.56\\
 PRUNED-noWA-mem20-drop0.3&20&no&yes&63.2&73.97\\
@@ -668,9 +668,9 @@ PRUNED-WA-mem10-drop0.3&50&no&yes&7.6&10.67\\
         \textbf{(M)} \\
         \hline
         \hline
-UNPRUNED-CIL\_2993-noWA-mem10-drop0.5&205\\
-UNPRUNED-CIL\_2993-noWA-mem20-drop0.5&205\\
-UNPRUNED-CIL\_2993-noWA-mem50-drop0.5&205\\
+UNPRUNED-CIL\_2993-WA-mem10-drop0.5&205\\
+UNPRUNED-CIL\_2993-WA-mem20-drop0.5&205\\
+UNPRUNED-CIL\_2993-WA-mem50-drop0.5&205\\
 \hline
 PRUNED-CIL\_2993-noWA-mem10-drop0.3&68.79\\
 PRUNED-CIL\_2993-noWA-mem20-drop0.3&71.66\\
@@ -694,6 +694,45 @@ PRUNED-CIL\_2993-WA-mem10-drop0.3&70.69\\
 
 \newpage
 
+\section{Knowledge Distillation}
+\label{sec:exp-kd}
+To address the drastic drop in accuracy when using pruning on models trained on the whole dataset (see \autoref{sec:pruning-entire}), KD is adopted as described in \autoref{sec:method-kd}. During the KD, an un-pruned model is used as the teacher, while the student is a significantly smaller CNN. In the experiments presented in this section, ResNet-50 pretrained on ImageNet is used as the backbone for the student, with a dropout layer before the FC layer.
+
+KD is performed after the training of the teacher model. Since the CIL classifier is trained using the DER algorithm, and this algorithm requires that a part of the examples of the old classes is stored, in a real situation the KD can only be performed with those examples available as a result of the storage. For this reason, in order to reproduce a realistic situation, the student model is trained under the supervision of the teacher, but only the samples stored by the teacher are used as training data.
+
+The result of the experiments regarding KD are shown in \autoref{table:exp-kd}, where different models with varying memory size are used as teachers. As we can see, the number of examples used to train the student heavily affects the final performance.
+However, the student trained with 50 samples per class achieves 0.80 as top-1 accuracy, resulting in performance drop of 9\% compared to the teacher model. Although this drop in performance is rather large, it is important to consider the number of parameters: all teacher models have 205 million parameters, while the final models used as students have 30 million parameters.
+Therefore, even if the accuracy drops, the number of parameters drops by a factor of almost 7x.
+
+KD outperforms the result obtained with the pruning method (see \autoref{table:exp7} and \autoref{table:exp7-params}). In fact, comparing KD with pruning, the performance increases from 70.37\% to 80.0\% and the compression factor goes up from 3x to 7x.
+
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c|c|c|c}
+        \hline
+        \textbf{Teacher} &
+        \textbf{Student} &
+        \textbf{Mem.} &
+        \textbf{Dropout rate} &
+        \textbf{Top-1} \\
+        \textbf{model} &
+        \textbf{model} &
+        \textbf{size} &
+        \textbf{student} &
+        \textbf{acc. (\%)} \\
+        \hline
+        \hline
+UNPRUNED-WA-mem10-drop0.5&ResNet-50&10&0.1&62.42\\
+UNPRUNED-WA-mem50-drop0.5&ResNet-50&10&0.3&69.09\\
+UNPRUNED-WA-mem50-drop0.5&ResNet-50&50&0.3&\textbf{80.0}\\
+\hline
+\end{tabular}
+\caption{Top-1 accuracy of the students trained using KD. The teacher column represents which model is used as teacher, the student column refers to the backbone of the student model. }
+    \label{table:exp-kd}
+\end{table}
+
+
 \section{Logo detector}
 \label{sec:exp-det}
 This section described the experiments designed to evaluate the class-agnostic logo detector introduced in \autoref{sec:method-roi}.
@@ -715,7 +754,11 @@ This results in an unbiased evaluation of both the detector and the classifier.
 Mean Average Precision (mAP) metric is a metric used to evaluate object detection models. This metric is based on: Intersection over Union (IoU), Recall, Precision.
 
 \subsubsection{Intersection over Union}
-Given a ground-truth bounding box $box_{gt}$ and a detected bounding box $box_{pred}$, the IoU is computed as the ratio of the overlap and union areas $\text{IoU} = \frac{box_{gt} \cap box_{pred}}{box_{gt} \cup box_{pred}}$, as shown in \autoref{fig:iou}. Then a prediction is considered correted if IoU $ \geq \tau$, where $\tau$ is a threshold (a typical value for $\tau$ is $0.5$).
+Given a ground-truth bounding box $box_{gt}$ and a detected bounding box $box_{pred}$, as shown in \autoref{fig:iou}, the IoU is computed as the ratio of the overlap and union areas:
+\begin{equation}
+    \text{IoU} = \frac{box_{gt} \cap box_{pred}}{box_{gt} \cup box_{pred}} 
+\end{equation}
+Then a prediction is considered correted if IoU $ \geq \tau$, where $\tau$ is a threshold (a typical value for $\tau$ is $0.5$).
 
 \begin{figure}[H]
 	\centering
@@ -758,10 +801,6 @@ Finally, given $k$ different classes, the mAP is the average of the AP among eac
 \subsection{2993 Classes}
 \subsubsection{Ablation study}
 WA non utilizzato ma non peggiora molto le cose, probabilemnte perchè ci sono pochi esempi quindi qeusto non affect molto.
-
-\section{Knowledge Distillation}
-\label{sec:exp-kd}
-To address the drastic drop in accuracy when using pruning on models trained on the whole dataset (see \autoref{sec:pruning-entire}), KD is adopted as described in \autoref{sec:method-kd}.
 
 
 \section{End to end classification}
