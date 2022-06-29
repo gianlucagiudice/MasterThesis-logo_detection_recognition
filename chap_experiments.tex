@@ -146,6 +146,63 @@ SGD-pretrained-drop0.5-augmented&yes&0.5&65.57&	96.24\\
 \end{figure}
 
 \newpage
+\subsubsection{Type 1 baseline}
+To compare the performance of the CIL model with a standard non-incremental learning setup, a baseline is trained using the same train/validation/test split of the CIL model. In particular, this experiment exploits the definition of 'type 1 baseline' described in \autoref{sec:method-baseline1}, i.e. it uses the DER algorithm and trains the model at task 0 with all 100 classes. Analogous to the CIL model, the baseline uses data augmentation, the SGD optimizer, a dropout layer before the FC layer and ResNet-34 pre-trained on ImageNet as backbone for the feature extract.
+
+The performance comparison between the CIL models and the baselines is compared considering the top-1 accuracy on the test set. The results are shown in \autoref{table:baseline1}. As we can see, the best CIL model performs better than the best baseline, which is the opposite of what one might expect. However, as we can see from \autoref{table:baseline1-params}, this is due to the difference in the number of parameters described in \autoref{sec:method-baseline1}. For this reason, in the section section the CIL models are compared using a different type of baseline.
+
+\begin{table}[H]
+    \centering
+    \centerline{
+    \begin{tabular}{c|c|c|c}
+        \hline
+        \textbf{Model} &
+        \textbf{Dropout} &
+        \textbf{Top-1} & 
+        \textbf{Top-5} \\
+        \textbf{name} &
+        \textbf{rate} &
+        \textbf{acc. (\%)} & 
+        \textbf{acc. (\%)} \\
+        \hline
+\hline
+SGD-pretrained-drop0.1-augmented&0.1&67.17\\
+SGD-pretrained-drop0.3-augmented&0.3&\textbf{67.28}\\
+SGD-pretrained-drop0.5-augmented&0.5&65.57\\
+\hline
+BASELINE\_1-pretrained-drop0.1-augmented&0.1&63.04\\
+BASELINE\_1-pretrained-drop0.3-augmented&0.3&61.15\\
+BASELINE\_1-pretrained-drop0.5-augmented&0.5&57.14\\
+\hline 
+    \end{tabular}}
+    \caption{Performance comparison between the CIL model and the type 1 baseline. Top-1 accuracy at task 7 (CIL model) and task 0 (baseline).}
+    \label{table:baseline1}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \centerline{
+    \begin{tabular}{c|c}
+        \hline
+        \textbf{Model} &
+        \textbf{\#Params} \\
+        \textbf{name} &
+        \textbf{(M)} \\
+        \hline
+\hline
+SGD-pretrained-drop0.1-augmented&170\\
+SGD-pretrained-drop0.3-augmented&170\\
+SGD-pretrained-drop0.5-augmented&170\\
+\hline
+BASELINE\_1-pretrained-drop0.1-augmented&21\\
+BASELINE\_1-pretrained-drop0.3-augmented&21\\
+BASELINE\_1-pretrained-drop0.5-augmented&21\\
+\hline 
+    \end{tabular}}
+    \caption{Number of model parameters between the CIL model and the typ 1 baseline. Number of parameters at task 7 (CIL model) and task 0 (baseline).}
+    \label{table:baseline1-params}
+\end{table}
+
 \subsubsection{Top-100 Classes}
 In order to assess the extent to which those classes with few examples contribute to performance deterioration, the next experiments are carried out by considering only the top-100 classes, i.e. those with the largest number of examples (see the left-hand side of the distribution in \autoref{fig:logodet-dist}). This is useful to be aware of how much the model is limited in performance by the dataset.
 
@@ -249,7 +306,105 @@ adam-drop0.5-augmented-onlytop&0.5&Adam&\textbf{95.04}&\textbf{98.4}\\
 \end{figure}
 
 \newpage
-\subsubsection{Pruning}
+
+
+\newpage
+\subsubsection{Type 2 baseline}
+To address the problems relative to the type 1 baseline, the models tested in the previous section are compared to the 'type 2 baseline' described in \autoref{sec:method-baseline2}. This new baseline is trained on the same dataset used for CIL models and consists in fine-tuning ResNet-152 pretrained on ImageNet to the task of logo classification. This new baseline uses data augmentation, a dropout layer before the FC layer and the Adam optimizer.
+
+Considering the top-1 and top-5 accuracy on the test set, the performance of CIL models and the type 2 baselines is compared in \autoref{table:baseline2}.
+As we can see, the performance of the best CIL model is very similar to that of the baseline, but the latter still performs worse, even if slightly.
+Although this new baseline mitigates the problem of the number of model parameters, this is still present, as shown in \autoref{table:baseline2-params}.
+
+\begin{table}[H]
+    \centering
+    \centerline{
+    \begin{tabular}{c|c|c}
+        \hline
+        \textbf{Model} &
+        \textbf{Dropout} &
+        \textbf{Top-1} \\
+        \textbf{name} &
+        \textbf{rate} &
+        \textbf{acc. (\%)} \\
+        \hline
+\hline
+adam-drop0.1-augmented-onlytop&0.1&92.15\\
+adam-drop0.3-augmented-onlytop&0.3&91.55\\
+adam-drop0.5-augmented-onlytop&0.5&\textbf{95.04}\\
+\hline
+BASELINE\_2-drop0.1-augmented-onlytop&0.1&82.35\\
+BASELINE\_2-drop0.3-augmented-onlytop&0.3&94.11\\
+BASELINE\_2-drop0.5-augmented-onlytop&0.5&88.23\\
+\hline 
+    \end{tabular}}
+    \caption{Performance comparison between the CIL model and the type 2 baseline. Top-1 accuracy tested on 100 classes.}
+    \label{table:baseline2}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \centerline{
+    \begin{tabular}{c|c}
+        \hline
+        \textbf{Model} &
+        \textbf{\#Params} \\
+        \textbf{name} &
+        \textbf{(M)} \\
+        \hline
+adam-drop0.1-augmented-onlytop&170\\
+adam-drop0.3-augmented-onlytop&170\\
+adam-drop0.5-augmented-onlytop&170\\
+\hline
+BASELINE\_2-drop0.1-augmented-onlytop&60\\
+BASELINE\_2-drop0.3-augmented-onlytop&60\\
+BASELINE\_2-drop0.5-augmented-onlytop&60\\
+\hline 
+    \end{tabular}}
+    \caption{Number of model parameters between the CIL model and the typ 2 baseline.}
+    \label{table:baseline2-params}
+\end{table}
+
+\newpage
+\subsubsection{Type 3 baseline}
+This third baseline, 'type 3 baseline' aims to solve the problem of the number of model parameters. In fact, this approach, described in \autoref{sec:method-baseline3}, defines the baseline architecture using the DER algorithm in the exact same setup as the CIL classifier, thus having an identical architecture of the CIL model and the baseline.
+This ensures that the number of model parameters is the same.
+Therefore, the baseline is trained using the same dataset, data augmentation, regularization, and the Adam optimizer.
+
+The performance between the CIL models and this new baseline is compared considering the top-1 on the test set. As we can see from \autoref{table:baseline3}, the type 3 baseline achieves better performance than the CIL model.
+
+This makes it possible to compare the actual drop in performance using an incremental learning setup compared to a standard setup.
+As shown in \autoref{table:baseline3}, this gap is present, with a 3\% drop in top-1 accuracy, but it is expected using an incremental learning setup.
+However, a 3\% drop is acceptable when considering the advantages of an incremental learning approach.
+
+\begin{table}[H]
+    \centering
+    \centerline{
+    \begin{tabular}{c|c|c|c}
+        \hline
+        \textbf{Model} &
+        \textbf{Dropout} &
+        \textbf{Top-1} \\
+        \textbf{name} &
+        \textbf{rate} &
+        \textbf{acc. (\%)} \\
+        \hline
+\hline
+adam-drop0.1-augmented-onlytop&0.1&92.15\\
+adam-drop0.3-augmented-onlytop&0.3&91.55\\
+adam-drop0.5-augmented-onlytop&0.5&95.04\\
+\hline\
+BASELINE\_3-drop0.1-augmented-onlytop&0.1&\textbf{98.52}\\
+BASELINE\_3-drop0.3-augmented-onlytop&0.3&97.05\\
+BASELINE\_3-drop0.5-augmented-onlytop&0.5&97.64\\
+\hline 
+    \end{tabular}}
+    \caption{Top-1 accuracy of the CIL model and the type 3 baseline consider all the 100 clasees of the test set.}
+    \label{table:baseline3}
+\end{table}
+
+\newpage
+\subsubsection{Pruning (100 classes)}
 An important aspect discussed in \autoref{sec:method-pruning} is the number of model parameters. All the models tested up to this point add approximately 22 million parameters with each new incremental iteration of learning, thus reaching 170 million parameters at task 7 (22 million for the initial task and 7 iterations of incremental learning).
 
 The following experiments are designed to assess the pruning capacity of the channel-level masks and the drop in performance obtained by using this method. To this end, the pruned models are compared to those described in the previous section. An important difference in the training procedure of the pruned model is to monitor the loss on the validation set instead of the validation accuracy. Since the validation loss decreases with increasing sparsity of the model, we want to encourage a sparser model given the same accuracy on the validation set.
@@ -380,7 +535,7 @@ As we can see, the models scale fairly well over the entire dataset, as a compar
         \hline
 CIL\_2993-mem10-drop0.5-adam&0.1&10&87.2&92.19\\
 CIL\_2993-mem20-drop0.5-adam&0.1&20&88.47&92.58\\
-CIL\_2993-mem50-drop0.5-adam&0.1&50&89.22&92.97\\
+CIL\_2993-mem50-drop0.5-adam&0.1&50&\textbf{89.22}&\textbf{92.97}\\
         \hline
     \end{tabular}}
     \caption{Performance of the models at each incremental task trained on the entire dataset using different dimensions of memory size. Top-1 accuracy at task 8.}
@@ -421,7 +576,45 @@ CIL\_2993-mem50-drop0.5-adam&50&29\\
 
 \newpage
 
-\subsubsection{Pruning}
+\subsubsection{Type 3 baseline (2993 classes)}
+As in the case of 100 classes, the performance of the CIL models is compared with the type 3 baseline (see \autoref{sec:method-baseline3}). For this purpose, the baseline is trained considering the same dataset used to train the models in the previous section.
+Note that in the case of the baseline, there is no need to use a memory for the old classes since the incremental learning setup does not hold.
+ 
+The comparison of top-1 accuracy between CIL models and baselines is shown in \autoref{table:baseline3-2993}.
+Osservazioni\todo{Osservazioni}
+
+
+\begin{table}[H]
+    \centering
+    \centerline{
+    \begin{tabular}{c|c|c|c}
+        \hline
+        \textbf{Model} &
+        \textbf{Dropout} &
+        \textbf{Mem.} &
+        \textbf{Top-1}\\
+        \textbf{name} &
+        \textbf{rate} &
+        \textbf{size} &
+        \textbf{acc. (\%)} \\
+        \hline
+\hline
+CIL\_2993-mem10-drop0.5-adam&0.1&10&87.2\\
+CIL\_2993-mem20-drop0.5-adam&0.1&20&88.47\\
+CIL\_2993-mem50-drop0.5-adam&0.1&50&89.22\\
+\hline\
+BASELINE\_3-2993classes-drop0.1&0.1&-&-\\
+BASELINE\_3-2993classes-drop0.3&0.3&-&-\\
+BASELINE\_3-2993classes-drop0.5&0.5&-&-\\
+\hline 
+    \end{tabular}}
+    \caption{Top-1 accuracy of the CIL model and the type 3 baseline consider all the 100 clasees of the test set.}
+    \label{table:baseline3-2993}
+\end{table}
+
+\newpage
+
+\subsubsection{Pruning (2993 classes)}
 \label{sec:pruning-entire}
 Similarly to the setup with 100 classes, the pruning strategy is tested for models trained on the entire dataset. As we can see from \autoref{fig:exp7} and \autoref{table:exp7}, when using the pruning in combination to the Weight Aligning (WA), the performance drops dramatically. Therefore, only for models using pruning, WA is disabled.
 
@@ -451,7 +644,7 @@ In conclusion, the pruning strategy is not effective in the case of models train
         \hline
 UNPRUNED-noWA-mem10-drop0.5&10&yes&no&87.2&92.19\\
 UNPRUNED-noWA-mem20-drop0.5&20&yes&no&88.47&92.58\\
-UNPRUNED-noWA-mem50-drop0.5&50&yes&no&89.22&92.97\\
+UNPRUNED-noWA-mem50-drop0.5&50&yes&no&\textbf{89.22}&\textbf{92.97}\\
 \hline
 PRUNED-noWA-mem10-drop0.3&10&no&yes&51.69&62.56\\
 PRUNED-noWA-mem20-drop0.3&20&no&yes&63.2&73.97\\
@@ -552,13 +745,13 @@ Intuitively, precision is the ability of the detector not to consider as object 
 The threshold $\tau$ affects the number of TP, FP, FN, thus the value of Precision and Recall. For this reason, given a value for $\tau$ (e.g. $\tau = 0.5$), when computing the Precision/Recall at $\tau = 0.5$, this is denoted by $P@.5$ and $R@.5$.
 
 \subsubsection{Mean Average Precision}
-Average Precision (AP) is calculated as the weighted mean of precisions at each threshold; the weight is the increase in recall from the prior threshold. For values of $\tau \in \omega$, where $T = [0.50, 0.55, 0.60,\, ..., \, 0.95 ]$, the AP is given by:
+Average Precision (AP) is calculated as the weighted mean of precisions at each threshold; the weight is the increase in recall from the prior threshold. For values of $\tau \in T$, where $T = [0.50, 0.55, 0.60,\, ..., \, 0.95 ]$, the AP is given by:
 \begin{equation}
     AP = 1 \sum_{i=1}^{|T| - 1}(R@\tau_i - R@\tau_{i+1} ) * P@\tau_{i}
 \end{equation}
 Finally, given $k$ different classes, the mAP is the average of the AP among each class:
 \begin{equation}
-    mAP = \frac{1}{|T|} \sum_{i=1}^{|T|} AP_i
+    mAP = \frac{1}{k} \sum_{i=1}^{k} AP_i
 \end{equation}
 
 \subsection{100 Classes}
@@ -570,9 +763,6 @@ WA non utilizzato ma non peggiora molto le cose, probabilemnte perchè ci sono p
 \label{sec:exp-kd}
 To address the drastic drop in accuracy when using pruning on models trained on the whole dataset (see \autoref{sec:pruning-entire}), KD is adopted as described in \autoref{sec:method-kd}.
 
-The detector is trained to exploit the same train, validation and test split used by the CIL classifier. This results in an unbiased evaluation of both the detector and the classifier. This approach is shown in IMMAGINE.
 
 \section{End to end classification}
 \label{sec:exp-end2end}
-
-% 700x400 vs 600x300 (small)
