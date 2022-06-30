@@ -204,6 +204,7 @@ BASELINE\_1-pretrained-drop0.5-augmented&21\\
 \end{table}
 
 \subsubsection{Top-100 Classes}
+\label{sec:cil-top100}
 In order to assess the extent to which those classes with few examples contribute to performance deterioration, the next experiments are carried out by considering only the top-100 classes, i.e. those with the largest number of examples (see the left-hand side of the distribution in \autoref{fig:logodet-dist}). This is useful to be aware of how much the model is limited in performance by the dataset.
 
 Considering the regularized models and data augmentation, models trained on 100 randomly sampled classes and those trained on the top-100 classes are compared in \autoref{fig:exp3} and \autoref{table:exp3}. As we can see, even if the top-5 accuracy does not change between the two cases, considering the top-1 accuracy there is a drastic improvement in performance. This is a clear sign that classes with few examples deteriorate performance a lot.
@@ -399,7 +400,7 @@ BASELINE\_3-drop0.3-augmented-onlytop&0.3&97.05\\
 BASELINE\_3-drop0.5-augmented-onlytop&0.5&97.64\\
 \hline 
     \end{tabular}}
-    \caption{Top-1 accuracy of the CIL model and the type 3 baseline consider all the 100 clasees of the test set.}
+    \caption{Top-1 accuracy of the CIL model and the type 3 baseline consider all the 100 classes of the test set.}
     \label{table:baseline3}
 \end{table}
 
@@ -608,7 +609,7 @@ BASELINE\_3-2993classes-drop0.3&0.3&-&-\\
 BASELINE\_3-2993classes-drop0.5&0.5&-&-\\
 \hline 
     \end{tabular}}
-    \caption{Top-1 accuracy of the CIL model and the type 3 baseline consider all the 100 clasees of the test set.}
+    \caption{Top-1 accuracy of the CIL model and the type 3 baseline consider all the 100 classes of the test set.}
     \label{table:baseline3-2993}
 \end{table}
 
@@ -788,7 +789,7 @@ Intuitively, precision is the ability of the detector not to consider as object 
 The threshold $\tau$ affects the number of TP, FP, FN, thus the value of Precision and Recall. For this reason, given a value for $\tau$ (e.g. $\tau = 0.5$), when computing the Precision/Recall at $\tau = 0.5$, this is denoted by $P@.5$ and $R@.5$.
 
 \subsubsection{Mean Average Precision}
-Average Precision (AP) is calculated as the weighted mean of precisions at each threshold; the weight is the increase in recall from the prior threshold. For values of $\tau \in T$, where $T = [0.50, 0.55, 0.60,\, ..., \, 0.95 ]$, the AP is given by:
+Average Precision (AP) is calculated as the weighted mean of precisions at each threshold; the weight is the increase in recall from the prior threshold. For values of $\tau \in T$, where $T = [0.50, 0.55, 0.60,\, ..., \, 0.95 ]$, the AP computed using the thresholds in $T$ and denoted by $\text{AP}@.5:.95$ is given by:
 \begin{equation}
     AP = 1 \sum_{i=1}^{|T| - 1}(R@\tau_i - R@\tau_{i+1} ) * P@\tau_{i}
 \end{equation}
@@ -798,6 +799,64 @@ Finally, given $k$ different classes, the mAP is the average of the AP among eac
 \end{equation}
 
 \subsection{100 Classes}
+As in the case of the CIL classifier, the logo detector is initially trained using the top-100 classes of the dataset (where top-100 refers to the 100 classes with the highest number of samples, see \autoref{sec:cil-top100}).
+
+As described in \autoref{chap:methods}, the class-agnostic logo detector represents the first stage of the system and works in combination with the CIL model to achieve incremental learning logo detection and recognition. Given the nature of the problem, in a real case scenario, the detector is trained using only those classes available for the CIL model at task 0. In the experimental setup described in \autoref{sec:exp-setup}, the initial task consists in 30 classes.
+
+For this reason, in the top-100 classes setup, the detector is trained for 30 epochs with the SGD optimizer using only those 30 classes available at task 0.
+Note that, as described at the beginning of this section, the 30 classes correspond to those considered by the CIL model at task 0. Furthermore, the train, validation and test sets  for the detector are maintained identical as the classifier, so that to use the same sample images for training and testing of the two models
+
+During the training of the detector, the object loss, box loss (see \autoref{sec:yolo} and \autoref{eq:yolo-loss}) and the mAP@.5 is monitored on the validation set. The performance shown in \autoref{fig:exp-det_100} considers only the 30 classes used for training, which is a useful information for analyzing the training phase. However, considering an incremental learning setup, we expect the class-agnostic logo detector to perform well on all the 100 classes.
+To this purpose, the detector is evaluated considering the mAP@.5 on the test set of the initial 30 classes and the test of the remaining 70 classes.
+This evaluation represents a real-world scenario and it is therefore the most reliable performance and best suited to assessing the detector.
+The result of the evaluation is shown in \autoref{table:exp-det_100}.
+
+To better investigate the generalizing capabilities of the detector trained on 30 classes to the remaining 70, the detector is compared with a new one trained on all the 100 classes.
+This detector can be considered as a baseline with regard to the generalization capabilities of the detector trained on 30 classes: the smaller the gap between the performance of these two models, the better the generalization capabilities.
+This new detector is trained for 30 epochs on the 100 classes and, as before, the object loss, box loss and the mAP@.5 is monitored on the validation set. The comparison between the two detector is shown in \autoref{fig:exp-det_100}.
+
+As we can see from \autoref{fig:exp-det_100}, the performance between the detectors trained on 100 and 30 classes are quite similar. However, a crucial aspect of this training results, is that these metrics consider all and only the classes which the model is trained on, thus 30 classes and 100 classes.
+The fact that the detectors achieve the same performance is a sign that they accomplish similar results in detecting logos across a different number of classes.
+However, the real comparison consists in considering the mAP@0.5 for each detector, computed on the test set of all the 100 classes. This comparison is shown in \autoref{table:exp-det_100}.
+
+From \autoref{table:exp-det_100}, we can see how the detector trained on 30 classes does not generalize well on the remaining 70 classes.
+In fact, comparing the mAP@.5 computed on the test set composed of all the 100 classes, with the mAP@.5 obtained on the validation in the last epochs of training (shown in \autoref{fig:exp-det_100}), the drop in performance goes from about 0.97 to 0.75.
+
+In contrast, the detector trained on all the 100 classes, obtains a mAP@.5 on the test set of 0.982, which is consistent with the performance obtained on the validation set in the last epochs of training.
+However, it must be considered that, as this detector is trained using 70 more classes, it has more training samples at its disposal, hence more data from which to acquire knowledge of a logo.
+
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c|c|c|c}
+        \hline
+        \textbf{Model} &
+        \textbf{Precision} &
+        \textbf{Recall} &
+        \textbf{mAP@.5} &
+        \textbf{mAP@.5:.95} \\
+        \hline
+        \hline
+DET\_class-agnostic\_30cls&0.784&0.659&0.75&0.542\\
+DET\_class-agnostic\_100cls&0.944&0.972&0.982&0.776\\
+\hline
+\end{tabular}
+\caption{Precision, Recall, mAP@.5 and mAP@.5:.95 obtained by the detector trained on 30 classes (DET\_class-agnostic\_30cls) and that trained on 100 classes(DET\_class-agnostic\_10cls). The performance refers to the test set composed of all the 100 classes.}
+    \label{table:exp-det_100}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering mAP@.5]{{\includegraphics[width=0.70\textwidth]{images/exp/exp-det-map.png} }}%
+    \qquad
+	\subfloat[\centering Box loss]{{\includegraphics[width=0.70\textwidth]{images/exp/exp-det-box_loss.png} }}%
+    \qquad
+	\subfloat[\centering Obj loss]{{\includegraphics[width=0.70\textwidth]{images/exp/exp-det-obj_loss.png} }}%
+    \caption{Performance comparison between the class-agnostic logo detector trained on 30 classes and the one trained on 100 classes. The plots show the mAP@.5, box loss and object loss on the validation set at each training epoch. Note that these performance are computed on the validation set of each model, thus using 30 and 100 classes respectively.}%
+	\label{fig:exp-det_100}
+\end{figure}
+
+
 \subsection{2993 Classes}
 \subsubsection{Ablation study}
 WA non utilizzato ma non peggiora molto le cose, probabilemnte perchè ci sono pochi esempi quindi qeusto non affect molto.
