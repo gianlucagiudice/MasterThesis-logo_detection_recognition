@@ -154,15 +154,13 @@ The performance comparison between the CIL models and the baselines is compared 
 \begin{table}[H]
     \centering
     \centerline{
-    \begin{tabular}{c|c|c|c}
+    \begin{tabular}{c|c|c}
         \hline
         \textbf{Model} &
         \textbf{Dropout} &
-        \textbf{Top-1} & 
-        \textbf{Top-5} \\
+        \textbf{Top-1}\\
         \textbf{name} &
         \textbf{rate} &
-        \textbf{acc. (\%)} & 
         \textbf{acc. (\%)} \\
         \hline
 \hline
@@ -381,7 +379,7 @@ However, a 3\% drop is acceptable when considering the advantages of an incremen
 \begin{table}[H]
     \centering
     \centerline{
-    \begin{tabular}{c|c|c|c}
+    \begin{tabular}{c|c|c}
         \hline
         \textbf{Model} &
         \textbf{Dropout} &
@@ -534,9 +532,9 @@ As we can see, the models scale fairly well over the entire dataset, as a compar
         \textbf{acc. (\%)} \\
         \hline
         \hline
-CIL\_2993-mem10-drop0.5-adam&0.1&10&87.2&92.19\\
+CIL\_2993-mem10-drop0.5-adam $\vardiamondsuit$ &0.1&10&87.2&92.19\\
 CIL\_2993-mem20-drop0.5-adam&0.1&20&88.47&92.58\\
-CIL\_2993-mem50-drop0.5-adam&0.1&50&\textbf{89.22}&\textbf{92.97}\\
+CIL\_2993-mem50-drop0.5-adam $\clubsuit$ &0.1&50&\textbf{89.22}&\textbf{92.97}\\
         \hline
     \end{tabular}}
     \caption{Performance of the models at each incremental task trained on the entire dataset using different dimensions of memory size. Top-1 accuracy at task 8.}
@@ -604,8 +602,8 @@ CIL\_2993-mem10-drop0.5-adam&0.1&10&87.2\\
 CIL\_2993-mem20-drop0.5-adam&0.1&20&88.47\\
 CIL\_2993-mem50-drop0.5-adam&0.1&50&89.22\\
 \hline\
-BASELINE\_3-2993classes-drop0.1&0.1&-&-\\
-BASELINE\_3-2993classes-drop0.3&0.3&-&-\\
+BASELINE\_3-2993classes-drop0.1&0.1&-&88.48\\
+BASELINE\_3-2993classes-drop0.3&0.3&-&\textbf{91.92}\\
 BASELINE\_3-2993classes-drop0.5&0.5&-&-\\
 \hline 
     \end{tabular}}
@@ -649,7 +647,7 @@ UNPRUNED-WA-mem50-drop0.5&50&yes&no&\textbf{89.22}&\textbf{92.97}\\
 \hline
 PRUNED-noWA-mem10-drop0.3&10&no&yes&51.69&62.56\\
 PRUNED-noWA-mem20-drop0.3&20&no&yes&63.2&73.97\\
-PRUNED-noWA-mem50-drop0.3&50&no&yes&70.37&81.85\\
+PRUNED-noWA-mem50-drop0.3 $\spadesuit$&50&no&yes&70.37&81.85\\
 \hline
 PRUNED-WA-mem10-drop0.3&50&no&yes&7.6&10.67\\
 \hline
@@ -695,6 +693,8 @@ PRUNED-CIL\_2993-WA-mem10-drop0.3&70.69\\
 
 \newpage
 
+%\subsubsection{Ablation study}
+
 \section{Knowledge Distillation}
 \label{sec:exp-kd}
 To address the drastic drop in accuracy when using pruning on models trained on the whole dataset (see \autoref{sec:pruning-entire}), KD is adopted as described in \autoref{sec:method-kd}. During the KD, an un-pruned model is used as the teacher, while the student is a significantly smaller CNN. In the experiments presented in this section, ResNet-50 pretrained on ImageNet is used as the backbone for the student, with a dropout layer before the FC layer.
@@ -726,7 +726,7 @@ KD outperforms the result obtained with the pruning method (see \autoref{table:e
         \hline
 UNPRUNED-WA-mem10-drop0.5&ResNet-50&10&0.1&62.42\\
 UNPRUNED-WA-mem50-drop0.5&ResNet-50&10&0.3&69.09\\
-UNPRUNED-WA-mem50-drop0.5&ResNet-50&50&0.3&\textbf{80.0}\\
+UNPRUNED-WA-mem50-drop0.5 $\varheartsuit$&ResNet-50&50&0.3&\textbf{80.0}\\
 \hline
 \end{tabular}
 \caption{Top-1 accuracy of the students trained using KD. The teacher column represents which model is used as teacher, the student column refers to the backbone of the student model. }
@@ -799,18 +799,23 @@ Finally, given $k$ different classes, the mAP is the average of the AP among eac
 \end{equation}
 
 \subsection{100 Classes}
-As in the case of the CIL classifier, the logo detector is initially trained using the top-100 classes of the dataset (where top-100 refers to the 100 classes with the highest number of samples, see \autoref{sec:cil-top100}).
 
-As described in \autoref{chap:methods}, the class-agnostic logo detector represents the first stage of the system and works in combination with the CIL model to achieve incremental learning logo detection and recognition. Given the nature of the problem, in a real case scenario, the detector is trained using only those classes available for the CIL model at task 0. In the experimental setup described in \autoref{sec:exp-setup}, the initial task consists in 30 classes.
+As described in \autoref{chap:methods}, the class-agnostic logo detector represents the first stage of the system and works in combination with the CIL model to achieve incremental learning logo detection and recognition.
+
+\subsubsection{Training using the 30 classes of the initial task}
+Similarly to the CIL classifier, the first logo detector experiments focus on the the top-100 classes of the dataset (where top-100 refers to the 100 classes with the highest number of samples, see \autoref{sec:cil-top100}).
+Given the nature of the problem, in a real case scenario, the detector is trained using only those classes available for the CIL model at task 0. In the experimental setup described in \autoref{sec:exp-setup}, the initial task consists of 30 classes.
 
 For this reason, in the top-100 classes setup, the detector is trained for 30 epochs with the SGD optimizer using only those 30 classes available at task 0.
-Note that, as described at the beginning of this section, the 30 classes correspond to those considered by the CIL model at task 0. Furthermore, the train, validation and test sets  for the detector are maintained identical as the classifier, so that to use the same sample images for training and testing of the two models
+Note that, as described before, the 30 classes correspond to those considered by the CIL model at task 0. Furthermore, the train, validation and test sets for the detector are maintained identical as the classifier, so that to use the same sample images for training and testing of the two models
 
 During the training of the detector, the object loss, box loss (see \autoref{sec:yolo} and \autoref{eq:yolo-loss}) and the mAP@.5 is monitored on the validation set. The performance shown in \autoref{fig:exp-det_100} considers only the 30 classes used for training, which is a useful information for analyzing the training phase. However, considering an incremental learning setup, we expect the class-agnostic logo detector to perform well on all the 100 classes.
 To this purpose, the detector is evaluated considering the mAP@.5 on the test set of the initial 30 classes and the test of the remaining 70 classes.
 This evaluation represents a real-world scenario and it is therefore the most reliable performance and best suited to assessing the detector.
 The result of the evaluation is shown in \autoref{table:exp-det_100}.
 
+
+\subsubsection{Generalization capabilities of the class-agnostic logo detector}
 To better investigate the generalizing capabilities of the detector trained on 30 classes to the remaining 70, the detector is compared with a new one trained on all the 100 classes.
 This detector can be considered as a baseline with regard to the generalization capabilities of the detector trained on 30 classes: the smaller the gap between the performance of these two models, the better the generalization capabilities.
 This new detector is trained for 30 epochs on the 100 classes and, as before, the object loss, box loss and the mAP@.5 is monitored on the validation set. The comparison between the two detector is shown in \autoref{fig:exp-det_100}.
@@ -841,9 +846,10 @@ DET\_class-agnostic\_30cls&0.784&0.659&0.75&0.542\\
 DET\_class-agnostic\_100cls&0.944&0.972&0.982&0.776\\
 \hline
 \end{tabular}
-\caption{Precision, Recall, mAP@.5 and mAP@.5:.95 obtained by the detector trained on 30 classes (DET\_class-agnostic\_30cls) and that trained on 100 classes(DET\_class-agnostic\_10cls). The performance refers to the test set composed of all the 100 classes.}
+\caption{Precision, Recall, mAP@.5 and mAP@.5:.95 obtained by the detector trained on 30 classes (DET\_class-agnostic\_30cls) and that trained on 100 classes (DET\_class-agnostic\_10cls). The performance refers to the test set composed of all the 100 classes.}
     \label{table:exp-det_100}
 \end{table}
+\newpage
 
 \begin{figure}[H]
 	\centering
@@ -851,16 +857,103 @@ DET\_class-agnostic\_100cls&0.944&0.972&0.982&0.776\\
     \qquad
 	\subfloat[\centering Box loss]{{\includegraphics[width=0.70\textwidth]{images/exp/exp-det-box_loss.png} }}%
     \qquad
-	\subfloat[\centering Obj loss]{{\includegraphics[width=0.70\textwidth]{images/exp/exp-det-obj_loss.png} }}%
+	\subfloat[\centering Object loss]{{\includegraphics[width=0.70\textwidth]{images/exp/exp-det-obj_loss.png} }}%
     \caption{Performance comparison between the class-agnostic logo detector trained on 30 classes and the one trained on 100 classes. The plots show the mAP@.5, box loss and object loss on the validation set at each training epoch. Note that these performance are computed on the validation set of each model, thus using 30 and 100 classes respectively.}%
 	\label{fig:exp-det_100}
 \end{figure}
 
 
 \subsection{2993 Classes}
-\subsubsection{Ablation study}
-WA non utilizzato ma non peggiora molto le cose, probabilemnte perchè ci sono pochi esempi quindi qeusto non affect molto.
+\label{sec:2993-detector}
+The experiments conducted in the previous section are performed in the same way for the 2993 classes setup.
+The 2993 classes setup (see \autoref{sec:exp-setup}) consists of 1000 classes used at the initial task, then at each incremental task 250 classes are added.
+This section evaluates how the detector's ability to scale when going from the recognition of 100 classes to the case of 2993 classes.
+
+As in the case for the top-100 classes setup, the detector is trained on the first 1000 classes of the initial task, then the evaluation metrics are computed on the test set of these 1000 classes combined with the remaining 1993, thus the entire dataset consisting of 2993 classes in total.
+
+The detector is trained for 30 epochs with the SGD optimizer using only those 1000 classes available at task 0.
+During the training, the object loss, box loss (see \autoref{sec:yolo} and \autoref{eq:yolo-loss}) and the mAP@.5 is monitored on the validation set composed of the 1000 classes used for training.
+As we can see in \autoref{fig:exp-det_2993}, the mAP@.5 of the model computed on the validation set is lower than the 30 or 100 classes setup.
+This result is self-explanatory, as recognizing 1000 different logos is a more difficult task than recognizing 30 or 100 different logos.
+
+Other than the performance on the validation set during the training, the most useful insights are obtained when evaluating the detector on the test set composed of all the 2993. The result is shown in \autoref{table:exp-det_2993}.
+
+Another important comparison is between the detector trained on 1000 classes and the one trained on all the 2993 classes, as done for the 100 classes setup.
+This is done to asses the generalization capabilities obtained by the detector trained on 1000 classes when tested on all the classes. The training result of the detector trained on 2993 classes is shown in \autoref{fig:exp-det_2993} and the final performance obtained when testing the detector on the entire dataset in shown in \autoref{table:exp-det_2993}.
+
+OSSERVAZIONI\todo{osservazioni}
+From the performance obtained in \autoref{table:exp-det_100} we can see how the gap in mAP@.5 between the detector trained on 30 classes and the one trained on 100 classes in quite large. However, from the results obtained in \autoref{table:exp-det_2993} emerges that, unlike the previous setup, this gap in mAP@.5 reduces. This is a key observation since this is an evidence that, indeed, the detector trained on 1000 classes is able to generalize well, hence detects the the remaining 1993 classes even if it is trained only on the first 1000 classes.
+
+This result is a fundamental aspect for the entire system, as it is evidence in support of the claim made in \autoref{chap:introduction}, where it is assumed that it is not necessary to also develop an incremental learning detector, since the idea of what a generic logo is can be learned and well approximated using only an initial set of logos. The subsequent creation of new logos will not disrupt the general idea of a logo.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c|c|c|c}
+        \hline
+        \textbf{Model} &
+        \textbf{Precision} &
+        \textbf{Recall} &
+        \textbf{mAP@.5} &
+        \textbf{mAP@.5:.95} \\
+        \hline
+        \hline
+DET\_class-agnostic\_1000cls&0.704&0.666&0.706&0.465\\
+DET\_class-agnostic\_2993cls&-&-&-&-\\
+\hline
+\end{tabular}
+\caption{Precision, Recall, mAP@.5 and mAP@.5:.95 obtained by the detector trained on 1000 classes (DET\_class-agnostic\_1000cls) and that trained on 2993 classes (DET\_class-agnostic\_2993cls). The performance refers to the test set composed of all the 2993 classes.}
+    \label{table:exp-det_2993}
+\end{table}
+\newpage
+
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering mAP@.5]{{\includegraphics[width=0.70\textwidth]{images/exp/exp-det-map.png} }}%
+    \qquad
+	\subfloat[\centering Box loss]{{\includegraphics[width=0.70\textwidth]{images/exp/exp-det-box_loss.png} }}%
+    \qquad
+	\subfloat[\centering Object loss]{{\includegraphics[width=0.70\textwidth]{images/exp/exp-det-obj_loss.png} }}%
+    \caption{Performance comparison between the class-agnostic logo detector trained on 1000 classes and the one trained on 2993 classes. The plots show the mAP@.5, box loss and object loss on the validation set at each training epoch. Note that these performance are computed on the validation set of each model, thus using 1000 and 2993 classes respectively.}%
+	\label{fig:exp-det_2993}
+\end{figure}
 
 
 \section{End to end classification}
 \label{sec:exp-end2end}
+
+In this last section, the whole system is tested. This consists in combining the two steps (see \autoref{chap:methods}): the class agnostic logo detection which generates ROIs, and the actual classification performed by the CIL classifier.
+Then, the final performance is evaluated considering the Precision, Recall, mAP@.5 and mAP@.5:.95 on the test set composed of all the 2993 classes.
+
+The model used for the first step of the system is the class agnostic logo detector presented in \autoref{sec:2993-detector} which is trained using only the 1000 classes used at task 0 by the CIL classifier.
+This is done to replicate a real scenario.
+
+For what concerns the CIL classifier the following models are compared:
+\begin{enumerate}
+    \item CIL classifier with memory 50 ($\clubsuit$ in \autoref{table:exp6}).
+    \item CIL classifier with memory 10 ($\vardiamondsuit$ in \autoref{table:exp6}).
+    \item CIL classifier with memory 50 pruned using learnable masks ($\spadesuit$ in \autoref{table:exp7}).
+    \item Student model trained with KD by the CIL classifier with memory 50 ($\varheartsuit$ in \autoref{table:exp-kd}).
+\end{enumerate}
+
+The result of this evaluation is shown in \autoref{table:exp-end2end}. Osservazioni\todo{Osservazioni}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c|c|c|c}
+        \hline
+        \textbf{CIL classifier} &
+        \textbf{Precision} &
+        \textbf{Recall} &
+        \textbf{mAP@.5} &
+        \textbf{mAP@.5:.95} \\
+        \hline
+        \hline
+CIL\_classifier-mem50 $\clubsuit$&0.578&0.615&0.614&0.417\\
+CIL\_classifier-mem10 $\vardiamondsuit$&0.545&0.591&0.583&0.397\\
+Pruned\_CIL\_classifier-mem\_50 $\spadesuit$&0.496&0.485&0.489&0.347\\
+KD\_classifier-mem\_50 $\varheartsuit$&0.558&0.604&0.59&0.403\\
+\hline
+\end{tabular}
+\caption{End-to-end performance of the system using the class-agnostic logo detector and different CIL classifiers. The Precision, Recall, mAP@.5 and mAP@.5:.95 are computed on the test set composed of all the 2993 classes.}
+    \label{table:exp-end2end}
+\end{table}
