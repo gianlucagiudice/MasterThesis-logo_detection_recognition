@@ -421,7 +421,7 @@ By plotting the accuracy of the model at each training epoch, it is possible to 
 \subsection{Pruning}
 \label{sec:method-pruning}
 
-The DER algorithm, described in \autoref{sec:der-algorithm}, addresses the problem of class incremental learning by expanding the neural network architecture at each incremental stage. The super-feature extractor at step $t$ of incremental learning is given by the following concatenation $\Phi_t(\mathbf{x}) = [\mathcal{F}_0,\mathcal{F}_1(\mathbf{x}), \, ..., \, \mathcal{F}_t(\mathbf{x})]$. As discussed in \autoref{sec:resnet}, the feature extractor is a CNN, which in this thesis is implemented using ResNet-34.
+The DER algorithm, described in \autoref{sec:der-algorithm}, addresses the problem of class incremental learning by expanding the neural network architecture at each incremental stage. The super-feature extractor at step $t$ of incremental learning is given by the following concatenation $\Phi_t(\mathbf{x}) = [\mathcal{F}_0, \, \mathcal{F}_1(\mathbf{x}), \, ..., \, \mathcal{F}_t(\mathbf{x})]$. As discussed in \autoref{sec:resnet}, the feature extractor is a CNN, which in this thesis is implemented using ResNet-34.
 
 Giving the definition of the super-feature extractor, it is possible to see how the parameters of the neural network grow linearly as a function of the number of incremental learning steps.
 It is important to note that as the parameters of the super-feature extractor increase, those of the classifier $\mathcal{H}_t$ do as well.
