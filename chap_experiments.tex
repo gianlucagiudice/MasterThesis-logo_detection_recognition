@@ -6,14 +6,14 @@ The chapter is structured as follows:
 \autoref{sec:exp-cil} discusses the experiments related to the CIL model;
 \autoref{sec:exp-kd} describes the experiments aimed to reduce the number of model parameters using Knowledge Distillation (KD);
 \autoref{sec:exp-det} discusses the experiments related to the logo detector;
-the chapter ends in \autoref{sec:exp-end2end} presenting the results of experiments combining the logo detector and the CIL classifier.
+the chapter ends in \autoref{sec:exp-end2end} reporting the results of experiments combining the logo detector and the CIL classifier.
 
 \section{Setup}
 \label{sec:exp-setup}
 The developed system is tested considering two different CIL setups: the first consists of a subset of 100 classes out of 2993 in the dataset; the second tests the model's scaling capabilities using the entire dataset.
 In detail, the CIL setups are defined as follows:
 \begin{enumerate}
-    \item \textbf{100 Classes}: from the initial dataset 100 classes are extracted. 
+    \item \textbf{100 Classes}: from the initial dataset 100 classes are considered. 
     For experiments, a distinction is made between the case where classes are randomly sampled or the 100 classes with the highest number of images are taken.
     
     Of these 100 classes, 30 are used for the initial task, then the remaining 70 are used 10 at a time through 7 iterations of incremental learning.
@@ -103,7 +103,8 @@ Indeed, as can be seen from \autoref{fig:exp1-train_val} the accuracy on the tra
 
 \subsubsection{Regularization and data augmentation}
 Following the analysis discussed above, it is necessary to regularize the model.
-To do so, the next experiments are performed using the dropout layer (see \autoref{sec:methods-dropout}) and data augmentation (see \autoref{sec:methods-augment}). As said before, the backbone of each model is ResNet-34 pre-trained on ImageNet.
+To do so, the next experiments are performed using the dropout layer (see \autoref{sec:methods-dropout}) and data augmentation (see \autoref{sec:methods-augment}).
+As before, the backbone of the model is ResNet-34 pre-trained on ImageNet.
 
 Using these techniques, performance is higher than before, as shown in \autoref{fig:exp2}.
 From \autoref{fig:exp2-train_val} we can see that the training accuracy of the models with regularization is lower than that of models without regularization, but the validation accuracy is higher.
@@ -265,7 +266,7 @@ drop0.3-augmented-onlytop&0.3&top-100&88.14&96.39\\
 drop0.5-augmented-onlytop&0.5&top-100&87.6&95.92\\
         \hline
     \end{tabular}}
-    \caption{Comparison between models trained on 100 randomly sampled classes and those trained on the top-100 classes. Top-1 and top-5 accuracy at task 7.}
+    \caption{Comparison between models trained on 100 randomly sampled classes and models trained on the top-100 classes. Top-1 and top-5 accuracy at task 7.}
     \label{table:exp3}
 \end{table}
 %\newpage
@@ -275,7 +276,7 @@ drop0.5-augmented-onlytop&0.5&top-100&87.6&95.92\\
 The next experiments aim to compare SGD (see \autoref{sec:sgd_opt}) and Adam (see \autoref{sec:adam_opt}) optimizers.
 Using regularization, data augmentation and the top-100 classes, the results of this comparison are, shown in \autoref{fig:exp4} and \autoref{table:exp4}.
 
-As we can see, the top-1 accuracy at task 7 improves by more than 6\% using Adam as optimization algorithm. 
+As we can see, the top-1 accuracy at task 7 improves by more than 6\% using Adam as the optimization algorithm. 
 In addition to the performance aspect, the training history in \autoref{fig:exp4-train_val} shows that Adam leads to faster convergence. In fact, models trained with this algorithm achieve the highest value of top-1 accuracy on the validation set after only a few training epochs.
 
 
@@ -339,7 +340,8 @@ This new baseline uses data augmentation, a dropout layer before the FC layer an
 
 Considering the top-1 and top-5 accuracy on the test set, the performance of CIL models and type 2 baselines are compared in \autoref{table:baseline2}.
 As we can see, the performance of the best CIL model is very similar to that of the baseline, but the latter still performs worse, even if only slightly.
-Although this new baseline alleviates the problem of the number of model parameters, this issue is still present, as shown in \autoref{table:baseline2-params}.
+Although this new baseline alleviates the problem of the number of model parameters, this issue is still present, as shown in \autoref{table:baseline2-params}, and this is the reason why performance continues to be slightly worse than CIL models.
+
 
 \begin{table}[H]
     \centering
@@ -554,14 +556,14 @@ PRUNED-drop0.5-augmented-onlytop&0.5&yes&91.45&95.67\\
 The following experiments test the scalability capabilities of the model by training it on 2993 classes, i.e. the entire dataset.
 
 \subsubsection{Varying the memory size}
-Another important factor for testing the scalability of the model is the number of examples stored for old classes.
+An important factor for testing the scalability of the model is the number of examples stored for old classes.
 Indeed, when many classes are introduced, it is necessary to limit the memory used to store old examples.
 In this first section, models are trained in different configurations to consider various memory sizes used to store the examples of the old classes, in particular 50, 20 and 10 are the memory sizes taken into account.
 
 The models are defined on the basis of the best results previously obtained from experiments on 100 classes: the architecture of each feature extractor is ResNet-34 pre-trained on ImageNet; the optimizer is Adam; regularization with a dropout layer is used as well as data augmentation. No pruning is performed initially.
 
 The results of the experiments are shown in \autoref{fig:exp6} and \autoref{table:exp6}.
-As we can see, the models scale quite well over the entire dataset, by comparison, considering the 100 classes setup shown in \autoref{table:exp5}, the drop in performance is only about 6\%.%, even though the examples stored in the setup of 2993 classes are 1/10th of what they were before.
+As we can see, the models scale quite well over the entire dataset, by comparison, considering the 100 classes setup shown in \autoref{table:exp5}, the drop in performance is only about 6\%.
 Moreover, the results show that the greater the number of samples stored for incremental learning iterations, the better the overall accuracy.
 The total number of examples stored by each model at task 8 is reported in \autoref{table:exp6-memsize}.
 
@@ -598,7 +600,7 @@ CIL\_2993-mem50-drop0.5-adam $\clubsuit$ &0.1&50&\textbf{89.22}&\textbf{92.97}\\
         \hline
         \textbf{Model} &
         \textbf{Mem.} &
-        \textbf{\# Total saved} \\
+        \textbf{\# Total stored} \\
         \textbf{name} &
         \textbf{per class} &
         \textbf{examples (K)} \\
@@ -670,14 +672,14 @@ As we can see from \autoref{fig:exp7} and \autoref{table:exp7}, when pruning is 
 Therefore, only for models using pruning, WA is disabled.
 
 In contrast to the 100-class experiments, pruning now yields poor performance.
-In fact, the drop in accuracy is considerable compared to those models without pruning.
-Even considering the case where 50 samples are used for the pruning model, performance deteriorates by almost 20\%.
+In fact, the drop in accuracy is considerable compared to models that do not use pruning.
+Even considering the case where 50 samples are used for the pruned model, performance deteriorates by almost 20\%.
 
 Regarding the number of parameters, even in the setup with 2993 classes, the model is significantly reduced in size.
 However, as we can see from \autoref{table:exp7-params}, the pruning factor corresponds to approximately 3x compared to the 5x achieved in the previous setup.
 
 In conclusion, the pruning strategy is not effective in the case of models trained on the entire dataset.
-For this reason, the KD is used instead. The results of the experiments are shown in \autoref{sec:exp-kd}.
+For this reason, KD is used instead. The results of the experiments are shown in \autoref{sec:exp-kd}.
 
 \begin{table}[H]
     \centering
@@ -753,20 +755,20 @@ PRUNED-CIL\_2993-WA-mem10-drop0.3&70.69\\
 
 \section{Knowledge Distillation}
 \label{sec:exp-kd}
-To overcome the drastic drop in accuracy when using pruning on models trained on the entire dataset (see \autoref{sec:pruning-entire}), the KD is adopted as described in \autoref{sec:method-kd}.
-During the KD, an un-pruned model is used as the teacher, while the student is a significantly smaller CNN. In the experiments presented in this section, ResNet-50 pretrained on ImageNet is used as the backbone for the student, with a dropout layer before the FC layer.
+To overcome the drastic drop in accuracy when using pruning on models trained on the entire dataset (see \autoref{table:exp7}), KD is adopted as described in \autoref{sec:method-kd}.
+During KD, an un-pruned model is used as the teacher, while the student is a significantly smaller CNN. In the experiments presented in this section, ResNet-50 pretrained on ImageNet is used as the backbone for the student, with a dropout layer before the FC layer.
 
-The KD is performed after the training of the teacher model.
-Since the CIL classifier is trained using the DER algorithm and it requires the storage of a part of the examples of the old classes, in a real situation the KD can only be performed with those examples available as a result of the storage.
+KD is performed after the training of the teacher model.
+Since the CIL classifier is trained using the DER algorithm and it requires the storage of a part of the examples of the old classes, in a real situation KD can only be performed with those examples available as a result of the storage.
 Therefore, in order to replicate a realistic situation, the student model is trained under the supervision of the teacher, but only the samples stored by the teacher are used as training data.
 
-The result of the KD experiments are shown in \autoref{table:exp-kd}, where different models with varying memory sizes are used as teachers. As we can see, the number of samples used to train the student heavily affects the final performance.
+The result of KD experiments are shown in \autoref{table:exp-kd}, where different models with varying memory sizes are used as teachers. As we can see, the number of samples used to train the student heavily affects the final performance.
 
-Using 50 samples per class to train the student results in top-1 accuracy of 0.80\%, i.e. a decrease of 9\% compared to the teacher model.
+Using 50 samples per class to train the student results in top-1 accuracy of 80.0\%, i.e. a decrease of 9\% compared to the teacher model.
 Although this drop in performance is rather large, it is important to consider the number of parameters: all teacher models have 205 million parameters, while the final student models have 30 million parameters (the number of ResNet-50 parameters).
 Therefore, even though the accuracy decreases, the number of parameters is reduced by almost 7 times.
 
-The KD outperforms the pruning method (see \autoref{table:exp7} and \autoref{table:exp7-params}), increasing top-1 accuracy from 70.37\% to 80.0\% and the compression factor from 3x to 7x.
+KD outperforms the pruning method (see \autoref{table:exp7} and \autoref{table:exp7-params}), increasing top-1 accuracy from 70.37\% to 80.0\% and the compression factor from 3x to 7x.
 
 \begin{table}[H]
     \centering
@@ -789,7 +791,7 @@ UNPRUNED-WA-mem50-drop0.5&ResNet-50&10&0.3&69.09\\
 UNPRUNED-WA-mem50-drop0.5 $\heartsuit$&ResNet-50&50&0.3&\textbf{80.0}\\
 \hline
 \end{tabular}
-\caption{Top-1 accuracy of the students trained using the KD. The student column refers to the backbone of the student model.}
+\caption{Top-1 accuracy of the students trained using KD. The student column refers to the backbone of the student model.}
     \label{table:exp-kd}
 \end{table}
 
@@ -798,7 +800,7 @@ UNPRUNED-WA-mem50-drop0.5 $\heartsuit$&ResNet-50&50&0.3&\textbf{80.0}\\
 \label{sec:exp-det}
 This section describes experiments designed to evaluate the class-agnostic logo detector introduced in \autoref{sec:method-roi}.
 The CIL classifier is trained starting from the cropped regions, while the detector predicts the bounding boxes using the entire image as input.
-Since an image can contain several logos, there is a need to train the detector using the same training, validation and testing sets used by the CIL classifier.
+Since an image can contain several logos, there is a need to train the detector using the same training, validation and test sets used by the CIL classifier.
 This is done by considering training labels for the detector only if the bounding box corresponds to a ROI used as a training example for the CIL classifier, otherwise the bounding box is used in the validation or test set, depending on the split used for the classifier.
 This process is shown in \autoref{fig:detector-split-dataset}.
 In this way, an unbiased evaluation of both the detector and the CIL classifier is achieved.
@@ -811,7 +813,7 @@ In this way, an unbiased evaluation of both the detector and the CIL classifier 
 \end{figure}
 
 \subsection{Metrics}
-Mean Average Precision (mAP) metric is a metric used to evaluate object detection models. This metric is based on: Intersection over Union (IoU), Recall, Precision.
+Mean Average Precision (mAP) is a metric used to evaluate object detection models. This metric is based on: Intersection over Union (IoU), Recall, Precision.
 
 \subsubsection{Intersection over Union}
 Given a ground-truth bounding box $box_{gt}$ and a detected bounding box $box_{pred}$, as shown in \autoref{fig:iou}, the IoU is computed as the ratio of the overlap and union areas:
@@ -844,7 +846,7 @@ and the Recall $R$ is given by:
 \begin{equation} %tp / (tp + fn)
     R = \frac{TP}{TP + FN}
 \end{equation}
-Intuitively, precision is the ability of the detector not to recognize a part of the image as an object that is not actually an object, and recall is the ability of the detector to find all objects in the image.
+Intuitively, precision is the ability of the detector not to identify as an object a part of the image that actually is not, and recall is the ability of the detector to find all objects in the image.
 The threshold $\tau$ affects the number of $TP$, $FP$, $FN$ and thus the value of precision and recall.
 For this reason, given a value for $\tau$ (e.g. $\tau = 0.5$), computing the precision or recall at $\tau = 0.5$ is denoted by $P@.5$ and $R@.5$ respectively.
 
@@ -866,11 +868,9 @@ As described in \autoref{chap:methods}, the class-agnostic logo detector represe
 As with the CIL classifier, the first experiments with the logo detector focus on the top-100 classes of the dataset (where top-100 refers to the 100 classes with the highest number of samples, see \autoref{sec:cil-top100}).
 Given the nature of the problem, in a real scenario, the detector is trained using only those classes available for the CIL model at task 0.
 In the CIL setup described in \autoref{sec:exp-setup}, the initial task consists of 30 classes.
-
 For this reason, in the top-100 classes setup, the detector is trained for 30 epochs with the SGD optimizer using only those 30 classes available at task 0.
-Note that, as described before, the 30 classes correspond to those considered by the CIL model at task 0.
 
-During the training of the detector, the object loss, box loss (see \autoref{sec:yolo} and \autoref{eq:yolo-loss}) and the mAP@.5 are monitored on the validation set.
+During the training of the detector, the object loss, box loss (see \autoref{sec:yolo} and \autoref{eq:yolo-loss}) and the mAP@.5 are calculated at each epoch on the validation set.
 The performance shown in \autoref{fig:exp-det_100} considers only the 30 classes used for training, which is useful for analyzing the training phase, but given the incremental learning setup, we expect the class-agnostic logo detector to perform well on all the 100 classes.
 For this purpose, the detector is evaluated considering the mAP@.5 on the test set combining the initial 30 classes and the remaining 70.
 This evaluation represents a real-world scenario and is therefore the most reliable and most suitable for evaluating the detector.
@@ -882,11 +882,11 @@ To better study the generalization capabilities of the detector trained on 30 cl
 This detector can be considered as a baseline with respect to the generalization capabilities of the detector trained on 30 classes: the smaller the gap between the performance of these two models, the better the generalization capabilities.
 This new detector is trained for 30 epochs using the 100 classes and, as before, object loss, box loss and mAP@.5 are monitored on the validation set. The comparison between the two detectors is shown in \autoref{fig:exp-det_100}.
 
-As we can see from \autoref{fig:exp-det_100}, the performance of detectors trained on 100 and 30 classes is quite similar.
-However, a crucial aspect of this training results, is that these metrics consider all and only those classes on which the model is trained, thus 30 classes and 100 classes.
-The fact that the detectors achieve the same performance is a sign that they accomplish similar results in detecting logos across a different number of classes.
-However, the real comparison consists in considering the mAP@0.5 for each detector, computed on the test set of all the 100 classes. This comparison is shown in \autoref{table:exp-det_100}. As we can see, the detector trained on 30 classes does not generalize well on the remaining 70.
-In fact, comparing the mAP@.5 computed on the test set composed of all 100 classes, with the mAP@.5 obtained on the validation at the last training epochs (shown in \autoref{fig:exp-det_100}), the performance drops from about 0.97 to 0.75.
+As we can see from \autoref{fig:exp-det_100}, the performance of detectors trained on 30 and 100 classes is quite similar.
+However, a crucial aspect of this training results, is that these metrics consider all and only those classes on which the model is trained on, thus 30 classes and 100 classes respectively.
+The fact that the detectors achieve the same performance is a sign that they accomplish similar results in detecting logos across a different number of classes. However, the real comparison consists in considering the mAP@0.5 computed on the test set of all the 100 classes.
+As shown in \autoref{table:exp-det_100}, the detector trained on 30 classes does not generalize well on the remaining 70.
+In fact, considering this detector, the mAP@.5 obtained on the validation set at the last training epochs is 0.97 (shown in \autoref{fig:exp-det_100}), while the mAP@.5 computed on the test set composed of all 100 classes is 0.75.
 
 In contrast, the detector trained on all the 100 classes, obtains a mAP@.5 on the test set of 0.982, which is consistent with the performance obtained on the validation set at the last training epochs.
 However, it must be considered that, since this detector is trained using 70 more classes, it has more training samples at its disposal, hence more data from which to acquire knowledge of a logo.
@@ -931,14 +931,13 @@ This section evaluates the detector's ability to scale from 100 classes to 2993 
 
 As in the case of the setup of the top-100 classes, the detector is trained for 30 epochs using the SGD optimizers on the first 1000 classes of the initial task. Then the evaluation metrics are computed on the test set of these 1000 classes combined with the remaining 1993 classes, thus on the entire dataset consisting of 2993 classes in total.
 
-During the training, object loss, box loss (see \autoref{sec:yolo} and \autoref{eq:yolo-loss}) and mAP@.5 are monitored on the validation set consisting of the 1000 classes used for training.
+During the training, object loss, box loss and mAP@.5 are monitored on the validation set consisting of the 1000 classes used for training.
 As we can see in \autoref{fig:exp-det_2993}, the mAP@.5 of the model computed on the validation set is lower than the 30-class or 100-class setup.
 This is because recognizing 1000 different logos is a more difficult task than recognizing 30 or 100 different logos.
 
-Apart from the performance on the validation set obtained during training, the most useful insights are obtained by evaluating the detector on the test set consisting of all 2993 classes. The results are shown in \autoref{table:exp-det_2993}. As we can seen, the mAP@.5 is very similar to the 30-class setup (0.706 vs 0.75).
+Apart from the performance on the validation set obtained during training, the most useful insights are obtained by evaluating the detector on the test set composed of all 2993 classes. The results are shown in \autoref{table:exp-det_2993}. As we can seen, the mAP@.5 is very similar to the 30-class setup (0.706 vs 0.75).
 
-Another important comparison is between the detector trained on 1000 classes and that trained on all 2993 classes, as done for the 100-class setup.
-This is done to assess the generalization capabilities of the detector trained on 1000 classes when tested on all classes.
+As with the 100-class setup, another important comparison is between the detector trained on 1000 classes and the one trained on all 2993 classes, in order to assess the generalization capabilities of the detector trained on 1000 classes when tested on all classes.
 The results of training of the detector trained on all 2993 classes are shown in \autoref{fig:exp-det_2993} and the final performance obtained by testing it on the entire dataset is shown in \autoref{table:exp-det_2993}.
 
 From the results shown in \autoref{table:exp-det_100} we can see that the gap in mAP@.5 between the detector trained on 30 classes and the one trained on 100 classes is quite large. However, from the results obtained in \autoref{table:exp-det_2993} emerges that, in contrast to the previous setup, this gap in mAP@.5 is reduced: \todo{Queste performance sono relative all'epoca 16 di training. Appena ho accesso al server aggiorno la performance ottenuta all'epoca 30}0.706 in the 1000-class setup vs. 0.73 in the 2993-class setup.
