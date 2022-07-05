@@ -423,7 +423,7 @@ By plotting the accuracy of the model at each training epoch, it is possible to 
 
 The DER algorithm, described in \autoref{sec:der-algorithm}, addresses the problem of class incremental learning by expanding the neural network architecture at each incremental stage. The super-feature extractor at step $t$ of incremental learning is given by the following concatenation $\Phi_t(\mathbf{x}) = [\mathcal{F}_0, \, \mathcal{F}_1(\mathbf{x}), \, ..., \, \mathcal{F}_t(\mathbf{x})]$. As discussed in \autoref{sec:resnet}, the feature extractor is a CNN, which in this thesis is implemented using ResNet-34.
 
-Giving the definition of the super-feature extractor, it is possible to see how the parameters of the neural network grow linearly as a function of the number of incremental learning steps.
+Given the definition of the super-feature extractor, it is possible to see how the parameters of the neural network grow linearly as a function of the number of incremental learning steps.
 It is important to note that as the parameters of the super-feature extractor increase, those of the classifier $\mathcal{H}_t$ do as well.
 The classifier $\mathcal{H}_t$ corresponds to the fully connected layer of the neural network. At each incremental learning stage new classes are introduced, thus new connections are created between the classifier predicting the output class and the super-feature extractor.
 
@@ -506,7 +506,8 @@ Then, the softened probability is given by:
 \begin{equation}\label{eq:kd_prob}
     p_i^t = \frac{exp(\frac{z_i^t}{T})}{\sum_j exp(\frac{z_i^t}{T})}
 \end{equation}
-where higher values of $T$ produce softer probabilities. The prediction $p_i^t$ is called soft target, shown in \autoref{fig:kd}.
+where higher values of $T$ produce softer probabilities. The prediction $p_i^t$ is called soft target, shown in \autoref{fig:kd}. 
+Note that the teacher's output probability is denoted by $p_i^t$ using the letter $t$, as opposed to the student's output probability denoted by $p_i^s$ with the letter $s$.
 
 Similarly, the \autoref{eq:kd_prob} is used to compute the class probability $p_i^s$ predicted by the student using its logit $z_i^s$ and the same temperature $T$.
 In addition to the soft targets of the teacher, Hinton et al. in \cite{hinton2015distilling} show that it is also beneficial to train the student model to produce the real data labels, called hard targets and shown in \autoref{fig:kd}.

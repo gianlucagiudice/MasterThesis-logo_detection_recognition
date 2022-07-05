@@ -293,7 +293,7 @@ From the final results reported in PyCIL in \autoref{table:cil-results} it is cl
 
 \subsection{DER: an algorithm for class incremental learning}
 \label{sec:der-algorithm}
-DER (dynamically expandable representation) is an algorithm for CIL based on a two-stage learning approach that utilizes a dynamically expandable representation and uses a limited memory for the old classes introduced in each incremental step. The system proposed in this thesis takes advantage of this algorithm for what concerns the incremental learning aspect of the classifier (see \autoref{sec:method-classifier}).
+DER (dynamically expandable representation) is an algorithm for CIL that utilizes a dynamically expandable representation for the NN architecture and uses a limited memory for the old classes introduced in each incremental step. The system proposed in this thesis takes advantage of this algorithm for what concerns the incremental learning aspect of the classifier (see \autoref{sec:method-classifier}).
 
 
 \begin{figure}%
@@ -309,7 +309,7 @@ DER (dynamically expandable representation) is an algorithm for CIL based on a t
 \end{figure}
 
 
-The DER algorithm described in \cite{yan2021dynamically} can be divided into three stages (see \autoref{fig:der-pipeline}):
+Each incremental learning iteration of the DER algorithm described in \cite{yan2021dynamically} can be divided into three stages (see \autoref{fig:der-pipeline}):
 \begin{enumerate}
     \item \textbf{Representation Learning Stage}: the architecture of the Convolutional Neural Network (CNN) is dynamically expanded at each new incremental learning iteration.
     \item \textbf{Masking and Pruning}: the CNN introduced in the last incremental learning stage is pruned using a channel-level masked-based method.
