@@ -606,9 +606,9 @@ CIL\_2993-mem50-drop0.5-adam $\clubsuit$ &0.5&50&\textbf{89.22}&\textbf{92.97}\\
         \textbf{examples (K)} \\
         \hline
         \hline
-CIL\_2993-mem10-drop0.5-adam&10&102\\
+CIL\_2993-mem10-drop0.5-adam&10&29\\
 CIL\_2993-mem20-drop0.5-adam&20&53\\
-CIL\_2993-mem50-drop0.5-adam&50&29\\
+CIL\_2993-mem50-drop0.5-adam&50&102\\
         \hline
     \end{tabular}
     \caption{Number of total examples stored by each model at task 8.}
@@ -707,7 +707,7 @@ PRUNED-noWA-mem10-drop0.3&10&no&yes&51.69&62.56\\
 PRUNED-noWA-mem20-drop0.3&20&no&yes&63.2&73.97\\
 PRUNED-noWA-mem50-drop0.3 $\spadesuit$&50&no&yes&70.37&81.85\\
 \hline
-PRUNED-WA-mem10-drop0.3&50&no&yes&7.6&10.67\\
+PRUNED-WA-mem10-drop0.3&50&yes&yes&7.6&10.67\\
 \hline
 \end{tabular}
 \caption{Performance comparison between the pruned and un-pruned models. Top-1 and top-5 accuracy at task 8.}
@@ -787,7 +787,7 @@ KD outperforms the pruning method (see \autoref{table:exp7} and \autoref{table:e
         \hline
         \hline
 UNPRUNED-WA-mem10-drop0.5&ResNet-50&10&0.1&62.42\\
-UNPRUNED-WA-mem50-drop0.5&ResNet-50&10&0.3&69.09\\
+UNPRUNED-WA-mem10-drop0.5&ResNet-50&10&0.3&69.09\\
 UNPRUNED-WA-mem50-drop0.5 $\heartsuit$&ResNet-50&50&0.3&\textbf{80.0}\\
 \hline
 \end{tabular}
