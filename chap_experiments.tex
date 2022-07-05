@@ -980,13 +980,11 @@ DET\_class-agnostic\_2993cls&0.704&0.781&0.73&0.495\\
 
 \section{End to end classification}
 \label{sec:exp-end2end}
-
-In this last section, the whole system is tested.
-This consists in combining the two steps (see \autoref{chap:methods}): the class agnostic logo detection that generates ROIs, and the actual classification performed by the CIL classifier.
-Then, the final performance is evaluated considering the Precision, Recall, mAP@.5 and mAP@.5:.95 on the test set composed of all the 2993 classes.
+In this last section, the system is tested as a whole.
+This consists in combining the first and second step (see \autoref{chap:methods}): the class agnostic logo detection that generates ROIs, and the actual classification performed by the CIL classifier.
+Then, the final performance is evaluated considering the precision, recall, mAP@.5 and mAP@.5:.95 on the test set composed of all the 2993 classes.
 
 The model used for the first step of the system is the class agnostic logo detector presented in \autoref{sec:2993-detector}, which is trained using only the 1000 classes used at task 0 by the CIL classifier.
-This is done to replicate a real scenario.
 
 With regard to the CIL classifier, the following models are compared:
 \begin{enumerate}
@@ -996,9 +994,11 @@ With regard to the CIL classifier, the following models are compared:
     \item Student model trained with KD by the CIL classifier with memory 50 ($\heartsuit$ in \autoref{table:exp-kd}).
 \end{enumerate}
 
-The results of this evaluation are shown in \autoref{table:exp-end2end}. As a comparison, the results obtained in the literature by Li et al. in SeeTek \cite{li2022seetek} and by Wang et al. in LogoDet-3K \cite{wang2022logodet} (see \autoref{sec:sota-logoyolo}) are reported in \autoref{table:exp-end2end-sota}. The proposed approach using KD outperforms Logo-Yolo introduced in \cite{wang2022logodet}, however, it achieves lower performance than SeeTek. Still, it must be considered that SeeTek is an open-set retrieval approach and not an incremental learning approach. This means that in an open-set retrieval approach, the classification of an input logo is performed by assigning the class of the nearest logo in a latent space. By doing so, if an input logo is similar, but does not actually match the training images, it is still recognized, but the system will not be able to integrate new knowledge to recognize new logos.
+The results of this evaluation are shown in \autoref{table:exp-end2end}. As a comparison, the results obtained in the literature by Li et al. in SeeTek \cite{li2022seetek} and by Wang et al. in LogoDet-3K \cite{wang2022logodet} (see \autoref{sec:sota-logoyolo}) are reported in \autoref{table:exp-end2end-sota}. The proposed approach using KD outperforms Logo-Yolo introduced in \cite{wang2022logodet} but achieves lower performance than SeeTek.
+Still, it must be considered that SeeTek is an open-set retrieval approach and not an incremental learning approach.
+This means that in an open-set retrieval approach, the classification of an input logo is performed by assigning the class of the nearest logo in a latent space. By doing so, if an input logo is similar, but does not actually match the training images, it is still recognized, but the system will not be able to integrate new knowledge to recognize new logos.
 
-As we can see from \autoref{table:exp-end2end-sota} and \autoref{table:exp-det_2993}, the end-to-end performance obtained by SeeTek (70.46\% mAP@.5) is very similar to that obtained by the proposed class agnostic detector ignoring the classification part of the CIL model (70.60\% mAP@.5). This is a clear indication that the detector is a bottleneck for final performance. To asses this problem, a yolo-based detector with a larger number of parameters could be used (e.g. YOLOv5x6 in \autoref{table:yolo-sizes}) or a detector based on transformer architecture could be tested (see \cite{carion2020end}).
+As we can see from \autoref{table:exp-end2end-sota} and \autoref{table:exp-det_2993}, the end-to-end performance obtained by SeeTek (70.46\% mAP@.5) is very similar to that obtained by the proposed class agnostic logo detector ignoring the classification step performed by the CIL model (70.60\% mAP@.5). This is a clear indication that the detector is a bottleneck for final performance. To asses this problem, a yolo-based detector with a larger number of parameters could be used (e.g. YOLOv5x6 in \autoref{table:yolo-sizes}) or a detector based on transformer architecture could be tested (as proposed by Carion et al. in \cite{carion2020end}).
 
 \begin{table}[H]
     \centering
