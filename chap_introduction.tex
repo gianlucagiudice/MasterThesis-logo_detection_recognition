@@ -57,5 +57,22 @@ Here the problem is to recognize new logos which are created over time. To do so
 
 Unlike the second step, we can say that there is no need to develop a detector with incremental learning techniques. This is justified by the fact that the idea of what a generic logo is can be learned and well-approximated using only an initial set of logos. The subsequent creation of new logos will not disrupt the general idea of a logo, therefore, there is no need to change the knowledge initially learned.
 
+\section{Main contributions}
+This work reformulates the problem of logo recognition in terms of incremental learning by classes. This technique is well suited to this problem, given the huge number of logos created over time. By doing so, new knowledge can be integrated in a model without the need to retrain it from scratch.
+
+This thesis defines a two-stage logo detector that consists of a first stage concerning the localization of logos in the image and a second stage regarding the classification of logos. 
+To achieve CIL, an algorithm proposed in the literature is modified using a different optimizer for training the model. In addition, some regularization techniques are used to avoid model overfitting, such as a dropout layer introduced in the neural network architecture and data augmentation to create synthetic samples for model training.
+
+
+A large-scale public dataset for logo recognition is analyzed in detail highlighting some limitations related to the number of samples for each class and pointing out some flaws related to the labels of some classes.
+
+Particular attention is given to the size of the models in terms of the number of parameters. A pruning technique with learnable channel-level masks proposed in the literature is implemented with the aim of reducing model parameters.
+As an alternative to this method, Knowledge Distillation technique is used to train a significantly smaller neural network under the supervision of a teacher model.
+
+
+Several experiments are carried out to compare the proposed approaches. To this end, three different baselines are defined to assess the drop in performance when using a CIL approach as opposed to a standard one. Then, the system is tested on a large-scale dataset and compared with state-of-the-art methods, highlighting the strengths and weaknesses of the proposed system and focusing on aspects that could be improved.
+
+%Nello specifico, lei ha riformulato un problema esistente (logo recognition) in termini di CIL, ha definito un detector a due stage (fa niente che concettualmente è già noto, non deve dire che l'ha inventato lei), ha apportato alcune modifiche all'algoritmo di CIL noto (mi riferisco a dropout e ottimizzatore), ha analizzato criticamente un dataset pubblico evidenziandone limiti ed errori di annotazione, ha proposto di integrare/sostituire la tecnica esistente di riduzione di complessità del modello implementando una tecnica di KD, ed ha effettuato dei confronti rigorosi e sistematici per valutare e confrontare la validità dei vari approcci.
+
 \vspace{1.5\baselineskip}
 This thesis is structured as follows: starting from this introduction, the second chapter describes the state of the art regarding object detection, logo recognition and class incremental learning algorithms; the third chapter describes the dataset used to tackle this problem; the fourth chapter is a detailed description of the development and the techniques adopted; the fifth chapter describes the experiments and results obtained using the developed system; the last chapter is relative to the conclusions of this work and some considerations about future works.
