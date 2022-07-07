@@ -1,4 +1,25 @@
 \chapter{Conclusions and future works}
 \label{chap:conclusions}
-% DA RIMUOVERE - LOREM IPSUM PER DIMOSTRAZIONE
-%\foreignlanguage{english}{\Blindtext}
+
+This thesis addressed the task of logo recognition by reformulating the problem in a class incremental learning approach.
+The motivation behind the use of this technique is that new logos are constantly being created.
+Consequently, an effective model should be able to keep up with introductions of new logos in order to recognize them, without the need to retrain a model but rather by integrating old knowledge with new knowledge.
+
+To this end, a two-stage logo detector that consists of a first stage concerning the localization of logos in the image and a second stage regarding the actual classification of logos is used to address the problem.
+
+The first stage consists in a class-agnostic logo detector, in this way it is possible to decouple the localization with the recognition, thus avoid the need to create a CIL logo detector. 
+This approach proves to be successful, as a generic logo detector is able to learn what a logo is by using only an initial set of logos, this is enough to approximate the logo concept fairly well and thus generalize. The detector will then be able to detect logos that have never been seen before.
+
+On the other hand, taking advantage of state-of-the-art incremental learning techniques, a CIL classifier is defined to accomplish the actual classification of logos, given the ROI provided by the agnostic detection of logos. Experiments show that a classifier trained in this fashion, storing 50 examples for old classes, performs well without too many drawbacks in terms of performance compared to a standard approach (according to the results of the baseline comparison).
+
+A downside of the algorithm used for CIL is the number of model parameters.
+The method implemented with learnable masks used to perform channel-level pruning of the CNN layers achieves promising performance when tested on a subset of the dataset. However, this approach performs poorly when trying to scale to the entire dataset. To solve this problem, Knowledge Distillation is used as an alternative approach to channel-level masks. In this way, it is possible to train a significantly smaller CNN with the supervision of a larger model resulting from the incremental learning phases. Note that, in the experiments conducted in this thesis, KD is applied at the end of each incremental learning task, however, the DER algorithm is flexible enough to be used in combination with KD after a certain number of incremental tasks.
+Indeed, the resulting student model output from the KD can be used as a feature extractor for subsequent incremental learning iterations. It is sufficient to freeze the student weights trained with the KD and then expand the architecture with the DER like any other type of feature extractor.
+However, this is true from a theoretical point of view and further experiments should be conducted to verify the effectiveness of this technique and evaluate its performance.
+
+
+% Considerare testo nei logo come fatto in letteratura
+
+From the final results emerges that the class-agnostic logo detector acts as a bottleneck for the whole system. This problem 
+
+% Confronto dele perfomrance con SOTA. Funziona meglio di uno ma non dell'altro. Tuttavia bisgona considerare che 1: gli altri non sono approcci incremnal learning; 2, il detector è un collo di bottiglia e probabilmente un modello con dimensioni maggiori andrebbe decisamente meglio
