@@ -17,9 +17,11 @@ The method implemented with learnable masks used to perform channel-level prunin
 Indeed, the resulting student model output from the KD can be used as a feature extractor for subsequent incremental learning iterations. It is sufficient to freeze the student weights trained with the KD and then expand the architecture with the DER like any other type of feature extractor.
 However, this is true from a theoretical point of view and further experiments should be conducted to verify the effectiveness of this technique and evaluate its performance.
 
+The final performance obtained by the system consisting of the class-agnostic logo detector trained on 1000 classes, and the CIL classifier trained width KD techniques, outperforms the end-to-end model proposed by the authors of LogoDet-3k \cite{wang2022logodet}.
+On the other hand, the model proposed by Amazon in SeeTek \cite{li2022seetek} performs better on the LogoDet-3K dataset. However, it should be taken into account that SeeTek considers an open-set retrieval environment as opposed to an incremental learning setup considered in this thesis.
+Furthermore, from the final results obtained by the proposed system emerges that logo detector acts as a bottleneck for the whole system, thus severely limiting the final performance.
 
-% Considerare testo nei logo come fatto in letteratura
-
-From the final results emerges that the class-agnostic logo detector acts as a bottleneck for the whole system. This problem 
-
-% Confronto dele perfomrance con SOTA. Funziona meglio di uno ma non dell'altro. Tuttavia bisgona considerare che 1: gli altri non sono approcci incremnal learning; 2, il detector è un collo di bottiglia e probabilmente un modello con dimensioni maggiori andrebbe decisamente meglio
+Future improvements of this works could try to asses this problem related to the class-agnostic logo detector by considering a version of YOLO with a higher number of parameters and a greater image input size. However, this would lead to higher computational requirements to train the model, and both longer training and inference time. Another way to tackle this problem is to experiment with different architectures for the detector.
+Additional improvements of the system are related to second stage of the pipeline performed by the CIL classifier.
+The classification task could by improved by enriching the representation of each logo by considering, in addition to the visual feature, the textual component.
+This approach adopted in the literature is very effective, since many logos have a text component that can be used to distinguish them. Further study can be conducted in the direction of explainability, which is a hot topic in artificial intelligence when using deep learning models. This research could investigate what the detector considers as logos and explain why such detection applies to a logo.
