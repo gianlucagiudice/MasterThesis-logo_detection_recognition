@@ -638,32 +638,33 @@ As we can see, the top-1 accuracy of the best baseline is slightly better than t
 \begin{table}[H]
     \centering
     \centerline{
-    \begin{tabular}{c|c|c|c}
+    \begin{tabular}{c|c|c|c|c}
         \hline
         \textbf{Model} &
         \textbf{Dropout} &
         \textbf{Mem.} &
-        \textbf{Top-1}\\
+        \textbf{Top-1}&
+        \textbf{Top-5}\\
         \textbf{name} &
         \textbf{rate} &
         \textbf{size} &
+        \textbf{acc. (\%)} &
         \textbf{acc. (\%)} \\
         \hline
 \hline
-CIL\_2993-mem10-drop0.5-adam&0.5&10&87.20\\
-CIL\_2993-mem20-drop0.5-adam&0.5&20&88.47\\
-CIL\_2993-mem50-drop0.5-adam&0.5&50&89.22\\
+CIL\_2993-mem10-drop0.5-adam&0.5&10&87.20&92.19\\
+CIL\_2993-mem20-drop0.5-adam&0.5&20&88.47&92.58\\
+CIL\_2993-mem50-drop0.5-adam&0.5&50&89.22&92.97\\
 \hline\
-BASELINE\_3-2993classes-drop0.1&0.1&-&-\\
-BASELINE\_3-2993classes-drop0.3&0.3&-&\textbf{91.92}\\
-BASELINE\_3-2993classes-drop0.5&0.5&-&-\\
+BASELINE\_3-2993classes-drop0.1&0.1&-&89.77&93.98\\
+BASELINE\_3-2993classes-drop0.3&0.3&-&88.41&93.38\\
+BASELINE\_3-2993classes-drop0.5&0.5&-&\textbf{90.22}&\textbf{94.36}\\
 \hline 
     \end{tabular}}
-    \caption{Top-1 accuracy of the CIL model and the type 3 baseline considering all 2993 classes of the test set.}
+    \caption{Top-1 and top-5 accuracy of the CIL model and the type 3 baseline considering all 2993 classes of the test set.}
     \label{table:baseline3-2993}
 \end{table}
 
-%\newpage
 
 \subsubsection{Pruning (2993 classes)}
 \label{sec:pruning-entire}
@@ -764,34 +765,34 @@ Therefore, in order to replicate a realistic situation, the student model is tra
 
 The result of KD experiments are shown in \autoref{table:exp-kd}, where different models with varying memory sizes are used as teachers. As we can see, the number of samples used to train the student heavily affects the final performance.
 
-Using 50 samples per class to train the student results in top-1 accuracy of 80.0\%, i.e. a decrease of 9\% compared to the teacher model.
-Although this drop in performance is rather large, it is important to consider the number of parameters: all teacher models have 205 million parameters, while the final student models have 30 million parameters (the number of ResNet-50 parameters).
-Therefore, even though the accuracy decreases, the number of parameters is reduced by almost 7 times.
+Using 50 samples per class to train the student results in top-1 accuracy of 88.96\%, i.e. a decrease of less than 1\% compared to the teacher model.
+It is important to consider that all teacher models have 205 million parameters, while the final student models have 30 million parameters (the number of ResNet-50 parameters).
+Therefore, the number of parameters is reduced by almost 7 times, with almost no change in performance.
 
-KD outperforms the pruning method (see \autoref{table:exp7} and \autoref{table:exp7-params}), increasing top-1 accuracy from 70.37\% to 80.0\% and the compression factor from 3x to 7x.
+KD outperforms the pruning method (see \autoref{table:exp7} and \autoref{table:exp7-params}), increasing top-1 accuracy from 70.37\% to 88.96\% and the compression factor from 3x to 7x.
 
 \begin{table}[H]
     \centering
     \begin{tabular}{c|c|c|c|c}
         \hline
         \textbf{Teacher} &
-        \textbf{Student} &
         \textbf{Mem.} &
         \textbf{Student} &
-        \textbf{Top-1} \\
-        \textbf{model} &
+        \textbf{Top-1}  &
+        \textbf{Top-5} \\
         \textbf{model} &
         \textbf{size} &
-        \textbf{dropout rate} &
+        \textbf{drop. rate} &
+        \textbf{acc. (\%)}  &
         \textbf{acc. (\%)} \\
         \hline
         \hline
-UNPRUNED-WA-mem10-drop0.5&ResNet-50&10&0.1&62.42\\
-UNPRUNED-WA-mem10-drop0.5&ResNet-50&10&0.3&69.09\\
-UNPRUNED-WA-mem50-drop0.5 $\heartsuit$&ResNet-50&50&0.3&\textbf{80.0}\\
+UNPRUNED-WA-mem10-drop0.5&10&0.1&70.53&79.83\\
+UNPRUNED-WA-mem10-drop0.5&10&0.3&73.52&82.49\\
+UNPRUNED-WA-mem50-drop0.5 $\heartsuit$ &50&0.3&\textbf{88.96}&\textbf{93.57}\\
 \hline
 \end{tabular}
-\caption{Top-1 accuracy of the students trained using KD. The student column refers to the backbone of the student model.}
+\caption{Top-1 accuracy of the students trained using KD. The backbone of each student model is ResNet-50 pretrained on ImageNet.}
     \label{table:exp-kd}
 \end{table}
 
