@@ -632,7 +632,7 @@ As in the case of 100 classes, the performance of the CIL models is compared wit
 For this purpose, the baseline is trained considering the same dataset used to train the models in the previous section.
 Note that in the case of the baseline, there is no need to use a memory for old classes, as the incremental learning setting does not hold.
  
-The results of the comparison considering the top-1 accuracy between CIL models and baselines are shown in \todo{In tabella mancano dei risultati che andrò ad integrare nei prossimi giorni essendomi prenotato per usare il server}\autoref{table:baseline3-2993}.
+The results of the comparison considering the top-1 accuracy between CIL models and baselines are shown in \autoref{table:baseline3-2993}.
 As we can see, the top-1 accuracy of the best baseline is slightly better than that of the best CIL model, as in the 100 classes setup. The fact that the performance gap is so small proves that the DER algorithm is an effective approach for achieving CIL.
 
 \begin{table}[H]
@@ -1040,3 +1040,62 @@ Proposed model with KD $\heartsuit$&59.00\\
 \caption{Full recognition performance comparison on LogoDet-3K comparing two SOTA approaches proposed in the literature.}
     \label{table:exp-end2end-sota}
 \end{table}
+
+The system is tested on some images in the wild, the results of the detection are shown in \autoref{fig:test-final}. As we can see from the example (d) in the image, the system has difficulties when the logo is partially occluded, as in the case of the reflection in this example.
+
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering Canon]{{\includegraphics[width=0.50\textwidth]{images/final-det/canon2_bbox-clf.png} }}%
+    \subfloat[\centering Prada]{{\includegraphics[width=0.50\textwidth,trim={3px 0 0 0},clip]{images/final-det/prada1_bbox-clf.png} }}%
+    \qquad
+	\subfloat[\centering Saab]{{\includegraphics[width=0.50\textwidth,trim={0 20px 0 20px},clip]{images/final-det/saab1_bbox-clf.png} }}%
+	\subfloat[\centering Zara]{{\includegraphics[width=0.50\textwidth,trim={57px 0 0 0},clip]{images/final-det/zara2_bbox-clf.png} }}%
+    \caption{System tested on images in the wild considering different brands.}
+	\label{fig:test-final}
+\end{figure}
+
+To further investigate the mispredictions of the CIL classifier, the Confusion Matrix (CM) is analyzed to find out whether one class is often mistaken for another.
+The CM is an $n \times n$ matrix, where $n = 2993$ is the number of classes.
+By definition, $CM_{ij}$ is equal to the number of observations belonging to class $i$ and predicted as class $j$.
+
+Since simply drawing the confusion matrix does not lead to useful insights, the CM is analyzed by counting the number of entries $CM_{ij} \geq k$ such that $i \neq j$, where $k$ is a threshold.
+Then, the number of entries $CM_{ij} \geq k$ as a function of $k$ is shown in \autoref{fig:exp-cm}.
+As we can see, with $k=10$ (i.e. at least 10 times a class $i$ is predicted as class $j$), the number of entries $CM_{ij} \geq 10$ is only 7, note that $CM_{ij} < k$ for each $i \neq j$.
+
+\begin{figure}[H]
+	\centering
+    {\includegraphics[width=1\textwidth]{images/cm/cm_entry_plot.png} }%
+    \caption{Number of entries in the matrix such that $CM_{ij} \geq k$ for each $i \neq j$.}
+	\label{fig:exp-cm}
+\end{figure}
+
+The 7 entries (i.e. pairs of classes) in the confusion matrix obtained with $k=10$ are the following:
+\begin{itemize}
+    \item ("alpinestars-2", "alpinestars-1")
+    \item ("atari 2600-2", "atari 2600-1")
+    \item ("auxx-2", "auxx-1")
+    \item ("iPhone-1", "Apple")
+    \item ("Auntie Anne"s-2", "Auntie Anne"s-1")
+    \item ("maggi noodles", "Maggi")
+    \item ("bauschlomb-2", "bauschlomb-1")
+    \item ("BEST EXPRESS-2", "BEST EXPRESS-1")
+    \item ("BEST EXPRESS-3", "BEST EXPRESS-1")
+    \item ("avery dennison-2", "avery dennison-1")
+    \item ("ANCAP-2", "ANCAP-1")
+\end{itemize}
+where, for each tuple, the first element corresponds to the ground truth and the second to the model prediction.
+From this result we can see that one class is predicted as another class that actually belongs to the same brand.
+In fact, although the labels are different, the images belonging to each pair of classes are indeed the same.
+This result is due to annotation errors in the LogoDet-3K dataset, as described in \autoref{sec:labels-errors}.
+
+Even though these types of results are obtained for each value of $k \geq 4$, interesting examples of similar classes can be found by analyzing the entries of the CM with $k = 3$.
+For example, for $3$ times, the class "Cocoa Puffs" is predicted as "Cocoa Krispies" and, as we can see from \autoref{fig:exp-cm-similar}, these two classes are indeed similar.
+
+\begin{figure}[H]
+	\centering
+	\subfloat[\centering Cocoa Krispies]{{\includegraphics[width=0.45\textwidth,trim={0 36px 0 0},clip]{images/cm/cocoa_krispies.jpg} }}%
+    \qquad
+    \subfloat[\centering Cocoa Puffs]{{\includegraphics[width=0.45\textwidth,trim={0 0 0 0},clip]{images/cm/cocoa_puffs.jpg} }}%
+    \caption{Example of similar classes. The image shows an instance of "Cocoa Puffs" on the left and "Cocoa Krispies" on the right.}
+	\label{fig:exp-cm-similar}
+\end{figure}

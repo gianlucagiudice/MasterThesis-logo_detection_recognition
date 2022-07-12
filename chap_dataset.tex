@@ -121,6 +121,7 @@ The main issue of LogoDet-3K is the low number of objects for some classes. Anal
 \end{table}
 
 \section{Inconsistencies in the dataset}
+\label{sec:labels-errors}
 The LogoDet-3K dataset is available in the GitHub repository\footnote{PyCIL GitHub repository: \href{https://github.com/G-U-N/PyCIL}{https://github.com/G-U-N/PyCIL}} mentioned in the original paper \cite{wang2022logodet}. The dataset is provided as 9 directories corresponding to each category described in \autoref{sec:logodet-desc}, and for each category there are several subdirectories corresponding to each logo class (brand). Inside each brand's folder there are the images and the metadata containing the annotations regarding the bounding box coordinates and the actual class of the logo, since an image can contain logo of different classes. The dataset structure can be summarized as follows:\\
 
 \begin{forest}
