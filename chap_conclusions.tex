@@ -25,7 +25,7 @@ It would be sufficient to freeze the student weights trained with the KD and the
 However, this is true from a theoretical point of view and further experiments should be conducted to verify the effectiveness of this technique and evaluate its performance.
 
 The final performance obtained by the proposed approach is tested on the LogoDet-3K dataset.
-The system consisting of the class-agnostic logo detector trained on 1000 classes, and the CIL classifier trained using KD, outperforms the end-to-end model proposed by the authors of LogoDet-3k \cite{wang2022logodet}.
+The system consisting of the class-agnostic logo detector trained on 1000 classes, and the CIL classifier trained using KD, outperforms the end-to-end model proposed by the authors of LogoDet-3K \cite{wang2022logodet}.
 On the other hand, the model proposed by Amazon in SeeTek \cite{li2022seetek} performs better on the LogoDet-3K dataset. However, it should be taken into account that SeeTek considers an open-set retrieval environment as opposed to an incremental learning setup considered in this thesis.
 Furthermore, from the final results obtained by the proposed system emerge that the class-agnostic logo detector acts as a bottleneck for the whole system, thus severely limiting the final performance.
 
