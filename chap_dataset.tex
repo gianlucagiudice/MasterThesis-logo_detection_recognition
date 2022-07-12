@@ -79,32 +79,28 @@ It is important to point out how an image can contain multiple logo objects and 
 
 \subsection{Dataset statistics}
 \label{sec:dataset-stat}
-\autoref{fig:logodet-dist} shows the distribution of the number of objects for each logo class.
+As we can see from \autoref{fig:logodet-dist} showing the distribution of the number of objects for each logo class, the main issue of LogoDet-3K is the low number of objects for some classes. Analyzing the boxplot in \autoref{fig:logodet-boxplot} and the statistics of \autoref{table:logodet3k-quartile} we can see how the 25\% of the classes have a number of images lower or equal to 27. Moreover, half of the classes have a number of images lower or equal to 54. This is the main issue with this dataset: since several classes have a low number of images, it could be challenging for the model to correctly predict these classes.  
+
 \begin{figure}[ht]
 	\centering
 
     \begin{center}
-        \includegraphics[width=\columnwidth]{images/freq.jpeg}
+        \includegraphics[width=\textwidth]{images/freq.jpeg}
     \end{center}
 	\caption{Number of objects in LogoDet-3K for each class.}%
 	\label{fig:logodet-dist}%
 \end{figure}
 
 
-The main issue of LogoDet-3K is the low number of objects for some classes. Analyzing the boxplot in \autoref{fig:logodet-boxplot} and the statistics of \autoref{table:logodet3k-quartile} we can see how the 25\% of the classes have a number of images lower or equal to 27. Moreover, half of the classes have a number of images lower or equal to 54. This is the main issue with this dataset: since several classes have a low number of images, it could be challenging for the model to correctly predict these classes.  
-
-
-
 \begin{figure}[ht]
 	\centering
 
     \begin{center}
-        \includegraphics[width=\columnwidth]{images/box_plot.jpeg}
+        \includegraphics[width=0.95\textwidth]{images/box_plot.png}
     \end{center}
 	\caption{Boxplot of the number of objects in LogoDet-3K for each class.}%
 	\label{fig:logodet-boxplot}%
 \end{figure}
-
 
 \begin{table}[ht]
     \centering
