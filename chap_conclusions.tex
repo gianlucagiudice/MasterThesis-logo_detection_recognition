@@ -3,25 +3,25 @@
 
 This thesis addressed the task of logo recognition by reformulating the problem in a class incremental learning approach.
 The motivation behind the use of this technique is that new logos are continuously being created.
-Consequently, an effective model should be able to keep up with introductions of new logos in order to recognize them, without the need to retrain a model but rather by integrating old knowledge with new one.
+Consequently, an effective model should be able to keep up with the introduction of new logos in order to recognize them, without the need to retrain a model but rather by integrating old knowledge with new one.
 
 To this end, a two-stage logo detector is used to solve the problem, which consists of a first stage relating to the localization of logos in the image and a second stage regarding the actual classification of logos.
 
-The first stage consists in a class-agnostic logo detector, in this way it is possible to decouple localization from recognition, thus avoiding the need to create a CIL logo detector. 
+The first stage consists in a class-agnostic logo detector (i.e. the logo detector identifies any type of logo, without recognizing the specific class), in this way it is possible to decouple localization from recognition, thus avoiding the need to create a Class Incremental Learning (CIL) logo detector. 
 This approach proves to be successful, as a generic logo detector is able to learn what a logo is by using only an initial set of logos.
 In this way, it is possible to approximate the concept of logos and generalize in the detection of previously unseen logos.
 
-On the other hand, taking advantage of state-of-the-art incremental learning techniques, a CIL classifier is defined to accomplish the actual classification of logos, given the ROIs provided by the agnostic logo detector.
-Experiments show that a classifier trained in this fashion, storing 50 examples of old classes, performs well without too many drawbacks in terms of performance compared to a standard approach (according to the results of the baseline comparison).
+On the other hand, taking advantage of state-of-the-art incremental learning techniques, a CIL classifier is defined to accomplish the actual classification of logos, given the Regions of Interest (ROIs) provided by the agnostic logo detector.
+Experiments show that a classifier trained in this fashion, storing 50 examples of old classes, performs well without significant drawbacks in terms of performance compared to a standard approach (according to the results of the baseline comparison).
 
 A downside of the algorithm used for CIL is the number of model parameters.
-The method implemented with learnable masks used to perform channel-level pruning of the CNN layers achieves promising performance when tested on a subset of the dataset.
+The method implemented with learnable masks used to perform channel-level pruning of the Convolutional Neural Network (CNN) layers achieves promising performance when tested on a subset of the dataset.
 However, this approach performs poorly when trying to scale to the entire dataset.
 To solve this problem, Knowledge Distillation is used as an alternative approach to channel-level masks.
 In this way, it is possible to train a significantly smaller CNN with the supervision of a larger model resulting from the incremental learning phases.
-Note that, in the experiments conducted in this thesis, the KD is applied at the end of each incremental learning task, however, the DER algorithm is flexible enough to be used in combination with KD after a certain number of incremental tasks.
-Indeed, the resulting student model from KD can be used as a feature extractor for subsequent incremental learning iterations.
-It would be sufficient to freeze the student weights trained with the KD and then expand the architecture with the DER algorithm like any other type of feature extractor.
+Note that, in the experiments conducted in this thesis, the Knowledge Distillation (KD) is applied at the end of all incremental learning tasks, however the Dynamically Expandable Representation (DER) algorithm \cite{yan2021dynamically} is flexible enough to be used in combination with KD.
+In the case where there is a need to recognize new logos after the KD (given the incremental learning nature of the problem), it would be possible to exploit the student architecture resulting from the KD, instead of the initial teacher model.
+It would be sufficient to freeze the student weights trained with the KD and then expand the architecture with the DER algorithm for subsequent incremental learning iterations, like any other type of feature extractor in the standard DER configuration.
 However, this is true from a theoretical point of view and further experiments should be conducted to verify the effectiveness of this technique and evaluate its performance.
 
 The final performance of the system is tested on the LogoDet-3K dataset.
@@ -29,7 +29,7 @@ The system consisting of the class-agnostic logo detector trained on 1000 classe
 On the other hand, the model proposed by Amazon in SeeTek \cite{li2022seetek} performs better on the LogoDet-3K dataset. However, it should be taken into account that SeeTek considers an open-set retrieval environment as opposed to an incremental learning setup considered in this thesis.
 Furthermore, from the final results obtained by the proposed system emerge that the class-agnostic logo detector acts as a bottleneck for the whole system, thus severely limiting the final performance.
 
-Future improvements of this work could tackle the problem related to the class-agnostic logo detector by considering a version of YOLO with a higher number of parameters and and a larger input image size.
+Future improvements of this work could tackle the problem related to the class-agnostic logo detector by considering a version of YOLO \cite{glenn_jocher_2021_5563715} with a higher number of parameters and and a larger input image size.
 However, this would lead to higher computational requirements to train the model as well as longer training and inference times.
 Another way to address this problem is to experiment with different architectures for the detector.
 Additional improvements of the system are related to the second stage of the pipeline performed by the CIL classifier.
