@@ -4,7 +4,7 @@
 \section{Logo detection and recognition}
 \label{sec:logodet-intro}
 
-Logo detection and recognition is a Computer Vision (CV) task that consists of two steps: localize logos in the image (i.e. finding the coordinates of the object relative to the image) and identify the detected logo (i.e. producing in output the brand name associated with that logo).
+Logo detection and recognition is a Computer Vision (CV) task that can be formulated as a two-step process: localize logos in the image (i.e. finding the coordinates of logo instances inside the image) and identify the detected logos (i.e. producing in output the brand name associated with that logo).
 
 The first studies in this field date back to 1993 \cite{doermann1993logo}, yet this task is becoming increasingly important in a variety of applications. Some examples of studies relative to this problem aimed to: monitor the brand visibility on social media \cite{7492197}; protect the intellectual property on e-commerce platforms, known as intellectual property protection (IPP) \cite{jin2020open}; develop online video advertising systems \cite{cheng2017video}; and help the development of autonomous checkout systems in retail environments \cite{mata2022standardsim}.
 
@@ -26,7 +26,7 @@ previously learned tasks \cite{masana2020class}. This way of learning is inspire
 
 The main problem in incremental learning is known as the stability-plasticity dilemma and it holds for both artificial and biological neural systems. The idea is that a learning system requires plasticity for the integration of new knowledge, but also stability in order to prevent the forgetting of previous knowledge \cite{mermillod2013stability}. Excessive plasticity would lead to forget all the previous knowledge (referred to as catastrophic forgetting \cite{grossberg2013adaptive}), whereas too much stability would prevent the ability to learn novel concepts. The main point is to achieve a trade-off between stability and plasticity. 
 
-Many real-world applications require incremental learning capabilities: intelligent robots during their lifetime \cite{thrun1995lifelong}, face recognition systems \cite{li2017incremental} and autonomous driving \cite{pierre2018incremental}. Logo detection and recognition is another example where class incremental learning (CIL) is well suited to address the problem, considering the constant creation of new logos discussed in the previous section. Using this technique it is possible to create a system which detects and recognizes an initial set of logos and, when necessary, enriches the acquired knowledge.
+Many real-world applications require incremental learning capabilities: intelligent robots during their lifetime \cite{thrun1995lifelong}, face recognition systems \cite{li2017incremental} and autonomous driving \cite{pierre2018incremental}. Logo detection and recognition is another example where Class Incremental Learning (CIL) is well suited to address the problem, considering the constant creation of new logos discussed in the previous section. Using this technique it is possible to create a system which detects and recognizes an initial set of logos and, when necessary, enriches the acquired knowledge.
 
 \section{Proposed approach}
 
@@ -61,7 +61,7 @@ Unlike the second step, we can say that there is no need to develop a detector w
 This work reformulates the problem of logo recognition in terms of class incremental learning. This technique is well suited to this problem, given the huge number of logos created over time. By doing so, new knowledge can be integrated in a model without the need to retrain it from scratch.
 
 This thesis defines a two-stage logo detector that consists of a first stage concerning the localization of logos in the image and a second stage regarding the classification of logos. 
-To achieve CIL, an algorithm proposed in the literature is modified using a different optimizer for training the model. In addition, some regularization techniques are used to avoid model overfitting, such as a dropout layer introduced in the neural network architecture and data augmentation to create synthetic samples for model training.
+To achieve CIL, an algorithm proposed in the literature is here modified using a different optimizer for training the model. In addition, some regularization techniques are used to avoid model overfitting, such as a dropout layer introduced in the neural network architecture and data augmentation to create synthetic samples for model training.
 
 LogoDet-3K \cite{wang2022logodet}, a large-scale public dataset for logo recognition is analyzed in detail, highlighting some limitations related to the number of samples for each class and pointing out some flaws related to the labels of some classes.
 
