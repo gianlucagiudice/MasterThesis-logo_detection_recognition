@@ -25,14 +25,14 @@ It would be sufficient to freeze the student weights trained with the KD and the
 However, this is true from a theoretical point of view and further experiments should be conducted to verify the effectiveness of this technique and evaluate its performance.
 
 The final performance obtained by the proposed approach is tested on the LogoDet-3K dataset.
-The system consisting of the class-agnostic logo detector trained on 1000 classes, and the CIL classifier trained using KD, outperforms the end-to-end model proposed by the authors of LogoDet-3K \cite{wang2022logodet}.
+The results show how, considering the class-agnostic logo detector trained on 1000 classes and the CIL classifier trained using KD, the proposed approach outperforms the end-to-end model proposed by the authors of LogoDet-3K \cite{wang2022logodet}.
 On the other hand, the model proposed by Amazon in SeeTek \cite{li2022seetek} performs better on the LogoDet-3K dataset. However, it should be taken into account that SeeTek considers an open-set retrieval environment as opposed to an incremental learning setup considered in this thesis.
 Furthermore, from the final results obtained by the proposed system emerge that the class-agnostic logo detector acts as a bottleneck for the whole system, thus severely limiting the final performance.
 
-Future improvements of this work could tackle the problem related to the class-agnostic logo detector by considering a version of YOLO \cite{glenn_jocher_2021_5563715} with a higher number of parameters and and a larger input image size.
+Future improvements of this work could tackle the problem related to the class-agnostic logo detector by considering a version of the YOLO detector \cite{glenn_jocher_2021_5563715} with a higher number of parameters and and a larger input image size.
 However, this would lead to higher computational requirements to train the model as well as longer training and inference times.
 Another way to address this problem is to experiment with different architectures for the detector.
 Additional improvements of the system are related to the second stage of the pipeline performed by the CIL classifier.
 The classification task could be improved by enriching the representation of each logo by considering the textual component in addition to the visual feature.
 This approach adopted in the literature is very effective, since many logos have a text component that can be used to distinguish them.
-Further studies can be conducted in the direction of explainability, which is a hot topic in artificial intelligence when using deep learning models. This research could investigate what the detector considers as logos and explain why such detection applies to a logo.
+Further studies can be conducted in the direction of explainability, which is a hot topic in artificial intelligence when using deep learning models. This research could investigate what the detector considers as logos and explain why such detection applies to a given input.
