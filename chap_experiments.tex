@@ -941,8 +941,11 @@ Apart from the performance on the validation set obtained during training, the m
 As with the 100-class setup, another important comparison is between the detector trained on 1000 classes and the one trained on all 2993 classes, in order to assess the generalization capabilities of the detector trained on 1000 classes when tested on all classes.
 The results of training of the detector trained on all 2993 classes are shown in \autoref{fig:exp-det_2993} and the final performance obtained by testing it on the entire dataset is shown in \autoref{table:exp-det_2993}.
 
-From the results shown in \autoref{table:exp-det_100} we can see that the gap in mAP@.5 between the detector trained on 30 classes and the one trained on 100 classes is quite large. However, from the results obtained in \autoref{table:exp-det_2993} emerges that, in contrast to the previous setup, this gap in mAP@.5 is reduced: \todo{Queste performance sono relative all'epoca 16 di training. Appena ho accesso al server aggiorno la performance ottenuta all'epoca 30}0.706 in the 1000-class setup vs. 0.73 in the 2993-class setup.
-This observation reveals that even if the detector is only trained on 1000 classes, it generalize well, i.e. is able to effectively detect, the remaining 1993 classes.
+From the results shown in \autoref{table:exp-det_100} we can see that the gap in mAP@.5 between the detector trained on 30 classes and the one trained on 100 classes is quite large.
+As shown in \autoref{table:exp-det_2993}, this gap in mAP@.5 is still present in the 2993-class setup, but it is slightly reduced: 0.706 in the 1000-class setup vs. 0.890 in the 2993-class setup.
+Note that, unlike the setup with 30 and 100 classes, although the difference in performance remains large between the two detectors, in this setup the 1000-class detector is required to generalize to a wide range of new logos (1993 new classes).
+Furthermore, as in the previous setup, since the 2993-class detector is trained using 1993 more classes, it leverages more training data.
+In conclusion, these results reveal that even if the detector is only trained on 1000 classes, it is able to effectively detect the remaining 1993 classes (i.e. generalize).
 
 This is a fundamental result for the entire system, as it is evidence in support of the claim made in \autoref{chap:introduction}, where it is assumed that it is not necessary to also develop an incremental learning detector, since the idea of what a generic logo is can be learned and well approximated using only an initial set of logos. The subsequent creation of new logos will not disrupt the general idea of a logo.
 
@@ -958,7 +961,7 @@ This is a fundamental result for the entire system, as it is evidence in support
         \hline
         \hline
 DET\_class-agnostic\_1000cls&0.704&0.666&0.706&0.465\\
-DET\_class-agnostic\_2993cls&0.704&0.781&0.73&0.495\\
+DET\_class-agnostic\_2993cls&0.833&0.846&0.890&0.648\\
 \hline
 \end{tabular}
 \caption{Precision, Recall, mAP@.5 and mAP@.5:.95 obtained by the detector trained on 1000 classes (DET\_class-agnostic\_1000cls) and that trained on 2993 classes (DET\_class-agnostic\_2993cls). The performance refers to the test set composed of all the 2993 classes.}
