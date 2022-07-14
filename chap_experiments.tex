@@ -1044,7 +1044,8 @@ Proposed model with KD $\heartsuit$&59.00\\
     \label{table:exp-end2end-sota}
 \end{table}
 
-The system is tested on some images in the wild, the results of the detection are shown in \autoref{fig:test-final}. As we can see from the example (d) in the image, the system has difficulties when the logo is partially occluded, as in the case of the reflection in this example.
+To evaluate how the system behaves on real images, it is tested on some images in the wild, the results of the detection and the classification are shown in \autoref{fig:test-final}.
+As we can see from the example (d) in \autoref{fig:test-final}, the system has some difficulties when the logo is partially occluded, as in the case of the reflection in this example.
 
 \begin{figure}[H]
 	\centering
@@ -1061,9 +1062,9 @@ To further investigate the mispredictions of the CIL classifier, the Confusion M
 The CM is an $n \times n$ matrix, where $n = 2993$ is the number of classes.
 By definition, $CM_{ij}$ is equal to the number of observations belonging to class $i$ and predicted as class $j$.
 
-Since simply drawing the confusion matrix does not lead to useful insights, the CM is analyzed by counting the number of entries $CM_{ij} \geq k$ such that $i \neq j$, where $k$ is a threshold.
+Since simply plotting the confusion matrix does not lead to useful insights (due to the large number of entries in the matrix i.e. $2993 \times 2993$), the CM is analyzed by counting the number of entries $CM_{ij} \geq k$ such that $i \neq j$, where $k$ is a threshold.
 Then, the number of entries $CM_{ij} \geq k$ as a function of $k$ is shown in \autoref{fig:exp-cm}.
-As we can see, with $k=10$ (i.e. at least 10 times a class $i$ is predicted as class $j$), the number of entries $CM_{ij} \geq 10$ is only 7, note that $CM_{ij} < k$ for each $i \neq j$.
+As we can see, with $k=10$ (i.e. at least 10 times a class $i$ is predicted as class $j$), the number of entries $CM_{ij} \geq 10$ is only 7, note that $CM_{ij} < 40$ for each $i \neq j$.
 
 \begin{figure}[H]
 	\centering
@@ -1088,7 +1089,7 @@ The 7 entries (i.e. pairs of classes) in the confusion matrix obtained with $k=1
 \end{itemize}
 where, for each tuple, the first element corresponds to the ground truth and the second to the model prediction.
 From this result we can see that one class is predicted as another class that actually belongs to the same brand.
-In fact, although the labels are different, the images belonging to each pair of classes are indeed the same.
+In fact, although the labels are different, the images corresponding to each pair of classes are indeed the same.
 This result is due to annotation errors in the LogoDet-3K dataset, as described in \autoref{sec:labels-errors}.
 
 Even though these types of results are obtained for each value of $k \geq 4$, interesting examples of similar classes can be found by analyzing the entries of the CM with $k = 3$.
