@@ -6,17 +6,17 @@
 Object detection is one of the most fundamental and challenging problems in computer vision \cite{zou2019object}. This task can be defined as follows: given an image, determine whether or not there are instances of a predefined set of objects, usually referred to as classes, and, if present, return the location of each instance \cite{liu2020deep}. The spatial location of an object in an image can be represented using bounding boxes.
 
 Object detection was initially addressed using handcrafted features and shallow trainable architectures.
-With the rapid development in deep learning, more powerful techniques are used to address the problems existing in traditional solutions \cite{zhao2019object}. 
+With the rapid development in deep learning, more powerful techniques are used to address the issues existing in traditional solutions \cite{zhao2019object}. 
 
-As described in \cite{zhao2019object}, the frameworks of object detection methods can mainly be categorized into two types:
+As described in \cite{zhao2019object}, the frameworks of object detection methods can be mainly categorized into two types:
 \begin{enumerate}
-    \item Two-stage Object Detection: generates region proposals at first and then classifies each proposal into different object categories.
-    \item One-stage Object Detection: adopts a unified framework to achieve final results (categories and locations) directly.
+    \item \textbf{Two-stage Object Detection}: generates region proposals at first and then classifies each proposal into different object categories.
+    \item \textbf{One-stage Object Detection}: adopts a unified framework to achieve final results (categories and locations) directly.
 \end{enumerate} 
 
 \subsection{YOLO}
 \label{sec:yolo}
-YOLO (you only look once) \cite{redmon2016you} is a model for object detection composed of a single Neural Network (NN) which treats object detection as a regression problem: given an image as input it produces bounding box coordinates and associated class probabilities. Since the predictions are performed directly on the input image without requiring complex pipelines, YOLO is very efficient and can lead to real-time object detection.
+YOLO (You Only Look Once) \cite{redmon2016you} is a model for object detection composed of a single Neural Network (NN) which treats object detection as a regression problem: given an image as input it produces bounding box coordinates and associated class probabilities. Since the predictions are performed directly on the input image without requiring complex pipelines, YOLO is very efficient and can lead to real-time object detection.
 
 \begin{figure}
     \begin{center}
@@ -61,27 +61,26 @@ where,
 \end{align*}
 
 
-The loss function in \autoref{eq:yolo-loss} considers both detection and classification. A bounding box can be defined by its center in addition to the height and width. The first row of the loss function is responsible for minimizing the difference between the predicted center and the ground truth, and the second row minimize the difference between width and height.
+The loss function in \autoref{eq:yolo-loss} considers both detection and classification. A bounding box can be defined by its center in addition to the height and width. The first row of the loss function is responsible for minimizing the difference between the predicted center and the ground truth, while the second row minimizes the difference between width and height.
 The third row penalizes the neural network if it predicts an object whereas it is not present and vice versa. The last row of the loss function is the mean squared error between the real class and the predicted one, hence it is responsible to match the real class.
 
-
-Over the years, several versions of YOLO have come up, starting from the first up to fifth version \cite{redmon2016you, redmon2017yolo9000, redmon2018yolov3, bochkovskiy2020yolov4, glenn_jocher_2021_5563715}. YOLOv5 represents the state of the art for object detection, and compared with the most recent models it is among the best performing ones \cite{zaidi2022survey}.
+Over the years, several versions of YOLO have come out, starting from the first up to fifth version \cite{redmon2016you, redmon2017yolo9000, redmon2018yolov3, bochkovskiy2020yolov4, glenn_jocher_2021_5563715}. YOLOv5 represents the state of the art for object detection, and compared with the most recent models it is among the best performing ones \cite{zaidi2022survey}.
 
 \section{Logo recognition}
 \label{sec:sota-logoyolo}
 
 A general pipeline for logo detection and recognition consists in logo region proposal followed by a classifier specifically trained for logo classification, as proposed by Bianco et al. in \cite{bianco2017deep} or by Fehérvári et al. in \cite{fehervari2019scalable}.
 
-Another approach presented by Wang et al. \cite{wang2022logodet} involves a model based on YOLOv3 \cite{redmon2018yolov3} used to produce both bounding boxes and classification for each detected logo. The proposed model is called Logo-YOLO, which is essentially the same version of YOLOv3 with some changes to the loss function described in \autoref{eq:yolo-loss} and the re-computation of the anchors sizes. The modified loss function utilizes the Focal Loss \cite{lin2017focal} to solve the problem of the logos which are small objects to the background, and the  CIoU loss \cite{zheng2020distance} to obtain more accurate and faster regression of the bounding boxes.
+Another approach presented by Wang et al. \cite{wang2022logodet} involves a model based on YOLOv3 \cite{redmon2018yolov3} used to produce both bounding boxes and classification for each detected logo. The proposed model is called Logo-YOLO, which is essentially the same version of YOLOv3 with some changes to the loss function described in \autoref{eq:yolo-loss} and the re-computation of the anchors sizes. The modified loss function utilizes the Focal Loss \cite{lin2017focal} to solve the problem of logos being small objects compared to the background, and the  CIoU loss \cite{zheng2020distance} to obtain more accurate and faster regression of the bounding boxes.
 
-The issue with these approaches is the closed-world assumption which does not apply in the case of logo recognition, as discussed in \autoref{sec:logodet-intro}. This is the purpose behind works such as \cite{fehervari2019scalable}. The authors of the paper propose a method based on Distance Metric Learning (DML) using deep learning techniques called SoftTriple Loss presented in \cite{qian2019softtriple}. This work aims to achieve logo recognition via metric learning, where a model learns the similarity of different objects in a latent space, thus being able to deal with a large number of previously unseen classes exploiting the distances of objects in the latent space.
+The issue with these approaches is the closed-world assumption which does not apply in the case of logo recognition, as discussed in \autoref{sec:logodet-intro}. This is the purpose behind works such as \cite{fehervari2019scalable}. The authors of the paper propose a method based on Distance Metric Learning (DML) using deep learning techniques called SoftTriple Loss presented in \cite{qian2019softtriple}. This work aims to achieve logo recognition via metric learning, where a model learns the similarity and differences of objects in a latent space, thus being able to deal with a large number of previously unseen classes exploiting the distances of objects in the latent space.
 
-Another work based on DML has been presented by Li et al. \cite{li2022seetek} and can be considered as an extension to \cite{fehervari2019scalable}. In this work the authors enrich the latent space learned by DML with text features contained in the logos. The authors highlight how a large number of logos have remarkable amount of text or (stylized) letters, for this reason, in addition to visual features, they consider text features as relevant information for logo classification.
+Another work based on DML has been presented by Li et al. \cite{li2022seetek} and can be considered as an extension to \cite{fehervari2019scalable}. In this work the authors enrich the latent space learned by DML with text features contained in the logos. The authors highlight how a large number of logos have remarkable amount of text or stylized letters, for this reason, in addition to visual features, they consider text features as relevant information for logo classification.
 
 \section{Class incremental learning}
 Traditional supervised learning systems are trained in closed-world for a fixed
 number of classes, that requires all the training data to be available before training.
-The problem of Class Incremental Learning (CIL) aims to design algorithms that can learn new concepts in a sequential way and eventually perform well on all observed classes \cite{yan2021dynamically}.
+Class Incremental Learning (CIL) aims to design algorithms that can learn new concepts in a sequential way and eventually perform well on all observed classes \cite{yan2021dynamically}.
 
 To extend a trained model on new classes, a large amount of labeled data for both new
 and old classes is necessary for network finetuning. Otherwise, if the dataset of old classes is no
@@ -101,7 +100,7 @@ problem \cite{serra2018overcoming, zhang2021few, mccloskey1989catastrophic}. Cat
     \label{fig:cil-setup}
 \end{figure}
 
-During CIL, a stream of class groups $\{\mathcal{Y}_t\}$ and their corresponding training data $\{\mathcal{D}_t\}$ are observed by the model. At step $t$, the incoming dataset $\{\mathcal{D}_t\}$ is of the form $(\textbf{x}_{\textbf{i}}^{\textbf{i}}, y_i^t)$ where $\textbf{x}_{\textbf{i}}^{\textbf{i}}$ is the input image and $y_i^t \in \mathcal{Y}_t$ is the label set $\mathcal{Y}_t$. The label space of the model consists in all the seen categories $\tilde{\mathcal{Y}}_t = \cup_{i=1}^t \mathcal{Y}_i$ and a good model should predict well on all classes $\tilde{\mathcal{Y}}_t$. As described in \autoref{sec:cil-methods}, some CIL algorithms save a part of data at timestamp $t$ as the memory $\mathcal{M}_t$ for future training. The CIL setup is shown in \autoref{fig:cil-setup}.
+During CIL, a stream of class groups $\{\mathcal{Y}_t\}$ and their corresponding training data $\{\mathcal{D}_t\}$ are observed by the model. At step $t$, the incoming dataset $\{\mathcal{D}_t\}$ is of the form $(\textbf{x}_{\textbf{i}}^{\textbf{i}}, y_i^t)$ where $\textbf{x}_{\textbf{i}}^{\textbf{i}}$ is the input image and $y_i^t \in \mathcal{Y}_t$ is the label set $\mathcal{Y}_t$. The label space of the model consists of all categories seen up to that point $\tilde{\mathcal{Y}}_t = \cup_{i=1}^t \mathcal{Y}_i$ and a good model should predict well on all classes $\tilde{\mathcal{Y}}_t$. As described in \autoref{sec:cil-methods}, some CIL algorithms save a part of data at timestamp $t$ as memory $\mathcal{M}_t$ for future training. The CIL setup is shown in \autoref{fig:cil-setup}.
 
 \subsection{Methods}
 \label{sec:pycil}
@@ -207,12 +206,12 @@ The problem of CIL has been addressed using different methods, and they can be d
     \end{enumerate}
     \item \textbf{Parameter isolation methods}: this class of methods use different model parameters for each task.
     \begin{enumerate}
-        \item \textit{Fixed Network} \cite{mallya2018packnet, mallya2018piggyback, serra2018overcoming, fernando2017pathnet}: the model architecture is kept fixed and the knowledge is updated involving masks for the parameters' weights.
+        \item \textit{Fixed Network} \cite{mallya2018packnet, mallya2018piggyback, serra2018overcoming, fernando2017pathnet}: the model architecture is kept fixed and the knowledge is updated involving masks for the model parameters.
         \item \textit{Dynamic Architectures} \cite{rusu2016progressive, xu2018reinforced, aljundi2017expert, rosenfeld2018incremental}: the model architecture dynamically changes after each incremental task, and the old parameters are frozen to prevent forgetting. Another approach is to dedicate a model to each incremental task.
     \end{enumerate}
 \end{enumerate}
 
-Since there are several different algorithms for CIL, the work presented by Zhou et al. in \cite{zhou2021pycil} aims to compare a subset of these algorithms considering the same experimental setup. To this purpose, they publish a repository\footnote{PyCIL GitHub repository: \href{https://github.com/G-U-N/PyCIL}{https://github.com/G-U-N/PyCIL}}
+Since there are several algorithms for CIL, the work presented by Zhou et al. in \cite{zhou2021pycil} aims to compare a subset of these algorithms considering the same experimental setup. To this purpose, they publish a repository\footnote{PyCIL GitHub repository: \href{https://github.com/G-U-N/PyCIL}{https://github.com/G-U-N/PyCIL}}
 on GitHub where they introduce \textit{PyCIL: A Python Toolbox for Class-Incremental Learning}, which is an implementation of all the following algorithms:
 
 \begin{itemize}
@@ -281,19 +280,19 @@ The results are shown in \autoref{fig:cil-comaprison} and the top-1 accuracy at 
 
     Coil & 65.48 & 65.48 \\ 
 
-    DER & 69.74 & 69.41 \\ 
+    DER & \textbf{69.74} & 69.41 \\ 
     \hline
     \end{tabular}
     \caption{Top-1 accuracy of the CIL algorithms at the $10$-th incremental stage using the CIFAR100 dataset \cite{zhou2021pycil}.}
     \label{table:cil-results}
     \end{table}
 
-From the final results reported in PyCIL in \autoref{table:cil-results} it is clear that the best performing algorithm on the considered datasets is DER \cite{yan2021dynamically}. Moreover, even if the authors of PyCIL re-implement the DER algorithm, they point out how the performance obtained from the implementation of PyCIL is very similar to that reported in the original DER paper (69.74 top-1 accuracy in PyCIL vs 69.41 reported by the DER paper).
+From the final results reported in PyCIL in \autoref{table:cil-results} it is clear that the best performing algorithm on the datasets considered is DER \cite{yan2021dynamically}. Moreover, even if the authors of PyCIL re-implement the DER algorithm, they point out how the performance obtained from the implementation of PyCIL is very similar to that reported in the original DER paper (69.74 top-1 accuracy in PyCIL vs 69.41 reported by the DER paper).
 
 
 \subsection{DER: an algorithm for class incremental learning}
 \label{sec:der-algorithm}
-DER (dynamically expandable representation) is an algorithm for CIL that utilizes a dynamically expandable representation and uses a limited memory for the old classes introduced in each incremental step. The system proposed in this thesis takes advantage of this algorithm for what concerns the incremental learning aspect of the classifier (see \autoref{sec:method-classifier}).
+DER (Dynamically Expandable Representation) is an algorithm for CIL that utilizes a dynamically expandable representation and uses a limited memory for the old classes introduced in each incremental step. The system proposed in this thesis takes advantage of this algorithm for what concerns the incremental learning aspect of the classifier (see \autoref{sec:method-classifier}).
 
 
 \begin{figure}%
@@ -319,7 +318,7 @@ Each incremental learning iteration of the DER algorithm described in \cite{yan2
 \subsubsection{Expandable Representation Learning}
 At step $t$ of the incremental learning, the algorithm defines a super-feature extractor $\Phi_t$ and the classifier $\mathcal{H}_t$. The algorithm expands the neural network architecture at each step by considering the previous super-feature extractor $\Phi_{t-1}$ and a newly created feature extractor $\mathcal{F}_t$. The feature extractor $\mathcal{F}_t$ consists of a CNN, and the classifier $\mathcal{H}_t$ is a Fully Connected (FC) layer after the super-feature extractor $\Phi_t$.
 
-Given an image $\textbf{x} \in \tilde{\mathcal{D}}_t$, the feature $u$ extracted by $\Phi_t$ is the result of the following concatenation:
+Given an image $\textbf{x} \in \tilde{\mathcal{D}}_t$, the feature $\mathbf{u}$ extracted by $\Phi_t$ is the result of the following concatenation:
 \begin{equation}
     \textbf{u} = \Phi_t(\textbf{x}) = [\Phi_{t-1}(\textbf{x}), \mathcal{F}_t(\mathbf{x})]
 \end{equation}
