@@ -46,10 +46,10 @@ Therefore, a model that is too small could act as a bottleneck for the whole sys
 	\centering
 
     \begin{center}
-        \includegraphics[width=\columnwidth]{images/yolov5-sizes.png}
+        \includegraphics[width=0.9\columnwidth]{images/yolov5-sizes.png}
     \end{center}
 
-	\caption{Performance and speed comparison for the YOLOv5-v6.0 family of models considering the mAP@0.5:0.95 metric measured on the 5000-image COCO val2017 \cite{lin2014microsoft} dataset. The plot shows the performance of different models varying the input size of the image from $256 \times 256$px to $1536 \times 1536$px \cite{glenn_jocher_2021_5563715}.}
+	\caption{Performance and speed comparison for the YOLOv5-v6.0 family of models considering the mAP@0.5:0.95 metric measured on the 5000-image COCO val2017 \cite{lin2014microsoft} dataset. The plot shows the performance of different models varying the input size of the image from $256 \times 256$px to $1536 \times 1536$px. Image from \cite{glenn_jocher_2021_5563715}.}
 	\label{fig:yolo-sizes}%
 \end{figure}
 
@@ -156,7 +156,7 @@ The total number of parameters of ResNet-34 used as feature extractor at each in
 
 \subsection{CIL classifier}
 %The classifier is developed in a CIL setup. This makes it possible to recognise new logos by enriching old knowledge. The algorithm used for CIL is the DER algorithm described in \autoref{sec:der-algorithm}.
-An implementation of the DER algorithm is provided by PyCIL\footnote{PyCIL GitHub repository: \href{https://github.com/G-U-N/PyCIL}{https://github.com/G-U-N/PyCIL}} (see \autoref{sec:pycil}), and is used as a starting point for the development of the CIL classifier. 
+An implementation of the DER algorithm is provided by PyCIL\footnote{PyCIL GitHub repository: \\ \href{https://github.com/G-U-N/PyCIL}{https://github.com/G-U-N/PyCIL}} (see \autoref{sec:pycil}), and is used as a starting point for the development of the CIL classifier. 
 All the changes made to the implementation of DER in PyCIL are described in the following sections, and can be found in this\footnote{GitHub repository relative to the CIL model of this thesis: \\ \href{https://github.com/gianlucagiudice/PyCIL}{https://github.com/gianlucagiudice/PyCIL}} GitHub repository.
 
 The implementation of DER in PyCIL reflects the description given in the DER paper, with only one difference to the third phase of the DER algorithm (called 'classifier learning phase' in \autoref{sec:der-algorithm}). 
