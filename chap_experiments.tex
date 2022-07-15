@@ -52,6 +52,9 @@ The results of the experiments are shown in \autoref{fig:exp1} and in \autoref{t
 
 Based on these results, the architecture chosen for the next experiments is ResNet-34 (so that the network is slightly smaller than ResNet-50) with its weights pre-trained on ImageNet.
 
+Other useful insights can be derived from the training history of a task (e.g. task 7) reporting the top-1 accuracy on the training and validation set.
+Indeed, as can be seen from \autoref{fig:exp1-train_val} the accuracy on the training set is much higher than the one on the validation set, which is a clear sign of overfitting of the model.
+
 \begin{figure}[H]
     \centering
 	\subfloat[\centering Top-1 accuracy]{{\includegraphics[width=0.50\textwidth]{images/exp/exp1-top1.png} }}%
@@ -87,9 +90,6 @@ resnet50-SGD-pretrained-drop0 &ResNet-50&yes& 58.54 & 92.59\\
     \caption{Top-1 and top-5 accuracy of models at task 7.}
     \label{table:exp1}
 \end{table}
-
-Other useful insights can be derived from the training history of a task (e.g. task 7) reporting the top-1 accuracy on the training and validation set.
-Indeed, as can be seen from \autoref{fig:exp1-train_val} the accuracy on the training set is much higher than the one on the validation set, which is a clear sign of overfitting of the model.
 
 \begin{figure}[H]
     \centering
