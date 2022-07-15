@@ -1,12 +1,12 @@
 \chapter{Developed methods for logo recognition}
 \label{chap:methods}
 
-As discussed in \autoref{chap:introduction}, the system developed in this thesis follows a pipeline consisting of two steps:
+As discussed in \autoref{chap:introduction}, the system developed in this thesis follows a pipeline consisting of two stages:
 \begin{enumerate}
     \item \textbf{Object Proposal}: detection of all the logos in the image
     \item \textbf{Classification}: recognition of the class of each logo
 \end{enumerate}
-The first step is done by YOLO (see \autoref{sec:yolo}), while the actual logo recognition is performed by the classifier in an incremental learning setup. The system pipeline is shown in \autoref{fig:roi_and_classification}.
+The first stage is done by YOLO (see \autoref{sec:yolo}), while the actual logo recognition is performed by the classifier in an incremental learning setup. The system pipeline is shown in \autoref{fig:roi_and_classification}.
 
 \begin{figure}%
 	\centering
@@ -19,7 +19,7 @@ The first step is done by YOLO (see \autoref{sec:yolo}), while the actual logo r
 	\label{fig:roi_and_classification}%
 \end{figure}
 
-The detector used in the first step is a class-agnostic logo detector: it is a logo detector since it only detects logos in the image; and it is class-agnostic since the number of classes detected is only one. In fact, in this first step the detector will be responsible for finding any generic logo (i.e., a single class) in the image. This is a crucial step if we seek to achieve incremental learning logo recognition, because in this way detection can be decoupled from recognition. If the logo detector localizes any generic logo in the image, and delegates the actual recognition to the CIL classifier, there is no need to develop an incremental learning detector as well.
+The detector used in the first stage is a class-agnostic logo detector: it is a logo detector since it only detects logos in the image; and it is class-agnostic since the number of classes detected is only one. In fact, in this first stage the detector will be responsible for finding any generic logo (i.e., a single class) in the image. This is a crucial aspect if we seek to achieve incremental learning logo recognition, because in this way detection can be decoupled from recognition. If the logo detector localizes any generic logo in the image, and delegates the actual recognition to the CIL classifier, there is no need to develop an incremental learning detector as well.
 
 An important aspect of the classifier is the size of the model (in terms of the number of parameters). To this reason, a part of this work aims to decrease the number of parameters of the classifier using two different techniques. The first one is described in \autoref{sec:method-pruning}, using masking and pruning introduced in \autoref{sec:masking-pruning} it aims to prune the model after the training of each incremental step, thus reducing the number of parameters. The second technique is the Knowledge Distillation (KD) described in \autoref{sec:method-kd}, where a smaller model is trained with the supervision of a bigger model trained on the same task.
 
@@ -160,7 +160,7 @@ An implementation of the DER algorithm is provided by PyCIL\footnote{PyCIL GitHu
 All the changes made to the implementation of DER in PyCIL are described in the following sections, and can be found in this\footnote{GitHub repository relative to the CIL model of this thesis: \\ \href{https://github.com/gianlucagiudice/PyCIL}{https://github.com/gianlucagiudice/PyCIL}} GitHub repository.
 
 The implementation of DER in PyCIL reflects the description given in the DER paper, with only one difference to the third phase of the DER algorithm (called 'classifier learning phase' in \autoref{sec:der-algorithm}). 
-In fact, in PyCIL the Classifier Learning Stage is performed using the WA described in \autoref{sec:wa-biased}; in this way it is possible to solve the problem of biased weights in the FC layer without the need to train the model further.
+In fact, in PyCIL the 'Classifier Learning Stage' is performed using the WA described in \autoref{sec:wa-biased}; in this way it is possible to solve the problem of biased weights in the FC layer without the need to train the model further.
 It is important to emphasize that, although this step of the algorithm is modified, the final performance reported by PyCIL is very similar to that obtained from the original DER paper (see \autoref{table:cil-results}).
 
 \subsection{Regularization techniques}
@@ -266,9 +266,9 @@ This procedure is shown in \autoref{fig:data_augmentation}, and is applied to di
 \end{figure}
 
 \subsection{Training}
-The training of the CIL model can be divided into two main steps: the initial step and the iterations of CIL. In the initial step the model is trained for 200 epochs, while for the incremental learning iterations it is trained for 150 epochs.
+The training of the CIL model can be divided into two main steps: the initial task and the iterations of CIL. In the initial task the model is trained for 200 epochs, while for the incremental learning iterations it is trained for 150 epochs.
 
-The number of training epochs in the initial step is higher because in this stage the network requires a longer time to converge, this is due to these two factors: the neural network must adapt the weights trained on ImageNet to the logo classification task;
+The number of training epochs in the initial task is higher because in this phase the network requires a longer time to converge, this is due to these two factors: the neural network must adapt the weights trained on ImageNet to the logo classification task;
 it is assumed that the number of classes at the initial task is greater than the number of classes introduced at each incremental learning iteration.
 
 \subsubsection{Early stopping}
@@ -395,7 +395,7 @@ The Adam algorithm is shown in \autoref{alg:adam} as described by Goodfellow et 
     \end{algorithm}
 
 \subsubsection{Learning rate decay}
-For both SGD and Adam, an exponential decay scheduling is applied to the learning rate: once one epoch reaches one of the predetermined epochs (called milestones) the learning rate of the optimizer is multiplied by a factor $\gamma = 0.1$. For the training of the CIL classifier, the milestones are set to 60, 100 and 150 for the initial learning stage, and to 40, 75 and 100 for each incremental learning iteration.
+For both SGD and Adam, an exponential decay scheduling is applied to the learning rate: once one epoch reaches one of the predetermined epochs (called milestones) the learning rate of the optimizer is multiplied by a factor $\gamma = 0.1$. For the training of the CIL classifier, the milestones are set to 60, 100 and 150 for the initial task, and to 40, 75 and 100 for each incremental learning iteration.
 
 Adjusting the learning rate is an important aspect of the optimization process. Some of the motivations behind learning rate scheduling are described below:
 \begin{itemize}
@@ -421,13 +421,13 @@ By plotting the accuracy of the model at each training epoch, it is possible to 
 \subsection{Pruning}
 \label{sec:method-pruning}
 
-The DER algorithm, described in \autoref{sec:der-algorithm}, addresses the problem of class incremental learning by expanding the neural network architecture at each incremental stage. The super-feature extractor at step $t$ of incremental learning is given by the following concatenation $\Phi_t(\mathbf{x}) = [\mathcal{F}_0, \, \mathcal{F}_1(\mathbf{x}), \, ..., \, \mathcal{F}_t(\mathbf{x})]$. As discussed in \autoref{sec:resnet}, the feature extractor is a CNN, which in this thesis is implemented using ResNet-34.
+The DER algorithm, described in \autoref{sec:der-algorithm}, addresses the problem of class incremental learning by expanding the neural network architecture at each incremental step. The super-feature extractor at step $t$ of incremental learning is given by the following concatenation $\Phi_t(\mathbf{x}) = [\mathcal{F}_0, \, \mathcal{F}_1(\mathbf{x}), \, ..., \, \mathcal{F}_t(\mathbf{x})]$. As discussed in \autoref{sec:resnet}, the feature extractor is a CNN, which in this thesis is implemented using ResNet-34.
 
 Given the definition of the super-feature extractor, it is possible to see how the parameters of the neural network grow linearly as a function of the number of incremental learning steps.
 It is important to note that as the parameters of the super-feature extractor increase, those of the classifier $\mathcal{H}_t$ do as well.
-The classifier $\mathcal{H}_t$ corresponds to the fully connected layer of the neural network. At each incremental learning stage new classes are introduced, thus new connections are created between the classifier predicting the output class and the super-feature extractor.
+The classifier $\mathcal{H}_t$ corresponds to the fully connected layer of the neural network. At each incremental learning task new classes are introduced, thus new connections are created between the classifier predicting the output class and the super-feature extractor.
 
-This means that, using the LogoDet-3K dataset described in \autoref{chap:dataset}, and the incremental learning setup described in \autoref{sec:whole_dataset_clf}, at the 8th stage of CIL the total number of parameters is given by: the number of parameters at task 0 (initial task), in which 22 million parameters (number of parameters of ResNet-34) are used; the 8 incremental learning stages, each adding 22 million parameters to the total.
+This means that, using the LogoDet-3K dataset described in \autoref{chap:dataset}, and the incremental learning setup described in \autoref{sec:whole_dataset_clf}, at the 8th step of CIL the total number of parameters is given by: the number of parameters at task 0 (initial task), in which 22 million parameters (number of parameters of ResNet-34) are used; the 8 incremental learning steps, each adding 22 million parameters to the total.
 
 After only 8 iterations of incremental learning, the final neural network reaches 205 million parameters, which is a large number of parameters compared to a single ResNet-34 used as backbone of each feature extractor.
 For this reason, there is a need to reduce the number of parameters of the neural network.

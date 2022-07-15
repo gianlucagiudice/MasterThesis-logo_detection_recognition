@@ -95,7 +95,7 @@ problem \cite{serra2018overcoming, zhang2021few, mccloskey1989catastrophic}. Cat
     \begin{center}
         \includegraphics[width=0.9\columnwidth]{images/cil-setup.png}
     \end{center}
-    \caption{General CIL setup. In an incremental learning setup, classes arrive sequentially at each task, so we only have access to the classes of that task and the previously seen classes. To classify new classes using the same model, the classifier is built incrementally. After the learning stage of each task, the model
+    \caption{General CIL setup. In an incremental learning setup, classes arrive sequentially at each task, so we only have access to the classes of that task and the previously seen classes. To classify new classes using the same model, the classifier is built incrementally. After the learning phase of each task, the model
     is evaluated among all seen classes. The image shows an example of three incremental learning steps. Image from \cite{zhou2021pycil}.}
     \label{fig:cil-setup}
 \end{figure}
@@ -234,21 +234,21 @@ on GitHub where they introduce \textit{PyCIL: A Python Toolbox for Class-Increme
     based on iCaRL.
     \item \textbf{PODNet} \cite{douillard2020podnet}: introduces a novel distillation loss (Pooled
     Outputs Distillation) constraining the whole convolutional network.
-    \item \textbf{DER} \cite{yan2021dynamically}: a two-stage learning approach that utilizes a dynamically
+    \item \textbf{DER} \cite{yan2021dynamically}: a learning approach that utilizes a dynamically
     expandable representation for more effective incremental concept modeling.
     \item \textbf{Coil} \cite{zhou2021co}: builds bi-directional knowledge transfer in the class incremental learning process with optimal transport \cite{villani2009optimal}. It first addresses
     the ability that old model can help learning new classes.
 \end{itemize}
 
-The CIL algorithms are tested on two different benchmark datasets, i.e. CIFAR100 \cite{krizhevsky2009learning} and ImageNet100 \cite{russakovsky2015imagenet}. These datasets are composed of 100 classes and the experiments performed in PyCIL \cite{zhou2021pycil} adopt this CIL setup: 10 classes for the initial stage followed by 9 incremental learning iterations consisting of 10 new classes. Then, the top-1 accuracy is reported for all the incremental stages.
-The results are shown in \autoref{fig:cil-comaprison} and the top-1 accuracy at the final stage is reported in \autoref{table:cil-results}.
+The CIL algorithms are tested on two different benchmark datasets, i.e. CIFAR100 \cite{krizhevsky2009learning} and ImageNet100 \cite{russakovsky2015imagenet}. These datasets are composed of 100 classes and the experiments performed in PyCIL \cite{zhou2021pycil} adopt this CIL setup: 10 classes for the initial task followed by 9 incremental learning steps consisting of 10 new classes. Then, the top-1 accuracy is reported for all the incremental learning steps.
+The results are shown in \autoref{fig:cil-comaprison} and the top-1 accuracy at the final step is reported in \autoref{table:cil-results}.
 
 \begin{figure}%
 	\centering
-	\subfloat[\centering 10 stage on CIFAR100]{{\includegraphics[width=0.45\textwidth]{images/cil-cifar.png} }}%
+	\subfloat[\centering 10 steps on CIFAR100]{{\includegraphics[width=0.45\textwidth]{images/cil-cifar.png} }}%
 	\hfill
-	\subfloat[\centering 10 stage on ImageNet100]{{\includegraphics[width=0.45\textwidth]{images/cil-imagenet} }}%
-	\caption{Performance comparison of the CIL algorithms during 10 stages on CIFAR100 and ImageNet100 datasets \cite{zhou2021pycil}.}%
+	\subfloat[\centering 10 steps on ImageNet100]{{\includegraphics[width=0.45\textwidth]{images/cil-imagenet} }}%
+	\caption{Performance comparison of the CIL algorithms during 10 incremental learning steps on CIFAR100 and ImageNet100 datasets \cite{zhou2021pycil}.}%
 	\label{fig:cil-comaprison}%
 \end{figure}
 
@@ -283,7 +283,7 @@ The results are shown in \autoref{fig:cil-comaprison} and the top-1 accuracy at 
     DER & \textbf{69.74} & 69.41 \\ 
     \hline
     \end{tabular}
-    \caption{Top-1 accuracy of the CIL algorithms at the $10$-th incremental stage using the CIFAR100 dataset \cite{zhou2021pycil}.}
+    \caption{Top-1 accuracy of the CIL algorithms at the $10$-th incremental learning step using the CIFAR100 dataset \cite{zhou2021pycil}.}
     \label{table:cil-results}
     \end{table}
 
@@ -344,7 +344,7 @@ To force the network to learn new and discriminative features at each incrementa
 
 \subsubsection{Masking and pruning}
 \label{sec:masking-pruning}
-To maintain a compact representation of the model and remove redundancy, the super-feature extractor is pruned after the training of each stage $t$, the method proposed by the authors is adapted from \cite{serra2018overcoming}. This is done using a differentiable channel-level mask-based method to prune filters of the extractor $\mathcal{F}_t$, in which
+To maintain a compact representation of the model and remove redundancy, the super-feature extractor is pruned after the training of each task $t$, the method proposed by the authors is adapted from \cite{serra2018overcoming}. This is done using a differentiable channel-level mask-based method to prune filters of the extractor $\mathcal{F}_t$, in which
 the masks are learned jointly with the representation. The mask is then binarized after the learning procedure, and the feature extractor $\mathcal{F}_t$ is pruned using the binary mask, producing as output the pruned network $\mathcal{F}_t^{P}$.
 
 Given a new feature extractor $\mathcal{F}_t$, the input feature map of the convolutional layer $l$ for an image $\textbf{x}$ is denoted as $\textbf{f}_l$. The channel mask $\textbf{m}_l \in \mathbb{R}^{c_l}$ controls the size of the layer $l$, where $m_l^i \in [0, 1]$ and $c_l$ is the number of channels of layer $l$. The mask $m_l$ is used to modulate $f_l$ as follows:
@@ -425,7 +425,7 @@ At the $t$-th incremental learning step, the model is given by:
 where:
 \begin{itemize}
     \item $\Phi(\textbf{x})$ is the feature extractor which outputs a $d$-dimensional feature vector.
-    \item $o(\textbf{x})$ is the ($C_{old}^t + C^t$)-dimensional vector of the logits produced in output by the model. $C_{old}^t$ and $C^t$ represent respectively the number of old and new classes at the $t$-th incremental stage. 
+    \item $o(\textbf{x})$ is the ($C_{old}^t + C^t$)-dimensional vector of the logits produced in output by the model. $C_{old}^t$ and $C^t$ represent respectively the number of old and new classes at the $t$-th incremental task. 
     \item $W \in \mathbb{R}^{d \times (C_{old}^t + C^t)}$ represents the parameters of the FC layer. $W$ can be espressed as $W = {w_c, \, 1 \leq c \leq C_{old}^b + C^b}$, where $w_c$ is a $d$-dimensional weight vector for the $c^{th}$ class.
 \end{itemize}
 The output logits for the $c^{th}$ class are calculated as:

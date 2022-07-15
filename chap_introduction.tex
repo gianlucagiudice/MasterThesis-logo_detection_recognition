@@ -4,7 +4,7 @@
 \section{Logo detection and recognition}
 \label{sec:logodet-intro}
 
-Logo detection and recognition is a Computer Vision (CV) task that can be formulated as a two-step process: localize logos in the image (i.e. finding the coordinates of logo instances inside the image) and identify the detected logos (i.e. producing in output the brand name associated with that logo).
+Logo detection and recognition is a Computer Vision (CV) task that can be formulated as a two-stage process: localize logos in the image (i.e. finding the coordinates of logo instances inside the image) and identify the detected logos (i.e. producing in output the brand name associated with that logo).
 
 The first studies in this field date back to 1993 \cite{doermann1993logo}, yet this task is becoming increasingly important in a variety of applications. Some examples of studies relative to this problem aimed to: monitor the brand visibility on social media \cite{7492197}; protect the intellectual property on e-commerce platforms, known as intellectual property protection (IPP) \cite{jin2020open}; develop online video advertising systems \cite{cheng2017video}; and help the development of autonomous checkout systems in retail environments \cite{mata2022standardsim}.
 
@@ -16,7 +16,7 @@ Since many new brands are constantly being created and each brand has its own lo
 For this reason, there is the need to develop a system which is able to adapt to these changes where standard closed-set classification techniques would fail. One possible approach could be to train a new classifier each time a new logo is created. However, this method is very inefficient and unfeasible for large scale datasets of logos. Moreover, retraining a model in such a way would require to store a large quantity of examples, since both the data from the previous logos and the new ones would be needed.
 
 Open set logo recognition allows models to
-detect logos that are not available during the training stage. In this way, it is possible to overcome the problems discussed above. As a consequence, systems in which logo detection and recognition is performed in an open environment have been proposed in the literature \cite{fehervari2019scalable, li2022seetek}.
+detect logos that are not available during the training phase. In this way, it is possible to overcome the problems discussed above. As a consequence, systems in which logo detection and recognition is performed in an open environment have been proposed in the literature \cite{fehervari2019scalable, li2022seetek}.
 
 \section{Class incremental learning}
 Incremental learning aims to develop artificially intelligent
@@ -42,20 +42,20 @@ Many real-world applications require incremental learning capabilities: intellig
 The goal of this thesis is to develop a system that can detect and recognize 
 a large number of different logos present in an image. An important factor that is considered in this work is the incremental learning aspect. This means that the system is trained on an initial set of logos and, when necessary, it is possible to enrich its knowledge to recognize new logos. This is done by taking advantage of state of the art incremental learning techniques.
 
-The proposed system is conceptually simple, it consists of two deep learning models and follows a pipeline composed of two main steps, shown in \autoref{fig:system-pipeline}:
+The proposed system is conceptually simple, it consists of two deep learning models and follows a pipeline composed of two main stages, shown in \autoref{fig:system-pipeline}:
 
 \begin{enumerate}
     \item \textbf{Object Proposal} for logo detection, performed by the class-agnostic logo detector.
     \item \textbf{Classification} for logo recognition, performed by the CIL classifier.
 \end{enumerate}
 
-In the first step, the model is a class-agnostic logo detector based on YOLOv5 \cite{glenn_jocher_2021_5563715}. In this context, class-agnostic means that the logo detector is only responsible for identifying a generic logo, while the actual classification is not performed by the detector, but is delegated to the second model that produces the logo class as output.
-Given an input image, the purpose of this first step is to produce as many cropped portions of it as there are logos in the image. These cropped regions are called Regions of Interest (RoIs) and correspond to what the model considers to be logos.
+In the first stage, the model is a class-agnostic logo detector based on YOLOv5 \cite{glenn_jocher_2021_5563715}. In this context, class-agnostic means that the logo detector is only responsible for identifying a generic logo, while the actual classification is not performed by the detector, but is delegated to the second model that produces the logo class as output.
+Given an input image, the purpose of this first stage is to produce as many cropped portions of it as there are logos in the image. These cropped regions are called Regions of Interest (RoIs) and correspond to what the model considers to be logos.
 
-The second step exploits the RoIs generated by the detector and proceeds with the actual recognition of logos, this step is purely a classification task.
+The second stage exploits the RoIs generated by the detector and proceeds with the actual recognition of logos, this step is purely a classification task.
 Here, the problem is to recognize new logos which are created over time. To do so, the model is initially trained on all the logos that are available up to that time. Then, the knowledge of the model is updated to include a new set of logos. These updates of the knowledge are called incremental learning steps, and a crucial aspect of integrating new knowledge is the ability to do so in such way that the model does not forget its previous knowledge. As a consequence, the developed model uses incremental learning techniques that allow it to recognize new logos (classes).
 
-Unlike the second step, we can say that there is no need to develop a detector with incremental learning techniques. This is justified by the fact that the idea of what a generic logo is can be learned and well-approximated using only an initial set of logos. The subsequent creation of new logos will not disrupt the general idea of a logo, therefore, there is no need to change the knowledge initially learned.
+Unlike the second stage, we can say that there is no need to develop a detector with incremental learning techniques. This is justified by the fact that the idea of what a generic logo is can be learned and well-approximated using only an initial set of logos. The subsequent creation of new logos will not disrupt the general idea of a logo, therefore, there is no need to change the knowledge initially learned.
 
 \section{Main contributions}
 This work reformulates the problem of logo recognition in terms of class incremental learning. By doing so, new knowledge can be integrated in a model without the need to retrain it from scratch.

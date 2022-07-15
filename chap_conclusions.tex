@@ -18,7 +18,7 @@ A downside of the algorithm used for CIL is the number of model parameters.
 The method implemented with learnable masks used to perform channel-level pruning of the Convolutional Neural Network (CNN) layers achieves promising performance when tested on a subset of the dataset.
 However, this approach performs poorly when trying to scale to the entire dataset.
 To solve this problem, Knowledge Distillation is used as an alternative approach to channel-level masks.
-In this way, it is possible to train a significantly smaller CNN with the supervision of a larger model resulting from the incremental learning phases.
+In this way, it is possible to train a significantly smaller CNN with the supervision of a larger model resulting from the incremental learning steps.
 Note that, in the experiments conducted in this thesis, the Knowledge Distillation (KD) is applied at the end of all incremental learning tasks, however the Dynamically Expandable Representation (DER) algorithm \cite{yan2021dynamically} is flexible enough to be used in combination with KD.
 In the case where there is a need to recognize new logos after the KD (given the incremental learning nature of the problem), it would be possible to exploit the student architecture resulting from the KD, instead of the initial teacher model.
 It would be sufficient to freeze the student weights trained with the KD and then expand the architecture with the DER algorithm for subsequent incremental learning iterations, like any other type of feature extractor in the standard DER configuration.
