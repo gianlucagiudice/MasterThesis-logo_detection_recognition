@@ -4,7 +4,7 @@
 \section{Logo detection and recognition}
 \label{sec:logodet-intro}
 
-Logo detection and recognition is a Computer Vision (CV) task that can be formulated as a two-stage process: localize logos in the image (i.e. finding the coordinates of logo instances inside the image) and identify the detected logos (i.e. producing in output the brand name associated with that logo).
+Logo detection and recognition is a Computer Vision (CV) task that can be formulated as a two-stage process: locating the logos in the image (i.e. finding the coordinates of logo instances inside the image) and identifying the detected logos (i.e. producing in output the brand name associated with that logo).
 
 The first studies in this field date back to 1993 \cite{doermann1993logo}, yet this task is becoming increasingly important in a variety of applications. Some examples of studies relative to this problem aimed to: monitor the brand visibility on social media \cite{7492197}; protect the intellectual property on e-commerce platforms, known as intellectual property protection (IPP) \cite{jin2020open}; develop online video advertising systems \cite{cheng2017video}; and help the development of autonomous checkout systems in retail environments \cite{mata2022standardsim}.
 
@@ -69,6 +69,8 @@ Particular attention is given to the size of the models in terms of the number o
 As an alternative to this method, the Knowledge Distillation (KD) technique is used to train a significantly smaller neural network under the supervision of a teacher model.
 
 Several experiments are conducted to compare the proposed approaches. To this end, three different baselines are defined to assess the drop in performance when using a CIL approach as opposed to a standard one. Then, the system is tested on a large-scale dataset and compared with state-of-the-art methods, highlighting the strengths and weaknesses of the proposed system and focusing on aspects that could be improved.
+
+The work described in this thesis has resulted in a paper submitted to the 12th IEEE International Conference on Consumer Technology (ICCE-Berlin 2022).
 
 %Nello specifico, lei ha riformulato un problema esistente (logo recognition) in termini di CIL, ha definito un detector a due stage (fa niente che concettualmente è già noto, non deve dire che l'ha inventato lei), ha apportato alcune modifiche all'algoritmo di CIL noto (mi riferisco a dropout e ottimizzatore), ha analizzato criticamente un dataset pubblico evidenziandone limiti ed errori di annotazione, ha proposto di integrare/sostituire la tecnica esistente di riduzione di complessità del modello implementando una tecnica di KD, ed ha effettuato dei confronti rigorosi e sistematici per valutare e confrontare la validità dei vari approcci.
 
