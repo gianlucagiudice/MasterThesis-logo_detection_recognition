@@ -3,7 +3,7 @@
 
 \section{Object detection}
 
-Object detection is one of the most fundamental and challenging problems in computer vision \cite{zou2019object}. This task can be defined as follows: given an image, determine whether or not there are instances of a predefined set of objects, usually referred to as classes, and, if present, return the location of each instance \cite{liu2020deep}. The spatial location of an object in an image can be represented using bounding boxes.
+Object detection is one of the most fundamental and challenging problems in computer vision \cite{zou2019object}. This task can be defined as follows: given an image, determine whether or not there are instances of a predefined set of objects, usually referred to as classes, and if present return the location of each instance \cite{liu2020deep}. The spatial location of an object in an image can be represented using bounding boxes.
 
 Object detection was initially addressed using handcrafted features and shallow trainable architectures.
 With the rapid development in deep learning, more powerful techniques are used to address the issues existing in traditional solutions \cite{zhao2019object}. 
@@ -71,11 +71,11 @@ Over the years, several versions of YOLO have come out, starting from the first 
 
 A general pipeline for logo detection and recognition consists in logo region proposal followed by a classifier specifically trained for logo classification, as proposed by Bianco et al. in \cite{bianco2017deep} or by Fehérvári et al. in \cite{fehervari2019scalable}.
 
-Another approach presented by Wang et al. \cite{wang2022logodet} involves a model based on YOLOv3 \cite{redmon2018yolov3} used to produce both bounding boxes and classification for each detected logo. The proposed model is called Logo-YOLO, which is essentially the same version of YOLOv3 with some changes to the loss function described in \autoref{eq:yolo-loss} and the re-computation of the anchors sizes. The modified loss function utilizes the Focal Loss \cite{lin2017focal} to solve the problem of logos being small objects compared to the background, and the  CIoU loss \cite{zheng2020distance} to obtain more accurate and faster regression of the bounding boxes.
+Another approach presented by Wang et al. \cite{wang2022logodet} involves a model based on YOLOv3 \cite{redmon2018yolov3} used to produce both bounding boxes and classification for each detected logo. The proposed model is called Logo-YOLO, which is essentially the same version of YOLOv3 with some changes to the loss function (described in \autoref{eq:yolo-loss}) and the re-computation of the anchors sizes. The modified loss function utilizes the Focal Loss \cite{lin2017focal} to solve the problem of logos being small objects compared to the background, and the  CIoU loss \cite{zheng2020distance} to obtain more accurate and faster regression of the bounding boxes.
 
-The issue with these approaches is the closed-world assumption which does not apply in the case of logo recognition, as discussed in \autoref{sec:logodet-intro}. This is the purpose behind works such as \cite{fehervari2019scalable}. The authors of the paper propose a method based on Distance Metric Learning (DML) using deep learning techniques called SoftTriple Loss presented in \cite{qian2019softtriple}. This work aims to achieve logo recognition via metric learning, where a model learns the similarity and differences of objects in a latent space, thus being able to deal with a large number of previously unseen classes exploiting the distances of objects in the latent space.
+The issue with these approaches is the closed-world assumption which does not apply in the case of logo recognition, as discussed in \autoref{sec:logodet-intro}. This is the purpose behind works such as \cite{fehervari2019scalable}. The authors of the paper propose a method based on Distance Metric Learning (DML) using deep learning techniques called SoftTriple Loss \cite{qian2019softtriple}. This work aims to achieve logo recognition via metric learning, where a model learns the similarity and differences of objects in a latent space, thus being able to deal with a large number of previously unseen classes exploiting the distances of objects in the latent space.
 
-Another work based on DML has been presented by Li et al. \cite{li2022seetek} and can be considered as an extension to \cite{fehervari2019scalable}. In this work the authors enrich the latent space learned by DML with text features contained in the logos. The authors highlight how a large number of logos have remarkable amount of text or stylized letters, for this reason, in addition to visual features, they consider text features as relevant information for logo classification.
+Another work based on DML has been presented by Li et al. \cite{li2022seetek} and can be considered as an extension of \cite{fehervari2019scalable}. In this work the authors enrich the latent space learned by DML with text features contained in the logos. The authors highlight how a large number of logos have remarkable amount of text or stylized letters, for this reason, in addition to visual features, they consider text features as relevant information for logo classification.
 
 \section{Class incremental learning}
 Traditional supervised learning systems are trained in closed-world for a fixed
@@ -100,7 +100,7 @@ problem \cite{serra2018overcoming, zhang2021few, mccloskey1989catastrophic}. Cat
     \label{fig:cil-setup}
 \end{figure}
 
-During CIL, a stream of class groups $\{\mathcal{Y}_t\}$ and their corresponding training data $\{\mathcal{D}_t\}$ are observed by the model. At step $t$, the incoming dataset $\{\mathcal{D}_t\}$ is of the form $(\textbf{x}_{\textbf{i}}^{\textbf{t}}, y_i^t)$ where $\textbf{x}_{\textbf{i}}^{\textbf{t}}$ is the input image and $y_i^t \in \mathcal{Y}_t$ is the label set $\mathcal{Y}_t$. The label space of the model consists of all categories seen up to that point $\tilde{\mathcal{Y}}_t = \cup_{i=1}^t \mathcal{Y}_i$ and a good model should predict well on all classes $\tilde{\mathcal{Y}}_t$. As described in \autoref{sec:cil-methods}, some CIL algorithms save a part of data at timestamp $t$ as memory $\mathcal{M}_t$ for future training. The CIL setup is shown in \autoref{fig:cil-setup}.
+During CIL, a stream of class groups $\{\mathcal{Y}_t\}$ and their corresponding training data $\{\mathcal{D}_t\}$ are observed by the model. At step $t$ of incremental learning, the incoming dataset $\{\mathcal{D}_t\}$ is of the form $(\textbf{x}_{\textbf{i}}^{\textbf{t}}, y_i^t)$ where $\textbf{x}_{\textbf{i}}^{\textbf{t}}$ is the input image and $y_i^t \in \mathcal{Y}_t$ is the label set $\mathcal{Y}_t$. The label space of the model consists of all categories seen up to that point $\tilde{\mathcal{Y}}_t = \cup_{i=1}^t \mathcal{Y}_i$ and a good model should predict well on all classes $\tilde{\mathcal{Y}}_t$. As described in \autoref{sec:cil-methods}, some CIL algorithms save a part of data at timestamp $t$ as memory $\mathcal{M}_t$ for future training. The CIL setup is shown in \autoref{fig:cil-setup}.
 
 \subsection{Methods}
 \label{sec:pycil}
@@ -191,18 +191,18 @@ The problem of CIL has been addressed using different methods, and they can be d
 
 \begin{enumerate}
     \item \textbf{Replay methods}: these works store samples of old classes which are replayed while learning a new task, by doing so it is possible to alleviate forgetting.
-    The samples are either reused as model inputs for rehearsal, or to constrain the optimization of loss on the new tasks.
+    The samples are either reused as model inputs for rehearsal, or to constrain the optimization of the loss function on new tasks.
 
     \begin{enumerate}
         \item \textit{Rehearsal} \cite{rebuffi2017icarl, rolnick2019experience, isele2018selective, chaudhry2019continual, de2021continual}: the model is retrained on a limited subset of stored samples.
         \item \textit{Pseudo Rehearsal} \cite{shin2017continual, atkinson1802pseudo, lavda2018continual, ramapuram2020lifelong}: approximates previous tasks samples using either random input vector or more advanced techniques like generative models. However, the latter one has the drawback of adding complexity to the system pipeline.
-        \item \textit{Constrained optimization} \cite{lopez2017gradient, chaudhry2018efficient, aljundi2019online}: updates the model weights for the new task in such a way as not to interfere with previous task weights.
+        \item \textit{Constrained optimization} \cite{lopez2017gradient, chaudhry2018efficient, aljundi2019online}: updates the model weights for the new task so as not to interfere with the weights of previous tasks.
     \end{enumerate}
     
     \item \textbf{Regularization-based methods}: these works do not store raw data and reduce the memory requirements. An extra regularization term is introduced in the loss function, in this way it is possible to learn new classes while maintaining the previous knowledge.
     \begin{enumerate}
         \item \textit{Prior-focused methods} \cite{kirkpatrick2017overcoming, lee2017overcoming, zenke2017continual, liu2018rotate, aljundi2018memory, chaudhry2018riemannian}: this approach tries to estimate the importance of the neural network parameters to avoid forgetting as much as possible. Then, when training on new tasks, the optimization process penalizes changes to important weights.
-        \item \textit{Data-focused methods} \cite{li2017learning, jung2016less, zhang2020class, rannen2017encoder}: this approach uses knowledge distillation \cite{hinton2015distilling} treating the old model trained on the previous task as the \textit{teacher}, and use it combined with the new data to train the \textit{student} model.
+        \item \textit{Data-focused methods} \cite{li2017learning, jung2016less, zhang2020class, rannen2017encoder}: this approach uses knowledge distillation \cite{hinton2015distilling} by treating the old model trained on the previous task as the \textit{teacher}, and uses the new data to train the \textit{student} model.
     \end{enumerate}
     \item \textbf{Parameter isolation methods}: this class of methods use different model parameters for each task.
     \begin{enumerate}
@@ -219,13 +219,12 @@ on GitHub where they introduce \textit{PyCIL: A Python Toolbox for Class-Increme
     suffers from severe catastrophic forgetting.
     \item \textbf{Replay}: the baseline method which updates parameters on new task with instances
     from the new dataset and exemplar set.
-    \item \textbf{EWC} \cite{kirkpatrick2017overcoming}: uses Fisher Information Matrix to weigh the
+    \item \textbf{EWC} \cite{kirkpatrick2017overcoming}: uses Fisher Information Matrix to weight the
     importance of each parameter and regularizes important parameters to overcome forgetting.
     \item \textbf{LwF} \cite{li2017learning}: uses knowledge distillation \cite{hinton2015distilling} to
     align the output probability between old and new model.
     \item \textbf{iCaRL} \cite{rebuffi2017icarl}: uses knowledge distillation  \cite{hinton2015distilling}  to
-    align the output probability between old and new model. Moreover, it also introduces
-    exemplar set for rehearsal and uses nearest center mean classifier.
+    align the output probability between old and new model. It also introduces exemplar set for rehearsal and uses nearest center mean classifier.
     \item \textbf{GEM} \cite{lopez2017gradient}: uses exemplars as the regularization of
     gradient updating.
     \item \textbf{BiC} \cite{wu2019large}: trains an extra adaptation layer based on iCaRL, which
@@ -234,10 +233,9 @@ on GitHub where they introduce \textit{PyCIL: A Python Toolbox for Class-Increme
     based on iCaRL.
     \item \textbf{PODNet} \cite{douillard2020podnet}: introduces a novel distillation loss (Pooled
     Outputs Distillation) constraining the whole convolutional network.
-    \item \textbf{DER} \cite{yan2021dynamically}: a learning approach that utilizes a dynamically
+    \item \textbf{DER} \cite{yan2021dynamically}: utilizes a dynamically
     expandable representation for more effective incremental concept modeling.
-    \item \textbf{Coil} \cite{zhou2021co}: builds bi-directional knowledge transfer in the class incremental learning process with optimal transport \cite{villani2009optimal}. It first addresses
-    the ability that old model can help learning new classes.
+    \item \textbf{Coil} \cite{zhou2021co}: builds bi-directional knowledge transfer in the class incremental learning process with optimal transport \cite{villani2009optimal}.
 \end{itemize}
 
 The CIL algorithms are tested on two different benchmark datasets, i.e. CIFAR100 \cite{krizhevsky2009learning} and ImageNet100 \cite{russakovsky2015imagenet}. These datasets are composed of 100 classes and the experiments performed in PyCIL \cite{zhou2021pycil} adopt this CIL setup: 10 classes for the initial task followed by 9 incremental learning steps consisting of 10 new classes. Then, the top-1 accuracy is reported for all the incremental learning steps.
@@ -287,7 +285,7 @@ The results are shown in \autoref{fig:cil-comaprison} and the top-1 accuracy at 
     \label{table:cil-results}
     \end{table}
 
-From the final results reported in PyCIL in \autoref{table:cil-results} it is clear that the best performing algorithm on the datasets considered is DER \cite{yan2021dynamically}. Moreover, even if the authors of PyCIL re-implement the DER algorithm, they point out how the performance obtained from the implementation of PyCIL is very similar to that reported in the original DER paper (69.74 top-1 accuracy in PyCIL vs 69.41 reported by the DER paper).
+From the final results reported in PyCIL in \autoref{table:cil-results} it is clear that the best performing algorithm on the datasets considered is DER \cite{yan2021dynamically}. Moreover, even if the authors of PyCIL re-implement the DER algorithm, they point out how the performance obtained from the implementation of PyCIL is very similar to that reported in the original DER paper (69.74 of top-1 accuracy in PyCIL vs 69.41 reported by the DER paper).
 
 
 \subsection{DER: an algorithm for class incremental learning}
@@ -302,7 +300,7 @@ DER (Dynamically Expandable Representation) is an algorithm for CIL that utilize
         \includegraphics[width=\columnwidth]{images/der-pipeline.png}
     \end{center}
 
-	\caption{Dynamically Expandable Representation Learning method: at step $t$, the model is composed of the super-feature extractor $\Phi_t$ and the classifier $\mathcal{H}_t$. $\Phi_t$ is created using the previous super-feature extractor $\Phi_{t-1}$ and the newly created feature extractor $\mathcal{F}_t$. An auxiliary classifier $\mathcal{H}_t^a$ is introduced to regularize the model. Moreover, a channel-level
+	\caption{Dynamically Expandable Representation Learning method: at incremental learning step $t$, the model is composed of the super-feature extractor $\Phi_t$ and the classifier $\mathcal{H}_t$. $\Phi_t$ is created using the previous super-feature extractor $\Phi_{t-1}$ and the newly created feature extractor $\mathcal{F}_t$. An auxiliary classifier $\mathcal{H}_t^a$ is introduced to regularize the model. Moreover, a channel-level
     mask-based pruning strategy is used to maintain a compact representation of the model \cite{yan2021dynamically}.}%
 	\label{fig:der-pipeline}%
 \end{figure}
@@ -310,13 +308,13 @@ DER (Dynamically Expandable Representation) is an algorithm for CIL that utilize
 
 Each incremental learning iteration of the DER algorithm described in \cite{yan2021dynamically} can be divided into three stages (see \autoref{fig:der-pipeline}):
 \begin{enumerate}
-    \item \textbf{Representation Learning Stage}: the architecture of the Convolutional Neural Network (CNN) is dynamically expanded at each new incremental learning iteration.
+    \item \textbf{Representation Learning Stage}: the architecture of the Convolutional Neural Network (CNN).
     \item \textbf{Masking and Pruning}: the CNN introduced in the last incremental learning stage is pruned using a channel-level masked-based method.
-    \item \textbf{Classifier Learning Stage}: retrain the classifier with currently available data $\tilde{\mathcal{D}}_t = \mathcal{D}_t \cup \mathcal{M}_t$ at step $t$.
+    \item \textbf{Classifier Learning Stage}: retraining of the classifier with currently available data $\tilde{\mathcal{D}}_t = \mathcal{D}_t \cup \mathcal{M}_t$ at step $t$.
 \end{enumerate}
 
 \subsubsection{Expandable Representation Learning}
-At step $t$ of the incremental learning, the algorithm defines a super-feature extractor $\Phi_t$ and the classifier $\mathcal{H}_t$. The algorithm expands the neural network architecture at each step by considering the previous super-feature extractor $\Phi_{t-1}$ and a newly created feature extractor $\mathcal{F}_t$. The feature extractor $\mathcal{F}_t$ consists of a CNN, and the classifier $\mathcal{H}_t$ is a Fully Connected (FC) layer after the super-feature extractor $\Phi_t$.
+At step $t$ of incremental learning, the algorithm defines a super-feature extractor $\Phi_t$ and the classifier $\mathcal{H}_t$. The algorithm expands the neural network architecture at each step by considering the previous super-feature extractor $\Phi_{t-1}$ and a newly created feature extractor $\mathcal{F}_t$. The feature extractor $\mathcal{F}_t$ consists of a CNN, and the classifier $\mathcal{H}_t$ is the Fully Connected (FC) layer after the super-feature extractor $\Phi_t$.
 
 Given an image $\textbf{x} \in \tilde{\mathcal{D}}_t$, the feature $\mathbf{u}$ extracted by $\Phi_t$ is the result of the following concatenation:
 \begin{equation}
@@ -332,7 +330,7 @@ Finally, the actual predicted class is given by:
 \end{equation}
 The stability-plasticity tradeoff is taken into account considering these two aspects:
 \begin{itemize}
-    \item To \textbf{retain old knowledge}, the parameters of $\mathcal{H}_t$ for the old features are inherited from $\mathcal{H}_{t-1}$, and its newly added parameters are randomly initialized.
+    \item To \textbf{retain old knowledge}, the parameters of $\mathcal{H}_t$ associated with the old features are inherited from $\mathcal{H}_{t-1}$, and its newly added parameters are randomly initialized.
     \item To \textbf{reduce catastrophic forgetting}, the parameters $\theta_{\Phi_{t-1}}$ and the statistics of Batch Normalization \cite{ioffe2015batch} of the old super-feature extractor $\Phi_{t-1}$ are frozen at step $t$, in this way it is possible to maintain the previously learned knowledge.
 \end{itemize}
 
@@ -361,20 +359,20 @@ where $\textbf{e}_l$ is the learnable mask parameters, $\sigma(\cdot)$ is the si
 
 Using the pruning mechanism, the super-feature $\tilde{\textbf{u}}$ of step $t$ can be rewritten as:
 \begin{equation}
-    \tilde{\textbf{u}} = \Phi_t^P(\textbf{x}) = [\mathcal{F}_1^P, \mathcal{F}_2^P,\, ..., \phi(\textbf{x})]
+    \tilde{\textbf{u}} = \Phi_t^P(\textbf{x}) = [\mathcal{F}_1^P, \mathcal{F}_2^P,\, ..., \phi_t(\textbf{x})]
 \end{equation}
 
-During the training $\phi_t(\textbf{x})$ corresponds to $\mathcal{F}_t(\textbf{x})$ with the soft mask. At inference time, thanks to the scaling factor $s$, the masks associated to the filters of the convolutional layers are pruned assigning a large value to $s$. In this way it is possible to obtain $\mathcal{F}_t^P = \phi_t(\textbf{x})$.
+During training, $\phi_t(\textbf{x})$ corresponds to $\mathcal{F}_t(\textbf{x})$ with the associated masks. At inference time, thanks to the scaling factor $s$, the masks associated to the filters of the convolutional layers are pruned assigning a large value to $s$. In this way it is possible to obtain $\mathcal{F}_t^P = \phi_t(\textbf{x})$.
 
-The parameters $\textbf{e}_l$ which define the masks are learned during training. During an epoch, a linear annealing schedule is applied for scaling factor $s$ as follows:
+The parameters $\textbf{e}_l$ which define the masks are learned during training. During an epoch, a linear annealing schedule is applied for the scaling factor $s$ as follows:
 \begin{equation}
     s = \frac{1}{s_{max}} + (s_{max}- \frac{1}{s_{max}}) \frac{b-1}{B-1}
 \end{equation}
 where $b$ is the batch index, $B$ is the number of batches in one epoch, and $s_{max} \gg 1$ is a hyperparameter.
 
-In this way, at the start of the training epoch, $s$ has a small value. Thus, given that $\textbf{m}_l=\sigma(s \textbf{e}_l)$, the gating mechanism leads to values close to $0.5$, regardless of the $\textbf{e}_l$ vector. Then the mask is progressively binarized with the increasing of the batch index $b$ within a epoch.
+In this way, at the beginning of the training epoch, $s$ has a small value. Thus, given that $\textbf{m}_l=\sigma(s \textbf{e}_l)$, the gating mechanism leads to values close to $0.5$, regardless of the $\textbf{e}_l$ vector. Then the mask is progressively binarized as the batch index $b$ increases within an epoch.
 
-As described in \cite{serra2018overcoming}, to solve the problem of the unstable gradient of $\textbf{e}_l$ due to the $s$ schedule, the gradient $\textbf{g}_{\textbf{e}_l}$ with respect to $\textbf{e}_l$ is compensated as follows:
+As described in \cite{serra2018overcoming}, to solve the problem of the unstable gradient of $\textbf{e}_l$ due to $s$, the gradient $\textbf{g}_{\textbf{e}_l}$ with respect to $\textbf{e}_l$ is compensated as follows:
 \begin{equation}
     \textbf{g}_{\textbf{e}_l} ' = \frac{\sigma(\textbf{e}_l)[1-\sigma(\textbf{e}_l)]}{s\sigma(s\textbf{e}_l)[1-\sigma(s\textbf{e}_l)]}\textbf{g}_{\textbf{e}_l}
 \end{equation}
@@ -382,7 +380,7 @@ where $\textbf{g}_{\textbf{e}_l} '$ is the compensated gradient.
 
 
 \subsubsection{Classifier Learning}
-After the representation learning stage, the classifier head is re-trained to reduce the bias in the classifier weight introduced by the imbalanced training set $\tilde{\mathcal{D}}_t$, this is due to the difference in sample size between the old classes in the memory $\mathcal{M}_t$ and the currently available data $\mathcal{D}_t$. To this purpose, the classifier weight are randomly initialized and the classifier is trained on a class-balanced sample of $\tilde{\mathcal{D}}_t$ using the cross-entropy loss with a temperature $\delta$ in the Softmax presented in \cite{zhao2020maintaining}. 
+After the representation learning stage, the classifier head is re-trained to reduce the bias in the classifier weight introduced by the imbalanced training set $\tilde{\mathcal{D}}_t$, this is due to the difference in sample size between the old classes in the memory $\mathcal{M}_t$ and the currently available data $\mathcal{D}_t$. To this purpose, the classifier weights are randomly initialized and the classifier is trained on a class-balanced sample of $\tilde{\mathcal{D}}_t$ using the cross-entropy loss with a temperature $\delta$ in the Softmax presented in \cite{zhao2020maintaining}. 
 
 \subsubsection{Loss function}
 The loss function used to change the parameters of the model is defined by three components:
@@ -396,13 +394,13 @@ The loss function used to change the parameters of the model is defined by three
     \item \textbf{Auxiliary Loss}: the second loss component is relative to the auxiliary classifier $\mathcal{H}_t^a$. Consistently with \autoref{eq:loss-aux}, given an image $\textbf{x}_i$ and the associated label $y_i \in \mathcal{Y}_i \cup \{"old"\}$, the auxiliary loss component is defined as follows:
     \begin{equation} \label{eq:loss2}
         \mathcal{L}_{\mathcal{H}_t^a} = - \frac{1}{|\tilde{\mathcal{D}}_t|}
-            \sum_{i=1}^{|\tilde{\mathcal{D}}_t|}log(p_{\mathcal{H}_t}(y=y_i | \textbf{x}_i))
+            \sum_{i=1}^{|\tilde{\mathcal{D}}_t|}log(p_{\mathcal{H}_t^a}(y=y_i | \textbf{x}_i))
     \end{equation}
-    \item \textbf{Sparsity Loss}: the third loss component encourage the model to maximally reduce the number of parameters with a minimal performance drop. To this reason the sparsity loss considers the ratio of used weights in all available weights:
+    \item \textbf{Sparsity Loss}: the third loss component encourages the model to maximally reduce the number of parameters with a minimal performance drop. To this reason, the sparsity loss considers the ratio of used weights in all available weights:
     \begin{equation} \label{eq:loss3}
         \mathcal{L}_S = \frac{\sum_{l=1}^L K_l \| \textbf{m}_{l-1} \|_1  \| \textbf{m}_{l} \|_1 }{\sum_{l=1}^L K_l c_{l-1} c_{l}}
     \end{equation}
-    where $L$ is the number of layers and $K_l$ is the kernel size of convolutional layer $l$.
+    where $L$ is the number of layers and $K_l$ is the kernel size of the convolutional layer $l$.
 \end{enumerate}
 
 The final loss function is given by the weighted average of \autoref{eq:loss1}, \autoref{eq:loss2} and \autoref{eq:loss3}:
@@ -414,7 +412,7 @@ where $\lambda_a$ and $\lambda_s$ are the hyper-parameter to control the effect 
 \section{Weight aligning}
 Weight aligning (WA) proposed in \cite{zhao2020maintaining} is a method to alleviate catastrophic forgetting in Deep Neural Networks (DNNs). In their work the authors show how a model trained for a CIL task tends
 to classify objects into new classes, treating old classes unfairly. This is due to the weights
-in the trained model's FC layer which are heavily biased. WA aims to correct bias in the FC layer.
+in the FC layer of the trained model, which are heavily biased. WA aims to correct bias in the FC layer.
 
 \subsubsection{Biased Weights in the FC Layer}
 \label{sec:wa-biased}
@@ -424,34 +422,33 @@ At the $t$-th incremental learning step, the model is given by:
 \end{equation}
 where:
 \begin{itemize}
-    \item $\Phi(\textbf{x})$ is the feature extractor which outputs a $d$-dimensional feature vector.
+    \item $\Phi(\textbf{x})$ is the super-feature extractor which outputs a $d$-dimensional feature vector.
     \item $o(\textbf{x})$ is the ($C_{old}^t + C^t$)-dimensional vector of the logits produced in output by the model. $C_{old}^t$ and $C^t$ represent respectively the number of old and new classes at the $t$-th incremental task. 
-    \item $W \in \mathbb{R}^{d \times (C_{old}^t + C^t)}$ represents the parameters of the FC layer. $W$ can be espressed as $W = {w_c, \, 1 \leq c \leq C_{old}^b + C^b}$, where $w_c$ is a $d$-dimensional weight vector for the $c^{th}$ class.
+    \item $W \in \mathbb{R}^{d \times (C_{old}^t + C^t)}$ represents the parameters of the FC layer. $W$ can be expressed as $W = \{w_c, \, 1 \leq c \leq C_{old}^b + C^b \}$, where $w_c$ is a $d$-dimensional weight vector for the $c^{th}$ class.
 \end{itemize}
 The output logits for the $c^{th}$ class are calculated as:
 \begin{equation}
     o_c(\textbf{x}) = \textbf{w}_c^T \Phi (\textbf{x})
 \end{equation}
-The motivation behind WA is the observation that the norms of weight vectors for new classes are larger, thus leading the output logits for new classes to be larger in general. As a result, the biased FC layer in the model tends to predict an input image as belonging to a new class. This analysis emerges from the experiments performed in \cite{zhao2020maintaining} shown in \autoref{fig:wa-biased}.
+The motivation behind WA is the observation that the norms of the weight vectors for new classes are larger, consequently the output logits for new classes tend to be larger as well. As a result, the biased FC layer in the model tends to predict an input image as belonging to a new class. This analysis emerges from the experiments performed in \cite{zhao2020maintaining} and shown in \autoref{fig:wa-biased}.
 \begin{figure}%
-    \hspace*{-1.25 cm}
-	\subfloat[$C^0=20,C_{old}^0=0$]{{\includegraphics[width=0.22\textwidth]{images/wa-biased_1.png} }}
+	\centerline{\subfloat[$C^0=20,C_{old}^0=0$]{{\includegraphics[width=0.22\textwidth]{images/wa-biased_1.png} }}
 	\subfloat[$C^1=20,C_{old}^1=20$]{{\includegraphics[width=0.22\textwidth]{images/wa-biased_2.png} }}
 	\subfloat[$C^2=20,C_{old}^2=40$]{{\includegraphics[width=0.22\textwidth]{images/wa-biased_3.png} }}
 	\subfloat[$C^3=20,C_{old}^3=60$]{{\includegraphics[width=0.22\textwidth]{images/wa-biased_4.png} }}
-	\subfloat[$C^4=20,C_{old}^4=80$]{{\includegraphics[width=0.22\textwidth]{images/wa-biased_5.png} }}
-	\caption{Norm of the weight vectors $\{\textbf{w}_c\}$ after each incremental step. (a) Represents the initial step; (b), (c), (d), (e) are the $1^{st}$, $2^{nd}$, $3^{rd}$ and $4^{th}$ incremental step. The figure show the difference in the norms of the weight between the old and new classes \cite{zhao2020maintaining}.}%
+	\subfloat[$C^4=20,C_{old}^4=80$]{{\includegraphics[width=0.22\textwidth]{images/wa-biased_5.png} }}}
+	\caption{Norms of the weight vectors $\{\textbf{w}_c\}$ after each incremental step. (a) Represents the initial step; (b), (c), (d), (e) are the $1^{st}$, $2^{nd}$, $3^{rd}$ and $4^{th}$ incremental step. The figure shows the difference in the norms of the weight vectors between the old and new classes \cite{zhao2020maintaining}.}%
 	\label{fig:wa-biased}
 \end{figure}
 
-\subsubsection{Correct the biased weights in the FC Layer}
-The bias in the weights of the FC layer described in \autoref{sec:wa-biased} is corrected using the WA tec.  The FC layer can be rewritten as $\textbf{W} = (\textbf{W}_{old}, \textbf{W}_{new})$, where 
+\subsubsection{Correcting biased weights in the FC Layer}
+The bias in the weights of the FC layer described in \autoref{sec:wa-biased} is corrected using the WA technique. The FC layer can be rewritten as $\textbf{W} = (\textbf{W}_{old}, \textbf{W}_{new})$, where 
 $$\textbf{W}_{old} = (\textbf{w}_1, \textbf{w}_2, \, ..., \textbf{w}_{C_{old}^t}) \in \mathbb{R}^{d \times C_{old}^t},$$
 $$\textbf{W}_{new} = (\textbf{w}_{C_{old}^t + 1}, \, ..., \textbf{w}_{C_{old}^t + C^t}) \in \mathbb{R}^{d \times C^t}.$$
 The norms of the weight vectors of old and new classes can be denoted by:
 $$\textbf{Norm}_{old} = (\| \textbf{w}_1 \|,  \, ..., \| \textbf{w}_{C_{old}^t \|}),$$
 $$\textbf{Norm}_{new} = (\| \textbf{w}_{C_{old}^t + 1} \|, \, ..., \| \textbf{w}_{C_{old}^t + C^t} \|).$$
-Then, the weights for new classes is normalized as follows:
+Then, the weights for new classes are normalized as follows:
 \begin{equation}
     \hat{\textbf{W}}_{new} = \gamma \cdot \textbf{W}_{new}
 \end{equation}
@@ -459,7 +456,7 @@ where
 \begin{equation}
     \gamma = \frac{Mean(\textbf{Norm}_{old} )}{Mean(\textbf{Norm}_{new})}
 \end{equation}
-$Mean(\cdot)$ returns the mean value of elements in the vector.
+$Mean(\cdot)$ returns the mean value of the elements in the vector.
 
 This correction on the FC layer directly affects the output logits produced by the model. In fact, the output logits of the model before WA can be expressed as:
 \begin{equation}
