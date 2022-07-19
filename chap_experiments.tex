@@ -1002,7 +1002,7 @@ The results of this evaluation are shown in \autoref{table:exp-end2end}. As a co
 Still, it must be considered that SeeTek is an open-set retrieval method, thus not an incremental learning approach.
 In an open-set retrieval approach, the classification of an input logo is performed by assigning the class of the nearest logo in a latent space. By doing so, if an input logo is similar, but does not actually match the training images, it is still recognized, but the system will not be able to integrate new knowledge to recognize new logos.
 
-As we can see from \autoref{table:exp-end2end-sota} and \autoref{table:exp-det_2993}, the end-to-end performance obtained by SeeTek (70.46\% mAP@.5) is very similar to that obtained by the proposed class agnostic logo detector ignoring the classification stage performed by the CIL model (70.60\% mAP@.5). This is a clear indication that the detector is a bottleneck for final performance. To assess this problem, a yolo-based detector with a larger number of parameters could be used (e.g. YOLOv5x6 in \autoref{table:yolo-sizes}) or a detector based on transformer architecture could be tested (as proposed by Carion et al. in \cite{carion2020end}).
+As we can see from \autoref{table:exp-end2end-sota} and \autoref{table:exp-det_2993}, the end-to-end performance obtained by SeeTek (70.46\% mAP@.5) is very similar to that obtained by the proposed class agnostic logo detector ignoring the classification stage performed by the CIL model (70.60\% mAP@.5). This is a clear indication that the detector is a bottleneck for the final performance. To tackle this problem, a yolo-based detector with a larger number of parameters could be used (e.g. YOLOv5x6 in \autoref{table:yolo-sizes}) or a detector based on transformer architecture could be tested (as proposed by Carion et al. in \cite{carion2020end}).
 
 \begin{table}[H]
     \centering
@@ -1063,7 +1063,7 @@ To further investigate the mispredictions of the CIL classifier, the Confusion M
 The CM is an $n \times n$ matrix, where $n = 2993$ is the number of classes.
 By definition, $CM_{ij}$ is equal to the number of observations belonging to class $i$ and predicted as class $j$.
 
-Since simply plotting the confusion matrix does not lead to useful insights (due to the large number of entries in the matrix i.e. $2993 \times 2993$), the CM is analyzed by counting the number of entries $CM_{ij} \geq k$ such that $i \neq j$, where $k$ is a threshold.
+Since simply plotting the CM does not lead to useful insights (due to the large number of entries in the matrix i.e. $2993 \times 2993$), the CM is analyzed by counting the number of entries $CM_{ij} \geq k$ such that $i \neq j$, where $k$ is a threshold.
 Then, the number of entries $CM_{ij} \geq k$ as a function of $k$ is shown in \autoref{fig:exp-cm}.
 As we can see, with $k=10$ (i.e. at least 10 times a class $i$ is predicted as class $j$), the number of entries $CM_{ij} \geq 10$ is only 7, note that $CM_{ij} < 40$ for each $i \neq j$.
 
