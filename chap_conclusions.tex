@@ -29,7 +29,7 @@ The results show how, considering the class-agnostic logo detector trained on 10
 On the other hand, the model proposed by Amazon in SeeTek \cite{li2022seetek} performs better on the LogoDet-3K dataset. However, it should be taken into account that SeeTek considers an open-set retrieval environment as opposed to an incremental learning setup considered in this thesis.
 Furthermore, from the final results obtained by the proposed system emerge that the class-agnostic logo detector acts as a bottleneck for the whole system, thus severely limiting the final performance.
 
-Future improvements of this work could tackle the problem related to the class-agnostic logo detector by considering a version of the YOLO detector \cite{glenn_jocher_2021_5563715} with a higher number of parameters and and a larger input image size.
+Future improvements of this work could tackle the problem related to the class-agnostic logo detector by considering a version of the YOLO detector \cite{glenn_jocher_2021_5563715} with a higher number of parameters and a larger input image size.
 However, this would lead to higher computational requirements to train the model as well as longer training and inference times.
 Another way to address this problem is to experiment with different architectures for the detector.
 Additional improvements of the system are related to the second stage of the pipeline performed by the CIL classifier.
