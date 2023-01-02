@@ -1,5 +1,5 @@
 # Master Thesis
-## Logo Detection and Recognition
+## Thesis: Logo Detection and Recognition
 
 [Master's thesis](https://github.com/gianlucagiudice/master_thesis-logo_detection_recognition/blob/main/thesis.pdf)
 
